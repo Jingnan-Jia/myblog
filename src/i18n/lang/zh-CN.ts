@@ -9,6 +9,7 @@ export default {
     publications: "论文",
     archives: "归档",
     search: "搜索",
+    tutorials: "教程",
   },
   post: {
     publishedAt: "发布于",
