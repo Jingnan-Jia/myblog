@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-10-26
-title: "Custom domain for your website"
+title: "为你的网站设置自定义域名"
 draft: false
 tags:
   - DNS
-description: "You may think that yourname.github.io is not cool enough compared with yourname.com. No worries, we can change the domain."
+description: "你可能觉得 yourname.github.io 不够酷，想换成自定义域名。"
 ---
 
 

@@ -1,12 +1,12 @@
 ---
 pubDatetime: 2022-10-24
-title: "Remote debugging"
+title: "远程调试"
 draft: false
 tags:
   - PyCharm
   - VS Code
   - remote debugging
-description: "PyCharm and VS Code provide remote debugging features. Let's see how to implement it, respectively."
+description: "PyCharm 和 VS Code 提供了远程调试功能。"
 ---
 
 

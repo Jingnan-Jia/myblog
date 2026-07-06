@@ -1,6 +1,6 @@
 ---
 pubDatetime: 2023-06-04
-title: "point cloud"
+title: "点云"
 draft: false
 tags:
   - Knowledge

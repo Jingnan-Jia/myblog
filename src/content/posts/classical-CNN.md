@@ -1,6 +1,6 @@
 ---
 pubDatetime: 2022-10-30
-title: "Classical papers on CNN"
+title: "CNN 经典论文"
 draft: false
 tags:
   - AI

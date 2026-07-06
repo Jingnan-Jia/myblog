@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2023-01-26
-title: "How to get the fiel creation or docification time with seconds?"
+title: "如何获取文件的创建或修改时间（精确到秒）"
 draft: false
 tags:
   - Python
-description: "I want to get the fiel creation or docification time with seconds!!!"
+description: "需要获取文件的创建或修改时间（精确到秒）。"
 ---
 
 

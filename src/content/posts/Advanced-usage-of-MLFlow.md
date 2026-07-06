@@ -1,12 +1,12 @@
 ---
 pubDatetime: 2021-12-12
-title: "Advanced usage of MLFlow"
+title: "MLFlow 高级用法"
 draft: false
 tags:
   - Python packages
   - Tutorial
   - AI tools
-description: "MLflow is an open source platform to manage the ML lifecycle, including experimentation, reproducibility, deployment, and a central model registry."
+description: "MLflow 是一个开源平台，用于管理机器学习生命周期，包括实验、可复现性、部署和中心模型注册。"
 ---
 
 MLflow is an open source platform to manage the ML lifecycle, including experimentation, reproducibility, deployment, and a central model registry. 

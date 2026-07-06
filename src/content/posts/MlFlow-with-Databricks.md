@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2022-12-14
-title: "MLflow FAQ"
+title: "MLflow 常见问题"
 draft: false
 tags:
   - Knowledge
   - Tools
-description: "Today I learnt how to use MLFlow in Databricks [1]."
+description: "今天学习了如何在 Databricks 中使用 MLFlow。"
 ---
 
 

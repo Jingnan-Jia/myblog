@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-12-24
-title: "Tsne"
+title: "t-SNE 降维可视化"
 draft: false
 tags:
   - others
-description: "Tsne"
+description: "t-SNE 降维可视化方法"
 ---
 
 

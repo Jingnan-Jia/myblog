@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2023-05-16
-title: "FAQ for Overleaf and LaTex"
+title: "Overleaf 和 LaTeX 常见问题"
 draft: false
 tags:
   - Knowledge
-description: "1. How to balance the LaTex and Word?"
+description: "1. 如何权衡 LaTeX 和 Word？"
 ---
 
 

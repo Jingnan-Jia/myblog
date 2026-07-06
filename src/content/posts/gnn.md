@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2024-02-22
-title: "Graph neural networks"
+title: "图神经网络"
 draft: false
 tags:
   - Knowledge
   - Technique
-description: "Graph neural network (GNN) is used for unstructured data. I created a PPT for the general introduction on GNN."
+description: "图神经网络用于处理非结构化数据。"
 ---
 
 

@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2022-10-29
-title: "What is face/edge/cornor connectivity?"
+title: "什么是面/边/角连接？"
 draft: false
 tags:
   - connectivity
   - 3D image
-description: "From the above image (several voxels in 3D image) we can observe that in 3D image, two neighboring pixels could have 3 different relationships: face-connected (red voxel VS gray voxel, distance=1), ed…"
+description: ""
 ---
 
 

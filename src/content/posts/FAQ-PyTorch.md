@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-12-30
-title: "FAQ for PyTorch"
+title: "PyTorch 常见问题"
 draft: false
 tags:
   - Knowledge
-description: "The shapes of different data are not the same, so they cannot be alligned or collated correctly."
+description: "不同数据的形状不一致，无法正确对齐或拼接。"
 ---
 
 ## Error: RuntimeError: Trying to resize storage that is not resizable

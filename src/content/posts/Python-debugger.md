@@ -1,6 +1,6 @@
 ---
 pubDatetime: 2023-02-08
-title: "Python debugger"
+title: "Python 调试器"
 draft: false
 tags:
   - Python

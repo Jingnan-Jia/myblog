@@ -6,10 +6,12 @@ import Header from "@/components/Header.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import Main from "@/components/Main.astro";
 import Footer from "@/components/Footer.astro";
+import { useTranslations } from "@/i18n";
 import config from "@/config";
 
 const pubs = await getCollection("publications");
 const locale = Astro.currentLocale ?? config.site.lang;
+const t = useTranslations(locale);
 
 const byYear = new Map<number, typeof pubs>();
 for (const p of pubs) {
@@ -20,10 +22,10 @@ for (const p of pubs) {
 const years = [...byYear.keys()].sort((a, b) => b - a);
 ---
 
-<Layout title={`Publications | ${config.site.title}`}>
+<Layout title={`论文发表 | ${config.site.title}`}>
   <Header />
   <Breadcrumb />
-  <Main pageTitle="Publications" pageDesc="Academic publications and papers">
+  <Main pageTitle="论文发表" pageDesc="学术论文与研究成果">
     <div class="flex flex-col gap-10">
       {
         years.map((year) => (

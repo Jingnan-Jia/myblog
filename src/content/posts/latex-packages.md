@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2024-01-12
-title: "Latex package system is a shit!"
+title: "LaTeX 包系统真是一团糟！"
 draft: false
 tags:
   - Knowledge
   - Technique
-description: "List of latex packages and their main functions"
+description: "LaTeX 包列表及其主要功能"
 ---
 
 

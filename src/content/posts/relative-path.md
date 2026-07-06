@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-10-24
-title: "Relative Path"
+title: "相对路径"
 draft: false
 tags:
   - Python
-description: "How to set path is a hot discussed topic."
+description: "如何设置路径是一个经常讨论的话题。"
 ---
 
 

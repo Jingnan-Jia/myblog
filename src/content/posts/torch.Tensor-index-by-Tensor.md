@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2022-12-12
-title: "How to index `torch.Tensor` using `Tensor`"
+title: "如何使用 Tensor 索引 torch.Tensor"
 draft: false
 tags:
   - Python
   - Pytorch
-description: "In numpy.Aarray or torch.Tensor, we have the following methods to index an Array or Tensor:"
+description: "在 numpy.Array 或 torch.Tensor 中，有以下几种索引方法："
 ---
 
 

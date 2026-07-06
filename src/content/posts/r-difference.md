@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-12-16
-title: "Why the r value calculated from the assemble of different folds is lower each fold?"
+title: "为什么不同折合并计算出的 r 值低于每折的 r 值？"
 draft: false
 tags:
   - Knowledge
-description: "A picture is worth a thousand words."
+description: "一图胜千言。"
 ---
 
 A picture is worth a thousand words.

@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2020-11-11
-title: "Slurm tips"
+title: "MATLAB 技巧"
 draft: false
 tags:
   - Slurm
   - Tutorial
-description: "As the teaching assitant, I need to be familar with MATLAB more. The following commands will be used in courses."
+description: "作为助教，需要熟悉 MATLAB 的基本操作。"
 ---
 
 

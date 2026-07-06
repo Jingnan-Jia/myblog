@@ -1,6 +1,6 @@
 ---
 pubDatetime: 2022-04-20
-title: "Automatically Generate Documentation for your Project/Package"
+title: "自动为你的项目/包生成文档"
 draft: false
 tags:
   - Python
@@ -8,7 +8,7 @@ tags:
   - Sphinx
   - reStructuredText
   - Tutorial
-description: "Once we built a project/package, we need to tell the users how to use it. Normally we could write a manual. But with the update of the code, the manual needs to be updated at the same time. How to syn…"
+description: ""
 ---
 
 

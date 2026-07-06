@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2023-08-04
-title: "How to absolutely remove big or sensitive files from git history?"
+title: "如何彻底删除 Git 历史中的大文件或敏感文件"
 draft: false
 tags:
   - Knowledge
   - Technique
-description: "git-filter-repo"
+description: "git-filter-repo 工具"
 ---
 
 

@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2021-11-11
-title: "Introduction to MONAI"
+title: "MONAI 入门"
 draft: false
 tags:
   - Python packages
   - Tutorial
-description: "The first time I touched MONAI is from a challenge: COVID-19 Lung CT Lesion Segmentation Challenge - 2020."
+description: "我第一次接触 MONAI 是在一个挑战赛：COVID-19"
 ---
 
 

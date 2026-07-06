@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-12-06
-title: "安装open3d"
+title: "安装 Open3D"
 draft: false
 tags:
   - Python
-description: "At first, I tried to install it on cluster, but enven it successfully installed, it raised ERROR during importing it in Python. This is because it require glibc higher than 2.18 or 2.27 (newest versio…"
+description: "起初尝试在集群上安装，但即使安装成功也存在问题。"
 ---
 
 

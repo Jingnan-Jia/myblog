@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2023-05-25
-title: "FAQ"
+title: "WandB 常见问题"
 draft: false
 tags:
   - Knowledge
-description: "1. When I successfully installed WandB, I could not use it. The erroe is:"
+description: "1. 成功安装 WandB 后无法使用。"
 ---
 
 

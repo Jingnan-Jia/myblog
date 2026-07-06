@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-12-06
-title: "FAQ"
+title: "常见问题"
 draft: false
 tags:
   - Knowledge
-description: "Working with Anaconda in Visual Studio Code"
+description: "在 Visual Studio Code 中使用 Anaconda"
 ---
 
 

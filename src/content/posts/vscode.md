@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2023-02-08
-title: "FAQ for VS Code"
+title: "VS Code 常见问题"
 draft: false
 tags:
   - VS Code
-description: "This issue is pretty annoying! I coundnot find the solution."
+description: "这个问题很烦人！找不到解决方案。"
 ---
 
 

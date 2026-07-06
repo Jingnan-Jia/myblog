@@ -1,12 +1,12 @@
 ---
 pubDatetime: 2022-10-12
-title: "Build your personal website"
+title: "搭建个人网站"
 draft: false
 tags:
   - Github
   - Website
   - Tutorial
-description: "This blog will show the step-by-step experience building my own academic website."
+description: "本文将分享我搭建个人网站的逐步经验。"
 ---
 
 

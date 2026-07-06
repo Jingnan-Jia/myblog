@@ -1,12 +1,12 @@
 ---
 pubDatetime: 2022-10-12
-title: "Build a dual-language website"
+title: "搭建双语网站"
 draft: false
 tags:
   - Github
   - Website
   - Tutorial
-description: "I checked a great number of blogs about how to build a dual-language website. Most of them need to write seperate content by myself for two languages which is not what I expected. So I finally found m…"
+description: ""
 ---
 
 

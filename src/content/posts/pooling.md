@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-10-30
-title: "Why Pooling? 为什么要用Pooling?"
+title: "为什么要用 Pooling？"
 draft: false
 tags:
   - Pooling
-description: "Answer:"
+description: "答案："
 ---
 
 

@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2021-06-06
-title: "Checklist for a cluster"
+title: "集群工作检查清单"
 draft: false
 tags:
   - cluster
-description: "Checklist for Remote cluster working"
+description: "远程集群工作检查清单"
 ---
 
 

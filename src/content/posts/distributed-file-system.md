@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-12-14
-title: "Distributed file system"
+title: "分布式文件系统"
 draft: false
 tags:
   - Knowledge
-description: "存储和数据直连，拓展性、灵活性差。"
+description: "存储和数据直连，扩展性、灵活性差。"
 ---
 
 

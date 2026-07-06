@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2020-06-03
-title: "MeVisLab tips"
+title: "MeVisLab 使用技巧"
 draft: false
 tags:
   - MeVisLab
-description: "Record some knowledge I need to know for MeVisLab."
+description: "记录 MeVisLab 相关知识点。"
 ---
 
 

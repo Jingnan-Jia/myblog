@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-12-19
-title: "YAML for data split"
+title: "使用 YAML 进行数据划分"
 draft: false
 tags:
   - Knowledge
-description: "Normally I used a fixed random seed to split dataset. However, I found that my dataset has been slightly and gradually updated with the development of the project."
+description: "通常使用固定随机种子划分数据集，但随着项目开发，数据集会逐渐更新。"
 ---
 
 

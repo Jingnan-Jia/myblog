@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2024-02-22
-title: "Multiple variable regression analysis"
+title: "多元变量回归分析"
 draft: false
 tags:
   - Knowledge
   - Technique
-description: "答：线性回归不需要。参见：https://blog.csdn.net/shwanma/article/details/80154888"
+description: "答：线性回归不需要。参见相关讨论。"
 ---
 
 

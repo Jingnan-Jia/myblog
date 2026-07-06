@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2023-05-29
-title: "Python Environments variables"
+title: "Python 环境变量"
 draft: false
 tags:
   - Knowledge
-description: "环境变量是指当在终端运行命令的时候，从哪些文件夹去找这个命令。比如python有很多个也许，用哪一个文件夹里的python呢？就需要沿着环境变量里的所有文件夹一个一个去找，一旦找到就停止，不再继续。"
+description: "环境变量是指当在终端运行命令的时候，从哪些文件夹去找这个命令。"
 ---
 
 环境变量是指当在终端运行命令的时候，从哪些文件夹去找这个命令。比如`python`有很多个也许，用哪一个文件夹里的python呢？就需要沿着环境变量里的所有文件夹一个一个去找，一旦找到就停止，不再继续。

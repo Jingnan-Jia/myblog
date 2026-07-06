@@ -1,12 +1,12 @@
 ---
 pubDatetime: 2022-12-23
-title: "Use Cloudflare to accelerate your website hosted on GitHub"
+title: "使用 Cloudflare 加速你的 GitHub 网站"
 draft: false
 tags:
   - Github
   - Website
   - Tutorial
-description: "Some of my friends in mainland of China complained that they could not visit my website fluently. I need to do something to solve it!"
+description: "一些中国大陆的朋友抱怨网站加载太慢。"
 ---
 
 

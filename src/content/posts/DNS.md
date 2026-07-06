@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-10-26
-title: "Set DNS of a custom domain for your website"
+title: "为自定义域名设置 DNS"
 draft: false
 tags:
   - DNS
-description: "我们首先要了解域名和IP地址的区别。IP地址是互联网上计算机唯一的逻辑地址，通过IP地址实现不同计算机之间的相互通信，每台联网计算机都需要通过IP地址来互相联系和分别。"
+description: "我们首先要了解域名和IP地址的区别。"
 ---
 
 

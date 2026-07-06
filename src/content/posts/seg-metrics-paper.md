@@ -1,13 +1,13 @@
 ---
 pubDatetime: 2024-03-07
-title: "seg-metrics: a Python package to compute segmentation metrics"
+title: "seg-metrics：一个用于计算分割指标的 Python 包"
 draft: false
 tags:
   - Python
   - segmentation
   - medical imaging
   - metrics
-description: "Medical image segmentation (MIS) is an important task in medical image processing. Unfortunately, there is not a out-of-the-box python package for the evaluation metrics of MIS. Therefore, we develope…"
+description: "医学图像分割的重要任务，开发了一个开箱即用的 Python 包来计算分割评估指标。"
 ---
 
 

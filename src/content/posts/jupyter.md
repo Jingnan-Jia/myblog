@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2020-12-12
-title: "Jupyter tips"
+title: "Jupyter 使用技巧"
 draft: false
 tags:
   - Jupyter
   - Tutorial
-description: "Some jupyter notebook use tips."
+description: "一些 Jupyter Notebook 使用技巧。"
 ---
 
 

@@ -1,12 +1,12 @@
 ---
 pubDatetime: 2022-10-15
-title: "Ruby"
+title: "Ruby 知识"
 draft: false
 tags:
   - Jekyll
   - Ruby
   - Tutorial
-description: "Comparision between Packaging commands in Ruby and Python."
+description: "Ruby 与 Python 中包管理命令的对比。"
 ---
 
 

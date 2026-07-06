@@ -1,6 +1,6 @@
 ---
 pubDatetime: 2021-03-08
-title: "Full checklist for a complete python project"
+title: "完整 Python 项目检查清单"
 draft: false
 tags:
   - python

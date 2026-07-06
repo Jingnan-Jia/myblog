@@ -1,13 +1,13 @@
 ---
 pubDatetime: 2022-01-07
-title: "Add search to your website"
+title: "为你的网站添加搜索功能"
 draft: false
 tags:
   - Github
   - Website
   - Tutorial
   - Jekyll
-description: "As a technical blog, with the increasement of contents, it becomes difficult to remember all the things you have written"
+description: "作为技术博客，随着内容增多，记住所有写过的东西变得越来越困难。"
 ---
 
 

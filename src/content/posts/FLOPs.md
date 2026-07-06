@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-12-19
-title: "FLOPs and parameters in Neural Networks"
+title: "神经网络中的 FLOPs 与参数量"
 draft: false
 tags:
   - Knowledge
-description: "There are several metrics:"
+description: "有以下几种指标："
 ---
 
 

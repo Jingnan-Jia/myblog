@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2020-09-12
-title: "Slurm tips"
+title: "Slurm 使用技巧"
 draft: false
 tags:
   - Slurm
   - Tutorial
-description: "We know that slurm has three status: allocated, mix and idle. But what type resources do these status mean? CPU, GPU or RAM? What status it would be if CPU is run out but GPU and RAM are still availab…"
+description: "我们知道 Slurm 有三种状态：allocated、mix 和 idle。"
 ---
 
 

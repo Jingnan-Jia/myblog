@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2023-12-03
-title: "Latex"
+title: "LaTeX 基础"
 draft: false
 tags:
   - Knowledge
   - Technique
-description: "我个人的理解哈，Latex就类似html，先写一堆代码，然后由后台算法引擎渲染和处理之后得到好看的pdf（或者网页）。"
+description: "我个人的理解，LaTeX 类似 HTML，先写代码，再由渲染引擎处理得到好看的 PDF。"
 ---
 
 # Latex的介绍

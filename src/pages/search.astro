@@ -63,11 +63,11 @@ const t = useTranslations(locale);
       // @ts-expect-error — Missing types for @pagefind/default-ui package.
       const { PagefindUI } = await import("@pagefind/default-ui");
 
-      // Display warning inn dev mode
+      // 开发模式下显示提示
       if (import.meta.env.DEV) {
         pageFindSearch.innerHTML = `
             <div class="bg-muted/75 rounded p-4 space-y-4 mb-4">
-              <p><strong>DEV mode Warning! </strong>You need to build the project at least once to see the search results during development.</p>
+              <p><strong>开发模式提示！</strong>你需要至少构建一次项目才能在开发环境中看到搜索结果。</p>
               <code class="block bg-black text-white px-2 py-1 rounded">pnpm run build</code>
             </div>
           `;

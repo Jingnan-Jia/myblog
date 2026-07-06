@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-08-29
-title: "Linux commands"
+title: "Linux 常用命令"
 draft: false
 tags:
   - Linux
-description: "Record some Linux commands I used in case I need them in the future."
+description: "记录一些常用 Linux 命令，以备不时之需。"
 ---
 
 

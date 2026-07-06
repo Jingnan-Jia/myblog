@@ -28,7 +28,7 @@ const { Content } = await render(pub);
       href={getRelativeLocaleUrl(locale, "publications")}
       class="text-accent hover:underline text-sm"
     >
-      ← Publications
+      ← 返回论文列表
     </a>
 
     <h1 class="text-accent mt-3 text-2xl font-bold sm:text-3xl">
@@ -47,7 +47,7 @@ const { Content } = await render(pub);
             target="_blank"
             rel="noopener noreferrer"
           >
-            Download paper
+            下载论文
           </a>
         </p>
       )
@@ -56,7 +56,7 @@ const { Content } = await render(pub);
     {
       pub.data.citation && (
         <p class="text-muted-foreground mt-3 text-sm">
-          <strong>Citation:</strong> {pub.data.citation}
+          <strong>引用：</strong> {pub.data.citation}
         </p>
       )
     }

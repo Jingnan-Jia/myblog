@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2021-01-06
-title: "PyCharm tips"
+title: "PyCharm 使用技巧"
 draft: false
 tags:
   - PyCharm
-description: "PyCharm tips"
+description: "PyCharm 使用技巧"
 ---
 
 

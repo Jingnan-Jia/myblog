@@ -1,12 +1,12 @@
 ---
 pubDatetime: 2021-02-03
-title: "Add Google Analytics feature"
+title: "添加 Google Analytics"
 draft: false
 tags:
   - Github
   - Website
   - Tutorial
-description: "This will record how to add google analytics."
+description: "本文将记录如何添加 Google Analytics。"
 ---
 
 

@@ -1,6 +1,6 @@
 ---
 pubDatetime: 2022-12-21
-title: "FAQ for Git"
+title: "Git 常见问题"
 draft: false
 tags:
   - Knowledge

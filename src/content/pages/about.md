@@ -3,35 +3,30 @@ title: "关于"
 description: "关于我和我的博客"
 ---
 
-我来测试一下这个效果。 with [Astro](https://astro.build/) and [Tailwind CSS](https://tailwindcss.com/).
+你好！我是**贾京南**，欢迎来到我的个人博客。
 
-![Astro Paper](@/assets/images/astropaper-og.jpg)
+## 关于我
 
-AstroPaper provides a solid foundation for blogs, or even portfolios\_ with full markdown support, built-in dark mode, and a clean layout that works out-of-the-box.
+我目前从事医学影像分析与人工智能相关的研究工作。我的研究兴趣包括：
 
-The blog posts in this theme also serve as guides, docs or example articles\_ making AstroPaper a flexible starting point for your next content-driven site.
+- 医学图像分割与分类
+- 深度学习在医学影像中的应用
+- 影像组学与生物标志物发现
+- Python 科学计算与开源工具开发
 
-## Features
+## 关于本博客
 
-AstroPaper comes with a set of useful features that make content publishing easy and effective:
+这个博客基于 [Astro](https://astro.build/) 和 [Tailwind CSS](https://tailwindcss.com/) 构建，使用 [AstroPaper](https://github.com/satnaing/astro-paper) 主题。在这里我会分享：
 
-- SEO-friendly
-- Fast performance
-- Light & dark mode
-- Highly customizable
-- Organizable blog posts
-- Responsive & accessible
-- Static search with [PageFind](https://pagefind.app/)
-- Automatic social image generation
+- 科研工作中的经验与思考
+- 技术笔记与编程心得
+- 论文解读与学术讨论
 
-and so much more.
+## 联系我
 
-## Show your support
+如果你对我的研究感兴趣，或者有任何问题与建议，欢迎通过以下方式联系我：
 
-If you like [AstroPaper](https://github.com/satnaing/astro-paper), consider giving it a star ⭐️.
+- GitHub: [Jingnan-Jia](https://github.com/Jingnan-Jia)
+- 邮箱: jiajingnan2222@gmail.com
 
-Found a bug 🐛 or have an improvement ✨ in mind? Feel free to open an [issue](https://github.com/satnaing/astro-paper/issues), submit a [pull request](https://github.com/satnaing/astro-paper/pulls) or start a [discussion](https://github.com/satnaing/astro-paper/discussions).
-
-If you find this theme helpful, you can also [sponsor me on GitHub](https://github.com/sponsors/satnaing) or [buy me a coffee](https://buymeacoffee.com/satnaing) to show your support — every penny counts.
-
-Kyay zuu! 🙏🏼
+感谢你的来访！🙏

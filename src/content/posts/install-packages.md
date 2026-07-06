@@ -1,10 +1,10 @@
 ---
 pubDatetime: 2022-11-30
-title: "安装Python包的N种方式"
+title: "安装 Python 包的 N 种方式"
 draft: false
 tags:
   - Knowledge
-description: "绝大部分的Python包可以通过pip install [packagename]来安装。因为绝大部分Python包都会被上传到PyPi."
+description: "绝大部分的 Python 包可以通过 pip install [包名] 来安装。"
 ---
 
 

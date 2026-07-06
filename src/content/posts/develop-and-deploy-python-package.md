@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2020-05-19
-title: "Develop and release your python package"
+title: "开发并发布你的 Python 包"
 draft: false
 tags:
   - Python
   - Tutorial
-description: "Develop and release your python package"
+description: "开发并发布你的 Python 包"
 ---
 
 

@@ -1,11 +1,11 @@
 ---
 pubDatetime: 2021-10-16
-title: "Checklist for a complete deep learning python project"
+title: "完整深度学习 Python 项目检查清单"
 draft: false
 tags:
   - python
   - Tutorial
-description: "Itemss you need to know for your AI project."
+description: "你的 AI 项目需要了解的事项。"
 ---
 
 
