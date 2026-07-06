@@ -1,0 +1,123 @@
+---
+pubDatetime: 2022-10-24
+title: "SSH 知识详解 Knowledge"
+draft: false
+tags:
+  - ssh
+  - linux
+  - remote debug
+description: "今天想使用VS Code的远程debug功能，所以需要回忆一下SSH的相关知识。"
+---
+
+
+今天想使用VS Code的[远程debug功能](/_technical_blog/2022-10-24-remote-debug)，所以需要回忆一下SSH的相关知识。
+
+## 什么是SSH？
+简单说，SSH是一种网络协议，用于计算机之间的加密登录。如果一个用户从本地计算机，使用SSH协议登录另一台远程计算机，我们就可以认为，这种登录是安全的，即使被中途截获，密码也不会泄露。最早的时候，互联网通信都是明文通信，一旦被截获，内容就暴露无疑。1995年，芬兰学者Tatu Ylonen设计了SSH协议，将登录信息全部加密，成为互联网安全的一个基本解决方案，迅速在全世界获得推广，目前已经成为Linux系统的标准配置。
+SSH只是一种协议，存在多种实现，既有商业实现，也有开源实现。本文针对的实现是OpenSSH，它是自由软件，应用非常广泛。这里只讨论SSH在Linux Shell中的用法。如果要在Windows系统中使用SSH，会用到另一种软件PuTTY，这需要另文介绍。
+
+## SSH原理以及中间人攻击
+SSH之所以能够保证安全，原因在于它采用了公钥加密。
+整个过程是这样的：
+
+1. 远程主机收到用户的登录请求，把自己的公钥发给用户。
+1. 用户使用这个公钥，将登录密码加密后，发送回来。
+1. 远程主机用自己的私钥，解密登录密码，如果密码正确，就同意用户登录。
+
+这个过程本身是安全的，但是实施的时候存在一个风险：如果有人截获了登录请求，然后冒充远程主机，将伪造的公钥发给用户，那么用户很难辨别真伪。因为不像https协议，SSH协议的公钥是没有证书中心（CA）公证的，也就是说，都是自己签发的。
+可以设想，如果攻击者插在用户与远程主机之间（比如在公共的wifi区域），用伪造的公钥，获取用户的登录密码。再用这个密码登录远程主机，那么SSH的安全机制就荡然无存了。这种风险就是著名的"中间人攻击"（Man-in-the-middle attack）。
+
+## SSH的用处
+SSH主要用于远程登录服务器（主要是Linux服务器），进行代码部署、运行、debugging等。
+
+## SSH的安装
+### Linux系统安装SSH
+Linux系统上有开源软件openssh可以实现ssh协议。OpenSSH分客户端openssh-client和服务器端openssh-server
+
+如果你只是想登陆别的机器的SSH只需要安装openssh-client（ubuntu有默认安装，如果没有则sudoapt-get install openssh-client），如果要使本机开放SSH服务就需要安装openssh-server。
+
+运行在服务器上的Linux系统默认已经安装了SSH-server.
+运行在用户端的Ubuntu等很多Linux系统默认已经安装了ssh client。
+尽管如此，如果你想给一个Linux系统安装ssh的服务器端或/和客户端，请看[此文](https://www.cnblogs.com/x_wukong/p/4475567.html)。
+
+
+### Windows系统安装SSH
+Windows一般极少作为服务器端，不过如果你发现一台Windows服务器，它大概率都是拥有ssh服务器端功能的。运行在用户端的Windows系统不一定有SSH客户端，需要安装SSH客户端软件。如何安装请看下文。
+
+## 常用的SSH客户端有哪些？
+Windows和linux都有很多专门的SSH客户端软件（或者具有SSH客户端功能的软件）。只是Windows系统的客户端软件一般有UI界面，Linux系统的客户端软件一般没有UI界面，通过命令行运行。
+
+- Mobaxterm (只支持windows系统)
+- PowerShell (只支持windows系统)
+- WSL 
+- xshell
+- Putty
+- XManager
+- OpenSSH
+
+更多见[此博文](https://www.v1tx.com/post/best-ssh-client/)。
+
+
+
+## SSH秘钥登录
+从上文的SSH原理可知，SSH 默认采用密码登录，这种方法有很多缺点，简单的密码不安全，复杂的密码不容易记忆，每次手动输入也很麻烦。所以，密钥登录是更好的解决方案。秘钥登录又称为**免密（码）登录**。
+
+使用密码登录时候，客户端不需要生成或者使用自己的私钥或公钥，整个过程使用服务器端的公钥即可。但是客户端使用秘钥登录的话，需要自己生成自己的私钥公钥对，然后把公钥传给服务器端。具体登录的原理如下：
+
+利用密钥生成器制作一对密钥——一只公钥和一只私钥。将公钥添加到服务器的某个账户上，然后在客户端利用私钥即可完成认证并登录。这样一来，没有私钥，任何人都无法通过 SSH 暴力破解你的密码来远程登录到系统。此外，如果将公钥复制到其他账户甚至主机，利用私钥也可以登录。
+
+具体登录过程如下：
+SSH 密钥登录分为以下的步骤。
+
+预备步骤，客户端通过ssh-keygen生成自己的公钥和私钥。
+
+- 第一步，手动将客户端的公钥放入远程服务器的指定位置。
+- 第二步，客户端向服务器发起 SSH 登录的请求。
+- 第三步，服务器收到用户 SSH 登录的请求，发送一些随机数据给用户，要求用户证明自己的身份。
+- 第四步，客户端收到服务器发来的数据，使用私钥对数据进行签名，然后再发还给服务器。
+- 第五步，服务器收到客户端发来的加密签名后，使用对应的公钥解密，然后跟原始数据比较。如果一致，就允许用户登录。
+
+具体执行命令详见[网上其他文章](https://www.runoob.com/w3cnote/set-ssh-login-key.html)。
+
+## 同一个用户端机器上的同一个SSH客户端软件连接多个服务器的话，需要生成多个秘钥对吗？
+比如用MobaXterm去免密码连接多个服务器，需要在MobaXterm里生成多个秘钥对吗？
+答案是：不需要。通常，我们只会生成一个SSH Key，名字叫id_rsa，然后提交到多个不同的网站（如：GitHub、DevCloud或Gitee）。再比如，我们在PowerShell上生成了一堆秘钥对之后把公钥传给多个服务器，就可以在PowerShell上免密码登录多个服务器。
+
+
+## 同一个用户端机器上的多个SSH客户端软件连接同一个服务器的话，需要生成多个秘钥对吗？
+
+一个客户端机器（Windows系统或者Linux系统）可以有很多SSH客户端软件。比如Windows上有PowerShell和MobaXterm。每个软件都可以生成SSH秘钥对，存放在各自软件对应的文件夹下（也可以自定义文件夹）。所以一个客户端机器是可能存在多个私钥公钥对的。
+
+比如MobaXterm软件生成的秘钥对存放在`C:\Users\jjia\DOCUME~1\MOBAXT~1\home\.ssh`(可以通过在MobaXterm界面运行`open /home/mobaxterm`来弹出ssh所在文件夹)。通过MobaXterm运行ssh命令默认都会调用这里的秘钥对。
+
+所以在MobaXterm里配置过后，可以通过MobaXterm免密登录。但是不代表这个配置可以同步应用到其他软件（比如PowerShell或者VS Code）。因为其他软件可能应用的是不同文件夹下的不同的私钥，因此对于其他软件又需要按照类似的方法单独配置免密登录。比如，我在MobaXterm里生成了秘钥对，把MobaXterm默认的.ssh文件夹下的公钥复制到`remote` server上。但是VS Code是没法使用的。我需要在VS Code的终端重新生成秘钥对，然后重新把新的秘钥对添加到远程的服务器上。注意不要覆盖掉远程服务器之前的公钥。具体可以采用`ssh-copy-id -i ~/.ssh/id_rsa.pub <user-name>@server.xxx.xxx`的方式。对于有gateway的情况，需要先复制公钥到gateway: `ssh-copy-id -i ~/.ssh/id_rsa.pub <user-name>@gateway.xxx.xxx`，再复制公钥到remote server: `ssh-copy-id -i ~/.ssh/id_rsa.pub <user-name>@server.xxx.xxx`。
+
+或者，在其他软件中专门设置去调用MobaXterm里生成的秘钥对 (**但是我对如何设置并没有太多经验，这里留待其他人补充**)。
+
+
+## 在一台电脑上，如何配置多个SSH Key？
+存在另一种需要，我们在同一个网站上，注册了两个用户名，通常网站不会允许我们为这两个用户名，配置同一个SSH Key，这时候就会有些麻烦。我们就需要在一台电脑上，如何配置多个SSH Key.
+
+详见[此文](https://support.huaweicloud.com/codehub_faq/codehub_faq_0002.html)
+
+## SSH高级配置 (need to be reviewed and correced)
+Take my ssh config as an example.
+
+```bash
+Host login2tunnel
+    HostName xxx.xxx.xxx
+    User myname
+    ProxyJump myname@xxx.xxx.yyy:22
+    LocalForward 5000 localhost:5000
+    LocalForward 22 xxx.xxx.xxx:22
+    ServerAliveInterval 60
+```
+
+### 跳板机/代理配置
+
+### 端口转发
+
+
+参考资料：
+- https://blog.csdn.net/u013452337/article/details/80847113
+- https://www.runoob.com/w3cnote/set-ssh-login-key.html

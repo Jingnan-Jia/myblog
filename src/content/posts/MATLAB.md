@@ -1,0 +1,50 @@
+---
+pubDatetime: 2020-11-11
+title: "Slurm tips"
+draft: false
+tags:
+  - Slurm
+  - Tutorial
+description: "As the teaching assitant, I need to be familar with MATLAB more. The following commands will be used in courses."
+---
+
+
+As the teaching assitant, I need to be familar with MATLAB more. The following commands will be used in courses.
+
+## Day 1
+fullfile()
+imread(fullfile())
+disp()
+Functions:
+figure()
+subplot()
+imshow()
+title()
+size()
+ndims()
+zeros()
+num2str()
+imresize()
+
+## day 2
+addpath(fullfile())
+load_nii()
+view_nii()
+min()
+max()
+mat2gray()
+round()
+make_nii()
+save_nii()
+bar()
+histogram()
+rgb2gray()
+histeq()
+
+Color_channel_thresholding
+
+data1 = np.array(data1)
+data2 = np.array(data2)
+# compare samples
+stat, p = wilcoxon(data1, data2)
+print('Statistics=%.3f, p=%.3f' % (stat, p))

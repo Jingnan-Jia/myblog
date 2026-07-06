@@ -1,0 +1,56 @@
+---
+import { getCollection } from "astro:content";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import config from "@/config";
+
+const pubs = await getCollection("publications");
+const locale = Astro.currentLocale ?? config.site.lang;
+
+const byYear = new Map<number, typeof pubs>();
+for (const p of pubs) {
+  const y = p.data.year;
+  if (!byYear.has(y)) byYear.set(y, []);
+  byYear.get(y)!.push(p);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+
+<Layout title={`Publications | ${config.site.title}`}>
+  <Header />
+  <Breadcrumb />
+  <Main pageTitle="Publications" pageDesc="Academic publications and papers">
+    <div class="flex flex-col gap-10">
+      {
+        years.map((year) => (
+          <section>
+            <h2 class="text-accent mb-3 text-xl font-bold">{year}</h2>
+            <ul class="flex flex-col gap-4">
+              {byYear.get(year)!.map((p) => (
+                <li class="border-border border-l-2 ps-4">
+                  <a
+                    href={getRelativeLocaleUrl(locale, `publications/${p.id}`)}
+                    class="text-accent hover:underline font-medium"
+                  >
+                    {p.data.title}
+                  </a>
+                  {p.data.venue && (
+                    <span class="text-muted-foreground"> — {p.data.venue}</span>
+                  )}
+                  {p.data.excerpt && (
+                    <p class="text-muted-foreground mt-1 text-sm">{p.data.excerpt}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </Main>
+  <Footer />
+</Layout>

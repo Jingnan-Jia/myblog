@@ -1,0 +1,69 @@
+---
+pubDatetime: 2022-12-12
+title: "How to index `torch.Tensor` using `Tensor`"
+draft: false
+tags:
+  - Python
+  - Pytorch
+description: "In numpy.Aarray or torch.Tensor, we have the following methods to index an Array or Tensor:"
+---
+
+
+
+
+# How to index `torch.Tensor` using `Tensor`?
+In `numpy.Aarray` or `torch.Tensor`, we have the following methods to index an `Array` or `Tensor`:
+
+```
+np_a = np.random.randn((30,4,5))
+ts_a = torch.randn((30,4,5))
+```
+
+# 1. Basic indexing: `int` number to index one element 
+```
+tmp = np_a[1]
+tmp = ts_a[1]
+```
+# 2. Less basic indexing: `start:end` to index a range of continuous elements
+```
+tmp = np_a[10:13]
+tmp = ts_a[:13]
+tmp = np_a[:-2]
+```
+# 3. Advanced indexing: index multiple elements in different positions ([Indexing with Arrays/Tensors of Indices](https://numpy.org/doc/stable/user/quickstart.html#advanced-indexing-and-index-tricks))
+e.g. select the 1st, 3rd, 8th, and 29th element from np_a.
+
+e.g. select the [0,0,0] and [1,1,1] and [20,1,2] three elements. 
+# 
+
+## Array with shape of [N,]
+```
+a = np.arange(12)**2  # the first 12 square numbers
+i = np.array([1,1,3,8,5])
+a[i]  # array([ 1,  1,  9, 64, 25])
+
+j = np.array([[3, 4], [9, 7]])  # a bidimensional array of indices
+a[j]  # the same shape as `j` array([[ 9, 16], [81, 49]])
+```
+
+## Array with shape of [N,M,...]
+https://numpy.org/doc/stable/user/quickstart.html#advanced-indexing-and-index-tricks
+
+## Using one Array_A to index another Array_B, the new Array has the same shape with Array_A.
+
+## [What will happen if using multiple Arrays to index another Array_T](https://numpy.org/doc/stable/user/quickstart.html#advanced-indexing-and-index-tricks:~:text=We%20can%20also%20give%20indexes%20for%20more%20than%20one%20dimension.%20The%20arrays%20of%20indices%20for%20each%20dimension%20must%20have%20the%20same%20shape.)?
+
+Answer: The 'multiple Arrays' should have the same shapes and the number of Arrays should be the same as the dimensions of the target Array_T. Then the output Array has the same shape with the indexing Arrays.
+
+## What will happen if the dimension of target Array is smaller than the indexing Array?
+
+e.g. 
+```
+Arr_T = np.ones((5,6))
+Arr_idx = np.ones((2,3,4))
+Arr_T[Arr_idx,Arr_idx]
+```
+It does not matter. The output Array has the same shape with `Arr_idx`.
+
+**Note:** The first and second method also apply to `list`.
+

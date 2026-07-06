@@ -1,0 +1,49 @@
+---
+pubDatetime: 2023-05-16
+title: "FAQ for Overleaf and LaTex"
+draft: false
+tags:
+  - Knowledge
+description: "1. How to balance the LaTex and Word?"
+---
+
+
+1. How to balance the LaTex and Word?
+
+    Answer: Sending Word to supervisors if they preferred (convert LaTex to Word with `pandoc` if we already have LaTex version). Go back to LaTex in the final version.
+
+    From: https://www.zhihu.com/question/22316670
+
+
+2. How to convert LaTex to Word?
+    Answer1 (easiest and most correct way to convert PF to Word): use adobe online: https://www.adobe.com/acrobat/online/pdf-to-word.html
+    Answer2: `pandoc` 
+
+    **Example：**
+    ``` 
+    # in windows terminal
+    pandoc main.tex -o main.docx
+    ```
+    We need at first download `pandoc.exe` from `https://pandoc.org/installing.html` and save the `pandoc.exe` to the same directory with LaTex files.
+
+
+    **Advanced Example**；
+    ```
+    pandoc input.tex  --filter pandoc-crossref --citeproc --csl springer-basic-note.csl  --bibliography=reference.bib -M reference-section-title=Reference  -M autoEqnLabels -M tableEqns  -t docx+native_numbering --number-sections -o output.docx
+    ```
+    In the above example, the `springer-basic-note.csl` should be downloaded from `https://www.zotero.org/styles?format=numeric` and save it to the same directory with pandoc.exe. we can also download other styles like `ieee` from there.
+
+    The above advanced example requires `pandoc-crossref` which could be installed from: https://github.com/lierdakil/pandoc-crossref/releases
+    
+    From: 
+
+       1. https://blog.csdn.net/weixin_39504048/article/details/80999030
+       2. [Markdown 与 Pandoc](https://sspai.com/post/64842)
+       3. [使用 Pandoc 将 Latex 转化为 Word (进阶版本，包括引用图标和references) ](https://xhan97.github.io/latex/PandocLatex2Word.html)
+
+
+3. How to cleaning up a .bib file?
+
+    Answer: manually clean it and check it.
+
+4. Workflow: Write papers on overflow, download the source files, convert them to docx, send the docx to supervisors to review it, get the feedback, update the overflow (or just update the overflow in the final step before submission).
