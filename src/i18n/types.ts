@@ -8,6 +8,7 @@ export interface UIStrings {
     archives: string;
     search: string;
     tutorials: string;
+    dailyai: string;
   };
   post: {
     publishedAt: string;

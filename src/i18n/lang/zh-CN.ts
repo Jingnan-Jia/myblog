@@ -10,6 +10,7 @@ export default {
     archives: "归档",
     search: "搜索",
     tutorials: "教程",
+    dailyai: "每日AI",
   },
   post: {
     publishedAt: "发布于",

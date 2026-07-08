@@ -1,0 +1,45 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import config from "@/config";
+
+const dailyAi = [
+  {
+    title: "多模态生成 & 语音 & TTS 每日简报",
+    description: "2026年7月8日 · 涵盖多模态生成、语音与 TTS 领域的最新动态与每日简报。",
+    path: "/daily-ai/2026-07-08/",
+    tags: ["每日简报", "多模态", "语音", "TTS"],
+  },
+];
+---
+
+<Layout title={`每日AI | ${config.site.title}`}>
+  <Header />
+  <Breadcrumb />
+  <Main pageTitle="每日AI" pageDesc="每日 AI 领域动态与简报汇总">
+    <div class="grid gap-6 md:grid-cols-2">
+      {
+        dailyAi.map((item) => (
+          <a
+            href={item.path}
+            class="border-border bg-card hover:border-accent rounded-lg border p-6 transition-colors"
+          >
+            <h2 class="text-accent text-xl font-bold">{item.title}</h2>
+            <p class="text-muted-foreground mt-2">{item.description}</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              {item.tags.map((tag) => (
+                <span class="bg-muted rounded-full px-3 py-1 text-xs font-medium">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </Main>
+  <Footer />
+</Layout>

@@ -10,6 +10,7 @@ export default {
     archives: "Archives",
     search: "Search",
     tutorials: "Tutorials",
+    dailyai: "Daily AI",
   },
   post: {
     publishedAt: "Published at",
