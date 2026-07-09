@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多模态生成 & 语音 & TTS 每日简报</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #f5f5f5; color: #333; line-height: 1.8; padding: 20px;
+  }
+  .container { max-width: 720px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 32px 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  h1 { font-size: 22px; text-align: center; margin-bottom: 4px; }
+  h2 { font-size: 17px; margin: 28px 0 14px; padding-bottom: 6px; border-bottom: 1px solid #eee; }
+  h3 { font-size: 15px; margin: 18px 0 8px; }
+  p { font-size: 14px; margin: 6px 0; }
+  a { color: #4A90D9; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  blockquote { margin: 8px 0; padding: 8px 16px; border-left: 3px solid #4A90D9; background: #f8f9fa; border-radius: 0 6px 6px 0; }
+  blockquote p { font-size: 12px; color: #999; margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th { background: #f0f5ff; padding: 8px 10px; text-align: left; font-weight: 600; border: 1px solid #d9e2f0; }
+  td { padding: 8px 10px; border: 1px solid #eee; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+  hr { border: none; border-top: 2px solid #4A90D9; margin: 20px 0 24px; }
+  strong { color: #1a1a1a; }
+  .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #bbb; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🎙️ 多模态生成 &amp; 语音 &amp; TTS 每日简报</h1>
+<p><strong>日期：2026年7月9日（周四）</strong>
+<strong>覆盖：X(Twitter)、GitHub、arXiv、行业新闻</strong></p>
+<hr />
+<h2>一、🔥 头部企业动态</h2>
+<h3>1. OpenAI 正式发布 GPT-Live — 全双工语音模型 <span style="color:red">[重磅]</span></h3>
+<p>7 月 8 日 OpenAI 发布 <strong>GPT-Live</strong>，ChatGPT 第三代语音技术。核心升级：<strong>全双工架构</strong>——AI 可同时听和说，支持自然打断、插话、应和（"嗯"、"懂了"），复杂任务自动后台调用 GPT-5.5 但保持对话流畅。150M+ 周活语音用户。付费用 GPT-Live-1，免费用 mini。iOS/Android/Web 全球上线。X 上评价两极：有人称"最自然的 AI 语音"，也有人认为 Sesame Maya 仍更好。</p>
+<blockquote>
+<p>📎 <a href="https://openai.com/index/introducing-gpt-live/">OpenAI 官方</a> | <a href="https://techcrunch.com/2026/07/08/openai-releases-new-voice-models-for-more-natural-live-conversations/">TechCrunch</a> | <a href="https://www.theregister.com/ai-and-ml/2026/07/09/openai-makes-chatgpt-better-at-banter/">The Register</a> | X: @pirwot, @_EdgeOfTheWeb, @itsauralis</p>
+</blockquote>
+<h3>2. Agora × Gradium 战略合作 — 超低延迟 TTS</h3>
+<p>7 月 9 日，Agora 与 Gradium 宣布合作，将 Gradium TTS 集成到 Agora 对话式 AI 引擎。<strong>155ms 首音延迟</strong>，10 秒音频即可克隆声音，支持云端/私有化/本地部署。</p>
+<blockquote>
+<p>📎 <a href="https://ca.marketscreener.com/news/agora-and-gradium-announce-strategic-partnership-to-bring-ultra-low-latency-text-to-speech-to-conversational-ai-eng-ce7f5ed9de8bfe20">MarketScreener</a></p>
+</blockquote>
+<h3>3. Omilia 发布 Lexis — 企业级联络中心 TTS</h3>
+<p><strong>&lt;45ms 延迟</strong>，SOC 2/HIPAA/GDPR 合规，零第三方数据泄露。25+ 语种，角色化语音预设。</p>
+<blockquote>
+<p>📎 <a href="https://www.speechtechmag.com/Articles/News/Speech-Technology-News/Omilia-Launches-Lexis-TTS-Model-for-Contact-Centers-175649.aspx">SpeechTechMag</a></p>
+</blockquote>
+<hr />
+<h2>二、🚀 开源与技术突破</h2>
+<h3>1. 清华 OpenBMB 开源 VoxCPM2 — 文本描述即可创造新声音</h3>
+<p>清华/智源 OpenBMB 团队开源 <strong>VoxCPM2</strong>：2B 参数，200 万+ 小时训练，30 种语言，48kHz 音质。独特功能：<strong>Voice Design</strong>——用文字描述（如"温暖的老年男性声音"）即可创造新声音，无需参考音频！Apache 2.0。部分指标声称超越 ElevenLabs。</p>
+<blockquote>
+<p>📎 <a href="https://github.com/OpenBMB/VoxCPM">GitHub: OpenBMB/VoxCPM</a></p>
+</blockquote>
+<h3>2. Resemble AI 发布 Chatterbox Nano &amp; Flash</h3>
+<ul>
+<li><strong>Nano (110M)</strong>：边缘设备，CPU 上 3x 实时，支持 [laugh]/[sigh] 标签，MIT 协议</li>
+<li><strong>Flash</strong>：首个生产级扩散-LLM (dLLM) TTS，速度是自回归基准的 2x</li>
+<li>累计下载 1300 万+次</li>
+</ul>
+<blockquote>
+<p>📎 <a href="https://www.resemble.ai/resources/chatterbox-nano-and-flash-speed-at-the-edge-throughput-at-scale">Resemble Blog</a></p>
+</blockquote>
+<h3>3. Mistral 发布 Voxtral TTS — 可跑在手表上</h3>
+<p>基 于 Ministral 3B，<strong>可部署在智能手表/手机</strong>，9 语言，&lt;5 秒声音克隆，90ms 首音延迟。</p>
+<blockquote>
+<p>📎 <a href="https://xix.ai/ainews/mistral-unveils-opensource-speech-generation-model.html">xix.ai 报道</a></p>
+</blockquote>
+<hr />
+<h2>三、📚 学术前沿</h2>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>论文</th>
+<th>亮点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TED-TTS</strong> (ACL 2026) — <a href="https://aclanthology.org/2026.acl-long.1077/">ACL Anthology</a></td>
+<td>无需训练的句内情绪+时长控制，一句话中情绪可切换</td>
+</tr>
+<tr>
+<td><strong>Emotional Flow Rectification</strong> (ACL 2026) — <a href="https://aclanthology.org/2026.acl-long.998/">ACL Anthology</a></td>
+<td>解决高唤醒度 TTS 的"情绪崩溃"问题，无需重新训练</td>
+</tr>
+<tr>
+<td><strong>BlueMagpie-TTS</strong> — <a href="https://arxiv.org/abs/2607.06054">arXiv:2607.06054</a></td>
+<td>台湾腔+中英夹杂 TTS，WER 从 14.83%→5.36%（64% 提升）</td>
+</tr>
+<tr>
+<td><strong>TKTO</strong> (ACL 2026) — <a href="https://aclanthology.org/2026.acl-short.59/">ACL Anthology</a></td>
+<td>Token 级偏好优化 LLM-TTS，日语准确率提升 39%</td>
+</tr>
+<tr>
+<td><strong>LibriQuote</strong> (ACL 2026) — <a href="https://aclanthology.org/2026.findings-acl.308/">ACL Anthology</a></td>
+<td>5,300 小时有声书数据集，标注角色引语情感（"他轻声低语"）</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>四、⚖️ 行业监管</h2>
+<p><strong>EU AI Act 第 50 条</strong> — 8 月 2 日生效倒计时 24 天。要求所有 AI 音频强制可读水印。Chatterbox、Gemini 已内置，多数开源模型仍缺。</p>
+<hr />
+<h2>五、📊 今日关键趋势</h2>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>趋势</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>全双工成为标配</strong></td>
+<td>GPT-Live 正式上线，双向语音从"实验"变"产品"</td>
+</tr>
+<tr>
+<td><strong>Voice Design 新范式</strong></td>
+<td>VoxCPM2 文字描述创造声音，无需参考音频</td>
+</tr>
+<tr>
+<td><strong>端侧 TTS 爆发</strong></td>
+<td>Nano(110M)、Voxtral(手表级)、CPU 实时推理</td>
+</tr>
+<tr>
+<td><strong>企业级 TTS 竞赛</strong></td>
+<td>Lexis(45ms)、Agora(155ms) 争夺延迟和合规</td>
+</tr>
+<tr>
+<td><strong>情绪控制精细化</strong></td>
+<td>句内情绪切换、高唤醒度稳定性成新课题</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<blockquote>
+<p>📌 免责声明：本简报仅作信息整理。每条新闻附出处链接。
+📁 存档：<code>daily-briefings/2026-07-09.md</code></p>
+</blockquote>
+</div>
+</body>
+</html>
