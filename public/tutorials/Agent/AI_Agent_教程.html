@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent 智能体开发系统教程</title>
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --text: #212529;
+            --code-bg: #f1f3f5;
+            --border: #dee2e6;
+            --accent: #4263eb;
+            --heading: #1a1a2e;
+            --blockquote: #e7f5ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                         "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* 标题 */
+        h1 {
+            font-size: 2.2rem;
+            color: var(--heading);
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 0.5rem;
+            margin: 2rem 0 1rem;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            color: var(--heading);
+            margin: 2.5rem 0 1rem;
+            padding-left: 0.5rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            color: #2c3e50;
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.05rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        /* 段落 */
+        p { margin: 0.75rem 0; }
+
+        /* 代码 */
+        code {
+            background: var(--code-bg);
+            padding: 0.15em 0.4em;
+            border-radius: 3px;
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            padding: 1.2rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* 引用 */
+        blockquote {
+            background: var(--blockquote);
+            border-left: 4px solid var(--accent);
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* 表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.92rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+        }
+
+        th {
+            background: #e9ecef;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) { background: #f8f9fa; }
+
+        /* 分割线 */
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* 链接 */
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* 列表 */
+        ul, ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+        li { margin: 0.25rem 0; }
+
+        /* 强调 */
+        strong { color: #2c3e50; }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.3rem; }
+            pre { font-size: 0.8rem; padding: 0.8rem; }
+        }
+
+        /* 打印 */
+        @media print {
+            body { font-size: 12px; }
+            .container { max-width: 100%; }
+            pre { white-space: pre-wrap; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="ai-agent">AI Agent 智能体开发系统教程</h1>
+<blockquote>
+<p>从零构建 AI Agent：一个面向 PhD 研究者的系统化实践教程。<br />
+覆盖 LLM Agent、RAG、Multi-Agent、CV Agent、Task Automation。<br />
+基于 DeepSeek + LangChain/LangGraph + CrewAI。</p>
+</blockquote>
+<h2 id="_1">目录</h2>
+<ol>
+<li><a href="#module-0-api">环境配置与 API 适配</a></li>
+<li><a href="#module-1-agent-python">从零构建 Agent（纯 Python）</a></li>
+<li><a href="#module-2-langchain-langgraph-llm-agent">LangChain + LangGraph 构建 LLM Agent</a></li>
+<li><a href="#module-3-rag-agent">RAG + 知识检索 Agent</a></li>
+<li><a href="#module-4-multi-agent-crewai">Multi-Agent 协作 (CrewAI)</a></li>
+<li><a href="#module-5-cv-agent">CV + Agent 集成</a></li>
+<li><a href="#module-6-task-automation-agent">Task Automation Agent</a></li>
+<li><a href="#module-7-agent">综合项目 -- 科研自动化 Agent</a></li>
+</ol>
+<hr />
+<h2 id="module-0-api">Module 0: 环境配置与 API 适配</h2>
+<h3 id="_2">学习目标</h3>
+<p>配置开发环境，理解 LLM API 调用方式，创建可切换国内模型的统一工厂函数。</p>
+<h3 id="_3">核心概念</h3>
+<h4 id="1-api">1. 国内模型 API 生态</h4>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>API 地址</th>
+<th>兼容性</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DeepSeek</td>
+<td>api.deepseek.com/v1</td>
+<td>OpenAI 兼容</td>
+<td>性价比高，tool calling 强</td>
+</tr>
+<tr>
+<td>智谱 GLM</td>
+<td>open.bigmodel.cn/api/paas/v4</td>
+<td>OpenAI 兼容</td>
+<td>中英双语优秀</td>
+</tr>
+<tr>
+<td>通义千问</td>
+<td>dashscope.aliyuncs.com/compatible-mode/v1</td>
+<td>OpenAI 兼容</td>
+<td>阿里云生态，VL 视觉模型</td>
+</tr>
+</tbody>
+</table>
+<p>所有模型都兼容 OpenAI API 格式，意味着<strong>同一个 <code>ChatOpenAI</code> 类可以调用所有模型</strong>，只需切换 <code>base_url</code>。</p>
+<h4 id="2-llm_factory">2. 为什么需要一个 llm_factory？</h4>
+<p>在开发 Agent 时，你可能需要：<br />
+- 开发阶段用便宜的模型（DeepSeek）<br />
+- 生产阶段用更强的模型（GPT-4o）<br />
+- 视觉任务用多模态模型（通义千问 VL）</p>
+<p><code>llm_factory.py</code> 通过环境变量统一管理这些切换。</p>
+<h4 id="3">3. 关键代码</h4>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">module_00_setup.llm_factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_llm</span>
+
+<span class="c1">## 默认使用 .env 中配置的 provider</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">create_llm</span><span class="p">()</span>
+
+<span class="c1">## 或指定 provider</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">create_llm</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;zhipu&quot;</span><span class="p">)</span>
+
+<span class="c1">## 调用</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;你好&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="_4">动手实践</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 1. 复制配置模板</span>
+cp<span class="w"> </span>.env.template<span class="w"> </span>.env
+<span class="c1">## 2. 编辑 .env 填入 API Key</span>
+<span class="c1">## 3. 验证环境</span>
+python<span class="w"> </span>module_00_setup/check_environment.py
+<span class="c1">## 4. 测试 API 连通性</span>
+python<span class="w"> </span>module_00_setup/llm_factory.py
+</code></pre></div>
+
+<h3 id="_5">关键文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.env.template</code></td>
+<td>API 配置模板</td>
+</tr>
+<tr>
+<td><code>module_00_setup/llm_factory.py</code></td>
+<td>LLM 工厂函数</td>
+</tr>
+<tr>
+<td><code>module_00_setup/check_environment.py</code></td>
+<td>环境检查脚本</td>
+</tr>
+<tr>
+<td><code>requirements.txt</code></td>
+<td>依赖清单</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_6">核心理解</h3>
+<ul>
+<li>所有国内主流模型都提供 OpenAI 兼容 API</li>
+<li>善用 <code>.env</code> 管理敏感信息（<strong>永远不要把 API Key 提交到 git</strong>）</li>
+<li><code>ChatOpenAI</code> 通过 <code>base_url</code> 参数适配任意兼容 API</li>
+</ul>
+<hr />
+<h2 id="module-1-agent-python">Module 1: 从零构建 Agent（纯 Python）</h2>
+<p><strong>这是整个教程最重要的模块</strong>。理解这一章后，你会发现 LangChain、LangGraph 等框架只是"简化了这些步骤"。</p>
+<h3 id="_7">学习路线</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">simple_llm_call</span><span class="o">.</span><span class="n">py</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">tool_schema</span><span class="o">.</span><span class="n">py</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">react_loop</span><span class="o">.</span><span class="n">py</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">memory</span><span class="o">.</span><span class="n">py</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">error_handling</span><span class="o">.</span><span class="n">py</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">full_agent</span><span class="o">.</span><span class="n">py</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">agent</span><span class="o">.</span><span class="n">py</span>
+<span class="w">   </span><span class="p">(</span><span class="err">基础调用</span><span class="p">)</span><span class="w">         </span><span class="p">(</span><span class="err">定义工具</span><span class="p">)</span><span class="w">        </span><span class="p">(</span><span class="err">核心循环</span><span class="p">)</span><span class="w">       </span><span class="p">(</span><span class="err">记忆</span><span class="p">)</span><span class="w">        </span><span class="p">(</span><span class="err">容错</span><span class="p">)</span><span class="w">               </span><span class="p">(</span><span class="err">完整组装</span><span class="p">)</span><span class="w">       </span><span class="p">(</span><span class="err">最终版本</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="11-llm-simple_llm_callpy">1.1 基础 LLM 调用 (<code>simple_llm_call.py</code>)</h3>
+<h4 id="_8">核心概念</h4>
+<p><strong>LLM 的消息格式：</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemMessage</span><span class="p">,</span> <span class="n">HumanMessage</span>
+
+<span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">SystemMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;你是一个自动驾驶专家。&quot;</span><span class="p">),</span>
+    <span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;什么是 BEV 感知？&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</code></pre></div>
+
+<p>三种消息类型：<br />
+- <strong>SystemMessage</strong>: 设定 AI 的角色和行为规则<br />
+- <strong>HumanMessage</strong>: 用户输入<br />
+- <strong>AIMessage</strong>: AI 的回复（用于多轮对话）</p>
+<h4 id="_9">关键参数</h4>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+<th>Agent 开发建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>temperature</code></td>
+<td>控制随机性 (0=确定, 1=创意)</td>
+<td>Agent 中设为 0，确保行为可预测</td>
+</tr>
+<tr>
+<td><code>max_tokens</code></td>
+<td>输出长度上限</td>
+<td>根据任务复杂度设置</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_10">运行</h4>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>module_01_from_scratch/simple_llm_call.py
+</code></pre></div>
+
+<hr />
+<h3 id="12-tool_schemapy">1.2 工具定义 (<code>tool_schema.py</code>)</h3>
+<h4 id="agent">Agent 的本质</h4>
+<div class="codehilite"><pre><span></span><code>LLM (大脑) ──决定调用什么工具──&gt; Tool (手脚) ──执行具体操作──&gt; 返回结果
+</code></pre></div>
+
+<h4 id="_11">一个工具包含什么？</h4>
+<div class="codehilite"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Tool</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>              <span class="c1"># 工具名称 (LLM 用这个名字来调用)</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>       <span class="c1"># 功能描述 (LLM 根据这个判断是否使用)</span>
+    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>       <span class="c1"># 参数 JSON Schema (LLM 按这个格式传参)</span>
+    <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span>     <span class="c1"># 实际的 Python 函数</span>
+</code></pre></div>
+
+<h4 id="description">为什么 description 如此重要？</h4>
+<p><strong>LLM 完全依赖 description 来决定何时调用哪个工具</strong>。一个好的 description 应该：<br />
+1. 清楚说明工具的功能<br />
+2. 暗示什么时候应该用这个工具<br />
+3. 描述参数的含义</p>
+<h4 id="_12">工具注册表</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">TOOL_REGISTRY</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Tool</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;calculator&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;执行数学计算...&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">calculator</span><span class="p">),</span>
+    <span class="n">Tool</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_current_time&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;获取当前时间...&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">get_current_time</span><span class="p">),</span>
+    <span class="n">Tool</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;search_papers&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;搜索论文...&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">search_papers</span><span class="p">),</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<h4 id="_13">运行</h4>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>module_01_from_scratch/tool_schema.py
+</code></pre></div>
+
+<hr />
+<h3 id="13-react-react_looppy">1.3 ReAct 循环 (<code>react_loop.py</code>) ⭐ 核心</h3>
+<h4 id="react-reasoning-acting">ReAct = Reasoning + Acting</h4>
+<p>这是 Ian AI Agent 的"心脏"：</p>
+<div class="codehilite"><pre><span></span><code><span class="err">┌──────────┐</span><span class="w">     </span><span class="err">┌──────────┐</span><span class="w">     </span><span class="err">┌──────────┐</span>
+<span class="err">│</span><span class="w"> </span><span class="n">Thought</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="n">Action</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">Observe</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="p">(</span><span class="err">推理</span><span class="p">)</span><span class="w">    </span><span class="err">│</span><span class="w">     </span><span class="err">│</span><span class="w"> </span><span class="p">(</span><span class="err">调用工具</span><span class="p">)</span><span class="err">│</span><span class="w">     </span><span class="err">│</span><span class="w"> </span><span class="p">(</span><span class="err">观察结果</span><span class="p">)</span><span class="err">│</span>
+<span class="err">└──────────┘</span><span class="w">     </span><span class="err">└──────────┘</span><span class="w">     </span><span class="err">└──────────┘</span>
+<span class="w">     </span><span class="o">^</span><span class="w">                                   </span><span class="err">│</span>
+<span class="w">     </span><span class="err">└───────────────────────────────────┘</span>
+<span class="w">             </span><span class="err">循环直到</span><span class="w"> </span><span class="n">LLM</span><span class="w"> </span><span class="err">给出最终答案</span>
+</code></pre></div>
+
+<h4 id="_14">实现步骤</h4>
+<p><strong>Step 1: System Prompt 告诉 LLM 怎么做</strong></p>
+<div class="codehilite"><pre><span></span><code>你是一个智能助手。当需要获取信息时：
+1. 思考需要什么
+2. 调用工具 (以 JSON 格式输出)
+3. 观察结果
+4. 重复直到能回答
+</code></pre></div>
+
+<p><strong>Step 2: 解析 LLM 的响应</strong></p>
+<p>LLM 返回 JSON：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;calculator&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;action_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;expression&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sqrt(144)&quot;</span><span class="p">}}</span>
+</code></pre></div>
+
+<p>代码解析后调用 <code>calculator(expression="sqrt(144)")</code>。</p>
+<p><strong>Step 3: 执行工具并反馈</strong></p>
+<div class="codehilite"><pre><span></span><code>工具返回: &quot;计算结果: 12.0&quot;
+→ 追加到对话历史
+→ LLM 继续思考或给出最终答案
+</code></pre></div>
+
+<p><strong>Step 4: 循环直到 final_answer</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;final_answer&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;action_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;答案是 12&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<h4 id="_15">关键代码</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReActAgent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">SystemMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">system_prompt</span><span class="p">),</span>
+                     <span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">user_query</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iterations</span><span class="p">):</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">parse_llm_action</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">action</span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;final_answer&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">action</span><span class="p">[</span><span class="s2">&quot;action_input&quot;</span><span class="p">]</span>
+
+            <span class="c1"># 执行工具</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">tool</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">**</span><span class="n">action</span><span class="p">[</span><span class="s2">&quot;action_input&quot;</span><span class="p">])</span>
+            <span class="c1"># 反馈结果</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AIMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;工具结果: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<h4 id="_16">运行</h4>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>module_01_from_scratch/react_loop.py
+</code></pre></div>
+
+<hr />
+<h3 id="14-memorypy">1.4 记忆系统 (<code>memory.py</code>)</h3>
+<h4 id="_17">为什么需要记忆管理？</h4>
+<ul>
+<li>LLM 上下文窗口有限（DeepSeek: 64K tokens）</li>
+<li>长对话超出限制导致错误或高昂成本</li>
+<li>聪明的记忆策略让 Agent 在长任务中保持高效</li>
+</ul>
+<h4 id="_18">两种策略</h4>
+<p><strong>策略 1: 滑动窗口（Sliding Window）</strong></p>
+<p>只保留最近 N 轮对话，旧的直接丢弃。<br />
+- 优点：简单，Token 可控<br />
+- 缺点：旧信息丢失</p>
+<p><strong>策略 2: 摘要记忆（Summary Memory）</strong></p>
+<p>用 LLM 将旧对话压缩为摘要。<br />
+- 优点：保留关键信息，Token 高效<br />
+- 缺点：需要额外 LLM 调用</p>
+<h4 id="_19">运行</h4>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>module_01_from_scratch/memory.py
+</code></pre></div>
+
+<hr />
+<h3 id="15-error_handlingpy">1.5 错误处理 (<code>error_handling.py</code>)</h3>
+<h4 id="agent_1">Agent 可能出错的环节</h4>
+<ol>
+<li><strong>LLM 输出格式错误</strong>：返回的不是合法 JSON</li>
+<li><strong>API 调用失败</strong>：网络波动、限流</li>
+<li><strong>工具执行异常</strong>：参数错误、超时</li>
+</ol>
+<h4 id="_20">容错策略</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 1. 多重 JSON 解析策略</span>
+<span class="n">strategies</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">extract_json_from_markdown</span><span class="p">,</span>
+    <span class="n">extract_first_brace_pair</span><span class="p">,</span>
+    <span class="n">fix_single_quotes</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">## 2. API 重试 (指数退避)</span>
+<span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">RateLimitError</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">attempt</span><span class="p">)</span>  <span class="c1"># 2s, 4s, 8s</span>
+
+<span class="c1">## 3. 最大迭代保护</span>
+<span class="k">if</span> <span class="n">iteration</span> <span class="o">&gt;=</span> <span class="n">max_iterations</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;Agent 停止，请简化问题。&quot;</span>
+</code></pre></div>
+
+<h4 id="_21">运行</h4>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>module_01_from_scratch/error_handling.py
+</code></pre></div>
+
+<hr />
+<h3 id="16-agent-agentpy">1.6 完整 Agent (<code>agent.py</code>)</h3>
+<h4 id="_22">最终架构</h4>
+<div class="codehilite"><pre><span></span><code><span class="nx">Agent</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">LLM</span><span class="w"> </span><span class="p">(</span><span class="nx">DeepSeek</span><span class="w"> </span><span class="nx">via</span><span class="w"> </span><span class="nx">ChatOpenAI</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">Tools</span><span class="w"> </span><span class="p">(</span><span class="nx">calculator</span><span class="p">,</span><span class="w"> </span><span class="nx">search</span><span class="p">,</span><span class="w"> </span><span class="nx">time</span><span class="p">,</span><span class="w"> </span><span class="nx">file</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">Memory</span><span class="w"> </span><span class="p">(</span><span class="nx">summary</span><span class="o">/</span><span class="nx">sliding</span><span class="w"> </span><span class="nx">window</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">ReAct</span><span class="w"> </span><span class="nx">Loop</span><span class="w"> </span><span class="p">(</span><span class="nx">thought</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nx">action</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="k">observe</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">Error</span><span class="w"> </span><span class="nx">Handling</span><span class="w"> </span><span class="p">(</span><span class="nx">retry</span><span class="p">,</span><span class="w"> </span><span class="nx">parse</span><span class="w"> </span><span class="nx">fallback</span><span class="p">,</span><span class="w"> </span><span class="nx">guard</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="_23">使用方式</h4>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">module_01_from_scratch.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="s2">&quot;帮我算一下 256 的平方根&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
+
+<span class="c1">## 多轮对话</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="s2">&quot;搜索 BEV 感知的论文&quot;</span><span class="p">)</span>
+<span class="c1">## Agent 记住了之前的上下文</span>
+</code></pre></div>
+
+<h4 id="_24">运行</h4>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>module_01_from_scratch/agent.py
+</code></pre></div>
+
+<hr />
+<h3 id="module-1">Module 1 核心总结</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Agent = LLM + Tools + Loop</strong></td>
+<td>Agent 的本质是让 LLM 在"思考-行动-观察"循环中使用工具</td>
+</tr>
+<tr>
+<td><strong>System Prompt</strong></td>
+<td>定义 Agent 是谁、有什么工具、如何输出</td>
+</tr>
+<tr>
+<td><strong>Tool Schema</strong></td>
+<td>工具的 name + description + parameters，LLM 据此决策</td>
+</tr>
+<tr>
+<td><strong>ReAct Loop</strong></td>
+<td>核心循环，LLM 反复推理和调用工具直到得到答案</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td>管理对话历史，防止超出 token 限制</td>
+</tr>
+<tr>
+<td><strong>Error Handling</strong></td>
+<td>JSON 解析容错、API 重试、迭代上限保护</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="module-2-langchain-langgraph-llm-agent">Module 2: LangChain + LangGraph 构建 LLM Agent</h2>
+<h3 id="_25">学习目标</h3>
+<p>从手写 Agent 过渡到工业级框架，掌握 LangChain 工具系统和 LangGraph 状态图。</p>
+<h3 id="langgraph">为什么需要 LangGraph？</h3>
+<p>Module 1 的手写 Agent 有这些问题：<br />
+- 手动管理消息列表容易出错<br />
+- 状态管理没有规范化<br />
+- 没有内置的持久化、流式输出<br />
+- 复杂 Agent（多分支、并行）难以实现</p>
+<p><strong>LangGraph 将 Agent 建模为一个状态机</strong>，解决了以上所有问题。</p>
+<hr />
+<h3 id="21-langchain-langchain_toolspy">2.1 LangChain 工具抽象 (<code>langchain_tools.py</code>)</h3>
+<h4 id="_26">三种创建方式</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 方式 1: @tool 装饰器 (推荐，最简洁)</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculator</span><span class="p">(</span><span class="n">expression</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;执行数学计算。&quot;&quot;&quot;</span>
+    <span class="o">...</span>
+
+<span class="c1">## 方式 2: StructuredTool (自定义 schema)</span>
+<span class="n">search_papers</span> <span class="o">=</span> <span class="n">StructuredTool</span><span class="o">.</span><span class="n">from_function</span><span class="p">(</span>
+    <span class="n">func</span><span class="o">=</span><span class="n">search_papers_func</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;search_papers&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;搜索自动驾驶论文&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">## 方式 3: BaseTool 子类 (完全控制)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReadFileTool</span><span class="p">(</span><span class="n">BaseTool</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;read_file&quot;</span>
+    <span class="n">args_schema</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ReadFileInput</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="o">...</span>
+</code></pre></div>
+
+<h4 id="module-1_1">对比 Module 1</h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Module 1 (手写)</th>
+<th>Module 2 (LangChain)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>工具定义</td>
+<td>dataclass + 手动 schema</td>
+<td>@tool 装饰器自动生成</td>
+</tr>
+<tr>
+<td>LLM 绑定</td>
+<td>手动 prompt 拼接</td>
+<td>llm.bind_tools(tools)</td>
+</tr>
+<tr>
+<td>工具调用</td>
+<td>手动 JSON 解析</td>
+<td>AIMessage.tool_calls 自动解析</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="22-lcel-simple_chainpy">2.2 LCEL 链式调用 (<code>simple_chain.py</code>)</h3>
+<h4 id="lcel-langchain-expression-language">LCEL = LangChain Expression Language</h4>
+<p>核心操作：<code>|</code> (管道符)</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 最简单的 chain</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">|</span> <span class="n">llm</span> <span class="o">|</span> <span class="n">StrOutputParser</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;专家&quot;</span><span class="p">,</span> <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;什么是 BEV？&quot;</span><span class="p">})</span>
+
+<span class="c1">## 带结构化输出</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">|</span> <span class="n">llm</span> <span class="o">|</span> <span class="n">JsonOutputParser</span><span class="p">(</span><span class="n">pydantic_object</span><span class="o">=</span><span class="n">MyModel</span><span class="p">)</span>
+
+<span class="c1">## 并行执行</span>
+<span class="n">parallel</span> <span class="o">=</span> <span class="n">RunnableParallel</span><span class="p">(</span>
+    <span class="n">academic</span><span class="o">=</span><span class="n">prompt_aca</span> <span class="o">|</span> <span class="n">llm</span> <span class="o">|</span> <span class="n">parser</span><span class="p">,</span>
+    <span class="n">practical</span><span class="o">=</span><span class="n">prompt_pra</span> <span class="o">|</span> <span class="n">llm</span> <span class="o">|</span> <span class="n">parser</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="23-stategraph-first_graphpy">2.3 StateGraph 入门 (<code>first_graph.py</code>) ⭐</h3>
+<h4 id="_27">三个核心概念</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## State: Agent 的&quot;记忆&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AgentState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">messages</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">BaseMessage</span><span class="p">],</span> <span class="n">add_messages</span><span class="p">]</span>
+
+<span class="c1">## Node: 处理函数</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">chatbot_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AgentState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">response</span><span class="p">]}</span>
+
+<span class="c1">## Edge: 状态转移</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;chatbot&quot;</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;chatbot&quot;</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="_28">条件路由</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 根据分类结果路由到不同专家</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span>
+    <span class="s2">&quot;classifier&quot;</span><span class="p">,</span>
+    <span class="n">route_by_category</span><span class="p">,</span>  <span class="c1"># 返回 &quot;tech&quot; | &quot;science&quot; | &quot;general&quot;</span>
+    <span class="p">{</span><span class="s2">&quot;tech&quot;</span><span class="p">:</span> <span class="s2">&quot;tech_expert&quot;</span><span class="p">,</span> <span class="s2">&quot;science&quot;</span><span class="p">:</span> <span class="s2">&quot;science_expert&quot;</span><span class="p">,</span> <span class="s2">&quot;general&quot;</span><span class="p">:</span> <span class="s2">&quot;general&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="24-agent-tool_calling_agentpy">2.4 工具调用 Agent (<code>tool_calling_agent.py</code>)</h3>
+<h4 id="bind_tools-agent-api">bind_tools -- Agent 开发的核心 API</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">llm</span> <span class="o">=</span> <span class="n">create_llm</span><span class="p">()</span>
+<span class="n">llm_with_tools</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">(</span><span class="n">tools</span><span class="p">)</span>
+
+<span class="c1">## LLM 会自动产生 tool_calls</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">llm_with_tools</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+<span class="c1">## response.tool_calls = [{&quot;name&quot;: &quot;calculator&quot;, &quot;args&quot;: {&quot;expression&quot;: &quot;2+3&quot;}}]</span>
+</code></pre></div>
+
+<h4 id="graph">Graph 结构</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">START</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">llm_node</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="o">[</span><span class="n">router</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">tool_node</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">llm_node</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="p">...</span>
+<span class="w">                       </span><span class="err">└→</span><span class="w"> </span><span class="k">END</span><span class="w"> </span><span class="p">(</span><span class="n">无工具调用时</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="25-react-agent-graph-react_agent_graphpy">2.5 手动 ReAct Agent Graph (<code>react_agent_graph.py</code>) ⭐ 核心模板</h3>
+<p><strong>这是整个教程最重要的 Graph 模板</strong>。后续 Module 3-7 的所有 Agent 都在此基础上扩展。</p>
+<h4 id="_29">手动构建的意义</h4>
+<p>虽然 LangGraph 提供了 <code>create_react_agent</code> 预构建函数，但手动构建能让你理解：<br />
+1. agent_node 做什么（调用 LLM，决定是否用工具）<br />
+2. tool_node 做什么（执行工具，返回 ToolMessage）<br />
+3. should_continue 做什么（条件路由）<br />
+4. State 如何在节点间流动</p>
+<h4 id="_30">完整代码结构</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_react_agent</span><span class="p">(</span><span class="n">tools</span><span class="p">,</span> <span class="n">system_prompt</span><span class="p">):</span>
+    <span class="n">llm_with_tools</span> <span class="o">=</span> <span class="n">create_llm</span><span class="p">()</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">(</span><span class="n">tools</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">agent_node</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>   <span class="c1"># 大脑: 调用 LLM</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">llm_with_tools</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">])]}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">tool_node</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>    <span class="c1"># 手脚: 执行工具</span>
+        <span class="n">tool_calls</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tool_calls</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">execute_tool</span><span class="p">(</span><span class="n">tc</span><span class="p">)</span> <span class="k">for</span> <span class="n">tc</span> <span class="ow">in</span> <span class="n">tool_calls</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">should_continue</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>  <span class="c1"># 路由器</span>
+        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;tools&quot;</span>
+        <span class="k">return</span> <span class="n">END</span>
+
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">State</span><span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="n">agent_node</span><span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="n">tool_node</span><span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;agent&quot;</span><span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="n">should_continue</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="s2">&quot;agent&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h3 id="26-agent-routing_agentpy">2.6 条件路由 Agent (<code>routing_agent.py</code>)</h3>
+<h4 id="supervisor-specialists">模式：Supervisor + Specialists</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">START</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">supervisor</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="o">[</span><span class="n">router</span><span class="o">]</span>
+<span class="w">                       </span><span class="err">├→</span><span class="w"> </span><span class="n">ad_expert</span><span class="w"> </span><span class="p">(</span><span class="n">自动驾驶工具</span><span class="p">)</span>
+<span class="w">                       </span><span class="err">├→</span><span class="w"> </span><span class="n">cv_expert</span><span class="w">  </span><span class="p">(</span><span class="n">CV</span><span class="w"> </span><span class="n">工具</span><span class="p">)</span>
+<span class="w">                       </span><span class="err">└→</span><span class="w"> </span><span class="k">general</span><span class="w">    </span><span class="p">(</span><span class="n">通用聊天</span><span class="p">)</span>
+</code></pre></div>
+
+<p>适用：客服路由、多领域专家系统、代码审查分类。</p>
+<hr />
+<h3 id="27-plan-and-execute-plan_executepy">2.7 Plan-and-Execute (<code>plan_execute.py</code>)</h3>
+<h4 id="vs-react">vs ReAct</h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ReAct</th>
+<th>Plan-Execute</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>思路</td>
+<td>思考→行动→观察→再思考</td>
+<td>先规划→逐步执行→汇总</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>简单短任务</td>
+<td>复杂多步任务</td>
+</tr>
+<tr>
+<td>可见性</td>
+<td>看不到全局计划</td>
+<td>用户能看到完整计划</td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="n">START</span> <span class="err">→</span> <span class="n">planner</span> <span class="err">→</span> <span class="n">executor</span> <span class="err">→</span> <span class="p">[</span><span class="n">more</span><span class="err">?</span><span class="p">]</span> <span class="err">→</span> <span class="n">executor</span> <span class="err">→</span> <span class="n">summarizer</span> <span class="err">→</span> <span class="kr">END</span>
+</code></pre></div>
+
+<hr />
+<h3 id="28-checkpoint-streaming_checkpointspy">2.8 流式输出与 Checkpoint (<code>streaming_checkpoints.py</code>)</h3>
+<h4 id="streaming">Streaming</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 实时看到 Agent 每一步做了什么</span>
+<span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">agent</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">stream_mode</span><span class="o">=</span><span class="s2">&quot;updates&quot;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="checkpoints">Checkpoints (断点续聊)</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">memory</span> <span class="o">=</span> <span class="n">MemorySaver</span><span class="p">()</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">checkpointer</span><span class="o">=</span><span class="n">memory</span><span class="p">)</span>
+
+<span class="c1">## 同一 thread_id = 共享记忆</span>
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;configurable&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;thread_id&quot;</span><span class="p">:</span> <span class="s2">&quot;user-123&quot;</span><span class="p">}}</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">msg1</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>  <span class="c1"># 第1轮</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">msg2</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>  <span class="c1"># 第2轮，记住第1轮内容</span>
+</code></pre></div>
+
+<hr />
+<h3 id="29-human-in-the-loop-human_in_looppy">2.9 Human-in-the-Loop (<code>human_in_loop.py</code>)</h3>
+<h4 id="_31">高风险操作需要审批</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">agent</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">checkpointer</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">interrupt_before</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tools&quot;</span><span class="p">],</span>  <span class="c1"># 执行工具前暂停</span>
+<span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># 在 tools 前自动暂停</span>
+<span class="c1">## 人工审批后继续</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="n">resume</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;approved&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),</span> <span class="n">config</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="module-2">Module 2 核心总结</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>一行理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@tool</code></td>
+<td>装饰器自动生成工具 schema</td>
+</tr>
+<tr>
+<td><code>\|</code> 管道符</td>
+<td>LCEL 的核心语法：<code>prompt \| llm \| parser</code></td>
+</tr>
+<tr>
+<td><code>StateGraph</code></td>
+<td>Agent = 状态机 (State + Nodes + Edges)</td>
+</tr>
+<tr>
+<td><code>bind_tools</code></td>
+<td>让 LLM 能够自动产生 tool_calls</td>
+</tr>
+<tr>
+<td><code>add_conditional_edges</code></td>
+<td>根据 LLM 输出路由到不同节点</td>
+</tr>
+<tr>
+<td><code>MemorySaver</code></td>
+<td>自动持久化，支持断点续聊</td>
+</tr>
+<tr>
+<td><code>interrupt_before</code></td>
+<td>关键操作前暂停等审批</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="module-3-rag-agent">Module 3: RAG + 知识检索 Agent</h2>
+<h3 id="_32">学习目标</h3>
+<p>构建完整的 RAG（Retrieval-Augmented Generation）系统，让 Agent 能基于外部知识库回答问题。</p>
+<h3 id="rag">RAG 解决了什么问题？</h3>
+<p>LLM 的两大缺陷：<br />
+1. <strong>知识截止日期</strong>：训练数据有时间限制，不知道最新论文<br />
+2. <strong>幻觉</strong>：可能编造不存在的信息</p>
+<p>RAG 的解决思路：<strong>先检索相关文档，再让 LLM 基于文档回答</strong>。</p>
+<hr />
+<h3 id="31-document_loadingpy">3.1 文档加载 (<code>document_loading.py</code>)</h3>
+<h4 id="langchain-document">LangChain Document 对象</h4>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.documents</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
+
+<span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span>
+    <span class="n">page_content</span><span class="o">=</span><span class="s2">&quot;BEVFormer uses spatiotemporal transformers...&quot;</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;BEVFormer&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="mi">2022</span><span class="p">,</span> <span class="s2">&quot;venue&quot;</span><span class="p">:</span> <span class="s2">&quot;ECCV&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="_33">支持的加载器</h4>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>加载器</th>
+<th>用法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PDF</td>
+<td>PyPDFLoader</td>
+<td><code>Loader("paper.pdf").load()</code></td>
+</tr>
+<tr>
+<td>网页</td>
+<td>WebBaseLoader</td>
+<td><code>Loader("https://...").load()</code></td>
+</tr>
+<tr>
+<td>CSV</td>
+<td>CSVLoader</td>
+<td><code>Loader("data.csv").load()</code></td>
+</tr>
+<tr>
+<td>文本</td>
+<td>TextLoader</td>
+<td><code>Loader("file.txt").load()</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="32-chunking_strategiespy">3.2 分块策略 (<code>chunking_strategies.py</code>)</h3>
+<h4 id="rag_1">这是 RAG 质量最关键的参数</h4>
+<table>
+<thead>
+<tr>
+<th>chunk_size</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>太小 (100)</td>
+<td>检索精确，但可能丢失上下文</td>
+</tr>
+<tr>
+<td>太大 (2000)</td>
+<td>上下文完整，但检索精度下降</td>
+</tr>
+<tr>
+<td>中等 (300-500)</td>
+<td>推荐：平衡精度和完整性</td>
+</tr>
+</tbody>
+</table>
+<h4 id="chunk_overlap">chunk_overlap</h4>
+<p>相邻块的重叠字符数（通常为 chunk_size 的 10-20%）。<br />
+<strong>为什么需要 overlap？</strong><br />
+答案可能恰好落在两个 chunk 的边界上，overlap 确保不会丢失这段信息。</p>
+<h4 id="_34">三种分割器</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 1. 递归分割（推荐默认）</span>
+<span class="n">RecursiveCharacterTextSplitter</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">chunk_overlap</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1">## 2. 固定字符分割（简单但可能截断句子）</span>
+<span class="n">CharacterTextSplitter</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+<span class="c1">## 3. 语义分割（最智能，需要 embedding 模型）</span>
+<span class="n">SemanticChunker</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="33-embeddings_vectorstorepy">3.3 向量嵌入与存储 (<code>embeddings_vectorstore.py</code>)</h3>
+<h4 id="_35">流程</h4>
+<div class="codehilite"><pre><span></span><code>文本 → Embedding 模型 → 768 维向量 → 向量数据库 → 相似度搜索
+</code></pre></div>
+
+<h4 id="embedding">Embedding 选择</h4>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>维度</th>
+<th>成本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sentence-transformers (all-MiniLM-L6-v2)</td>
+<td>384</td>
+<td>免费，本地运行</td>
+</tr>
+<tr>
+<td>OpenAI text-embedding-3-small</td>
+<td>1536</td>
+<td>按 token 收费</td>
+</tr>
+</tbody>
+</table>
+<h4 id="vector-store">Vector Store 选择</h4>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ChromaDB</strong></td>
+<td>本地持久化，内置元数据过滤，推荐开发用</td>
+</tr>
+<tr>
+<td><strong>FAISS</strong></td>
+<td>纯内存，速度最快，需手动保存</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_36">相似度搜索</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 基础搜索</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">similarity_search</span><span class="p">(</span><span class="s2">&quot;BEV perception&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1">## MMR 搜索（避免结果重复）</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">max_marginal_relevance_search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fetch_k</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+
+<span class="c1">## 带元数据过滤</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">similarity_search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$gte&quot;</span><span class="p">:</span> <span class="mi">2022</span><span class="p">}})</span>
+</code></pre></div>
+
+<hr />
+<h3 id="34-rag-chain-basic_rag_chainpy">3.4 基础 RAG Chain (<code>basic_rag_chain.py</code>)</h3>
+<h4 id="_37">完整流水线</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 1. 构建检索器</span>
+<span class="n">retriever</span> <span class="o">=</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">(</span><span class="n">search_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+
+<span class="c1">## 2. RAG Prompt</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_messages</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;基于以下参考资料回答:</span><span class="se">\n</span><span class="si">{context}</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{question}</span><span class="s2">&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="c1">## 3. 组合</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_docs</span><span class="p">(</span><span class="n">docs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">page_content</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">)</span>
+
+<span class="n">rag_chain</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;context&quot;</span><span class="p">:</span> <span class="n">retriever</span> <span class="o">|</span> <span class="n">format_docs</span><span class="p">,</span> <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">RunnablePassthrough</span><span class="p">()}</span>
+    <span class="o">|</span> <span class="n">prompt</span> <span class="o">|</span> <span class="n">llm</span> <span class="o">|</span> <span class="n">StrOutputParser</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1">## 4. 使用</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">rag_chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">&quot;BEVFormer 的架构是什么？&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="35-advanced_retrievalpy">3.5 高级检索策略 (<code>advanced_retrieval.py</code>)</h3>
+<h4 id="multi-query">Multi-Query</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 自动生成多个查询变体，综合检索结果</span>
+<span class="n">retriever</span> <span class="o">=</span> <span class="n">MultiQueryRetriever</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span><span class="n">retriever</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
+<span class="c1">## &quot;BEV perception&quot; → [&quot;BEV perception survey&quot;, &quot;bird&#39;s eye view detection&quot;, ...]</span>
+</code></pre></div>
+
+<h4 id="hyde-hypothetical-document-embeddings">HyDE (Hypothetical Document Embeddings)</h4>
+<div class="codehilite"><pre><span></span><code>用户问题 → LLM 生成&quot;假设答案&quot; → 用假设答案的 embedding 检索
+</code></pre></div>
+
+<p>当问题和文档用词不一致时非常有效。</p>
+<h4 id="self-query">Self-Query</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 从自然语言中提取元数据过滤条件</span>
+<span class="c1">## &quot;2022年后的 BEV 论文&quot; → filter={&quot;year&quot;: {&quot;$gte&quot;: 2022}}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="38-rag-agent-rag_agentpy">3.8 RAG Agent (<code>rag_agent.py</code>) ⭐</h3>
+<h4 id="agent_2">将检索封装为 Agent 工具</h4>
+<p>这是 RAG 最强大的用法：Agent 可以自主决定<strong>何时检索、检索什么</strong>。</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">query_papers</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;查询论文知识库&quot;&quot;&quot;</span>
+    <span class="n">docs</span> <span class="o">=</span> <span class="n">knowledge_base</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">format_docs</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+
+<span class="c1">## 与其他工具一起注册</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="p">[</span><span class="n">query_papers</span><span class="p">,</span> <span class="n">calculator</span><span class="p">,</span> <span class="n">search_papers</span><span class="p">]</span>
+</code></pre></div>
+
+<h4 id="rag-chain-vs-rag-agent">对比：RAG Chain vs RAG Agent</h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>RAG Chain</th>
+<th>RAG Agent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>检索次数</td>
+<td>1 次</td>
+<td>多次，Agent 自主决定</td>
+</tr>
+<tr>
+<td>工具组合</td>
+<td>无</td>
+<td>检索 + 计算 + 搜索...</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>固定流程</td>
+<td>动态决策</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="module-3">Module 3 核心总结</h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>关键决策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文档加载</td>
+<td>选对 Loader（PDF/Web/CSV）</td>
+</tr>
+<tr>
+<td>分块</td>
+<td>chunk_size 500 + overlap 100（中文英文有所不同）</td>
+</tr>
+<tr>
+<td>Embedding</td>
+<td>本地免费（sentence-transformers）vs 云端收费（OpenAI）</td>
+</tr>
+<tr>
+<td>向量存储</td>
+<td>ChromaDB（持久化）vs FAISS（纯内存）</td>
+</tr>
+<tr>
+<td>检索</td>
+<td>默认 similarity + MMR，特殊场景用 Multi-Query / HyDE</td>
+</tr>
+<tr>
+<td>RAG Agent</td>
+<td>检索作为工具，Agent 自主决策何时使用</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="module-4-multi-agent-crewai">Module 4: Multi-Agent 协作 (CrewAI)</h2>
+<h3 id="_38">学习目标</h3>
+<p>构建多 Agent 协作系统，理解角色驱动的 Agent 团队设计。</p>
+<h3 id="multi-agent">为什么需要 Multi-Agent？</h3>
+<p>单 Agent 的局限：<br />
+- 一个 LLM 要处理所有类型的任务<br />
+- Prompt 越来越长，越来越难维护<br />
+- 无法利用"专人做专事"的优势</p>
+<p>Multi-Agent 的思路：像管理一个小团队一样管理 AI。</p>
+<hr />
+<h3 id="41-crewai">4.1 CrewAI 核心概念</h3>
+<div class="codehilite"><pre><span></span><code>Agent (员工) + Task (任务) + Crew (团队) + Process (流程) = 协作系统
+</code></pre></div>
+
+<h4 id="agent_3">Agent 定义</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">Agent</span><span class="p">(</span>
+    <span class="n">role</span><span class="o">=</span><span class="s2">&quot;论文检索专家&quot;</span><span class="p">,</span>           <span class="c1"># 角色</span>
+    <span class="n">goal</span><span class="o">=</span><span class="s2">&quot;搜索最新的相关论文&quot;</span><span class="p">,</span>      <span class="c1"># 目标</span>
+    <span class="n">backstory</span><span class="o">=</span><span class="s2">&quot;你是经验丰富的...&quot;</span><span class="p">,</span>  <span class="c1"># 背景（个性化）</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">search_tool</span><span class="p">],</span>           <span class="c1"># 专属工具</span>
+    <span class="n">allow_delegation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>        <span class="c1"># 是否允许委派</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="task">Task 定义</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">Task</span><span class="p">(</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;搜索 3 篇 BEV 感知论文&quot;</span><span class="p">,</span>   <span class="c1"># 任务描述</span>
+    <span class="n">expected_output</span><span class="o">=</span><span class="s2">&quot;论文列表，含标题和摘要&quot;</span><span class="p">,</span> <span class="c1"># 期望输出格式</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">paper_searcher</span><span class="p">,</span>                      <span class="c1"># 分配给谁</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="process">Process 类型</h4>
+<table>
+<thead>
+<tr>
+<th>Process</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sequential</code></td>
+<td>按顺序执行 Task 1 → Task 2 → Task 3</td>
+</tr>
+<tr>
+<td><code>hierarchical</code></td>
+<td>Manager Agent 动态分配任务</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-crew-crewai_basicspy">4.2 第一个 Crew (<code>crewai_basics.py</code>)</h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">crewai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">Crew</span><span class="p">,</span> <span class="n">Process</span>
+
+<span class="c1">## 定义 Agent</span>
+<span class="n">searcher</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">&quot;论文检索专家&quot;</span><span class="p">,</span> <span class="n">goal</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">backstory</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">&quot;论文分析专家&quot;</span><span class="p">,</span> <span class="n">goal</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">backstory</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
+
+<span class="c1">## 定义 Task</span>
+<span class="n">task1</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;搜索论文&quot;</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">searcher</span><span class="p">)</span>
+<span class="n">task2</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;分析论文&quot;</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">analyzer</span><span class="p">)</span>
+
+<span class="c1">## 创建 Crew</span>
+<span class="n">crew</span> <span class="o">=</span> <span class="n">Crew</span><span class="p">(</span>
+    <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">searcher</span><span class="p">,</span> <span class="n">analyzer</span><span class="p">],</span>
+    <span class="n">tasks</span><span class="o">=</span><span class="p">[</span><span class="n">task1</span><span class="p">,</span> <span class="n">task2</span><span class="p">],</span>
+    <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">sequential</span><span class="p">,</span>  <span class="c1"># Task 1 → Task 2</span>
+<span class="p">)</span>
+
+<span class="c1">## 执行</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">crew</span><span class="o">.</span><span class="n">kickoff</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h3 id="43-hierarchical_crewpy">4.3 角色设计 (<code>hierarchical_crew.py</code>)</h3>
+<h4 id="_39">好的角色设计的要素</h4>
+<ol>
+<li><strong>role</strong>: 简洁明确（"CV 研究专家" 比 "助手" 好）</li>
+<li><strong>goal</strong>: 可衡量的目标</li>
+<li><strong>backstory</strong>: 赋予个性，影响输出风格</li>
+<li><strong>tools</strong>: 只给需要的工具</li>
+</ol>
+<h4 id="manager">Manager 模式</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">## 不需要给 Manager 分配具体 task</span>
+<span class="c1">## Manager 会自动把任务委派给最合适的 agent</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">&quot;研究主管&quot;</span><span class="p">,</span> <span class="n">allow_delegation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">crew</span> <span class="o">=</span> <span class="n">Crew</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">manager</span><span class="p">,</span> <span class="n">expert1</span><span class="p">,</span> <span class="n">expert2</span><span class="p">],</span> <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">hierarchical</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="44-multi_crew_researchpy">4.4 科研团队 (<code>multi_crew_research.py</code>)</h3>
+<h4 id="_40">四角色流水线</h4>
+<div class="codehilite"><pre><span></span><code>Literature Searcher → Paper Analyzer → Synthesizer → Writer
+     (搜索文献)        (分析论文)      (综合归纳)     (撰写报告)
+</code></pre></div>
+
+<p>每个 Agent 专注一个环节，信息自动在 Task 间传递。</p>
+<hr />
+<h3 id="45-crewai-langgraph">4.5 CrewAI + LangGraph 混合</h3>
+<p>CrewAI 适合"流水线"式协作，LangGraph 适合"图"式路由。</p>
+<p>混合模式：<strong>LangGraph 作为主编排器，每个节点内部是一个 CrewAI Crew</strong>。</p>
+<hr />
+<h3 id="module-4">Module 4 核心总结</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Agent</strong></td>
+<td>有角色(role)、目标(goal)、背景(backstory)的 AI</td>
+</tr>
+<tr>
+<td><strong>Task</strong></td>
+<td>工作单元，有描述和期望输出</td>
+</tr>
+<tr>
+<td><strong>Crew</strong></td>
+<td>Agent 集合 + Task 集合</td>
+</tr>
+<tr>
+<td><strong>sequential</strong></td>
+<td>固定顺序流水线</td>
+</tr>
+<tr>
+<td><strong>hierarchical</strong></td>
+<td>Manager 动态委派</td>
+</tr>
+<tr>
+<td><strong>角色设计</strong></td>
+<td>好的 backstory 显著影响输出质量</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="module-5-cv-agent">Module 5: CV + Agent 集成</h2>
+<h3 id="_41">学习目标</h3>
+<p>将计算机视觉能力整合到 Agent 中，构建自动驾驶场景分析系统。</p>
+<h3 id="cv-agent">为什么需要 CV + Agent？</h3>
+<p>传统 CV 流水线：输入图片 → 模型推理 → 输出结果 → 人工分析。</p>
+<p>CV + Agent：输入图片 → Agent 自主调用检测模型 → 综合分析 → 给出自然语言结论。</p>
+<hr />
+<h3 id="51-llm-vision_llm_basicspy">5.1 视觉 LLM (<code>vision_llm_basics.py</code>)</h3>
+<h4 id="_42">支持的视觉模型</h4>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>接入方式</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>通义千问 VL (qwen-vl-plus)</td>
+<td>OpenAI 兼容</td>
+<td>图片理解、场景描述</td>
+</tr>
+<tr>
+<td>智谱 GLM-4V</td>
+<td>OpenAI 兼容</td>
+<td>图片理解、图表分析</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_43">图片传入方式</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">message</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;请描述这张图片&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image_url&quot;</span><span class="p">,</span> <span class="s2">&quot;image_url&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.com/image.jpg&quot;</span>  <span class="c1"># 或 base64</span>
+    <span class="p">}},</span>
+<span class="p">])</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">vl_llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="n">message</span><span class="p">])</span>
+</code></pre></div>
+
+<hr />
+<h3 id="52-cv-ad_scenario_agentpy">5.2 CV 模型作为工具 (<code>ad_scenario_agent.py</code>) ⭐</h3>
+<h4 id="_44">架构</h4>
+<div class="codehilite"><pre><span></span><code>用户上传图片 → Agent 调用 CV 工具 → 检测结果 → LLM 综合分析 → 场景报告
+</code></pre></div>
+
+<h4 id="cv">CV 工具封装</h4>
+<div class="codehilite"><pre><span></span><code><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_objects</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;检测图像中的目标（车辆、行人、车道线等）&quot;&quot;&quot;</span>
+    <span class="c1"># 调用 YOLO / PETR / BEVFormer 等模型</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">format_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_lanes</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;分析车道线信息&quot;&quot;&quot;</span>
+    <span class="o">...</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_weather_lighting</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;评估天气和光照条件&quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+<h4 id="prompt">自动驾驶场景分析 Prompt</h4>
+<div class="codehilite"><pre><span></span><code>你是一个自动驾驶场景分析系统。请分析：
+1. 场景类型（城市/高速/乡村）
+2. 检测到的道路使用者
+3. 潜在危险情况
+4. 建议的驾驶行为
+</code></pre></div>
+
+<hr />
+<h3 id="module-5">Module 5 核心总结</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vision LLM</strong></td>
+<td>直接理解图片内容（qwen-vl-plus / glm-4v）</td>
+</tr>
+<tr>
+<td><strong>CV Tool</strong></td>
+<td>将 YOLO 等检测模型封装为 Agent 工具</td>
+</tr>
+<tr>
+<td><strong>多模态 RAG</strong></td>
+<td>用自然语言检索图片，用图片辅助回答</td>
+</tr>
+<tr>
+<td><strong>AD 场景分析</strong></td>
+<td>检测 + 推理 + 风险评估的完整流水线</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="module-6-task-automation-agent">Module 6: Task Automation Agent</h2>
+<h3 id="_45">学习目标</h3>
+<p>构建能自动写代码、运行代码、从错误中学习的 Agent。</p>
+<hr />
+<h3 id="61-agent-code_execution_agentpy">6.1 代码执行 Agent (<code>code_execution_agent.py</code>)</h3>
+<h4 id="python-repl">核心：Python REPL 工具</h4>
+<div class="codehilite"><pre><span></span><code><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">python_repl</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;执行 Python 代码并返回结果&quot;&quot;&quot;</span>
+    <span class="c1"># 安全限制：只允许导入白名单中的模块</span>
+    <span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">exec</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">:</span> <span class="n">__builtins__</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+</code></pre></div>
+
+<h4 id="_46">错误自修正循环</h4>
+<div class="codehilite"><pre><span></span><code>Agent 写代码 → 执行 → 报错 → Agent 读取错误 → 修复代码 → 重新执行 → 成功
+</code></pre></div>
+
+<p>这是 Agent 最令人惊叹的能力之一：它会自己 Debug！</p>
+<h4 id="_47">安全机制</h4>
+<ul>
+<li><strong>模块白名单</strong>：只允许导入 math, numpy, pandas 等安全模块</li>
+<li><strong>输出捕获</strong>：stdout/stderr 重定向</li>
+<li><strong>迭代上限</strong>：防止无限循环</li>
+</ul>
+<hr />
+<h3 id="62-agent-data_pipeline_agentpy">6.2 数据分析流水线 Agent (<code>data_pipeline_agent.py</code>)</h3>
+<h4 id="_48">流程</h4>
+<div class="codehilite"><pre><span></span><code>数据加载 → 探索性分析 → 数据清洗 → 统计分析 → 可视化 → 报告
+</code></pre></div>
+
+<h4 id="_49">工具设计</h4>
+<div class="codehilite"><pre><span></span><code><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_dataframe</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;用 pandas 分析数据。变量 df 是当前数据集。&quot;&quot;&quot;</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_plot</span><span class="p">(</span><span class="n">plot_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;生成 matplotlib 图表。&quot;&quot;&quot;</span>
+</code></pre></div>
+
+<h4 id="_50">使用示例</h4>
+<div class="codehilite"><pre><span></span><code>用户: &quot;加载 benchmark 数据，找出 mAP 最高的 3 个模型&quot;
+Agent:
+  1. 调用 analyze_dataframe(&#39;print(df.nlargest(3, &quot;mAP&quot;))&#39;)
+  2. 调用 generate_plot(&#39;df.plot.bar(x=&quot;model&quot;, y=&quot;mAP&quot;)&#39;)
+  3. 给出分析结论
+</code></pre></div>
+
+<hr />
+<h3 id="63-agent">6.3 其他自动化 Agent 类型</h3>
+<h4 id="agent_4">网页浏览 Agent</h4>
+<div class="codehilite"><pre><span></span><code><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch_webpage</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;抓取网页内容&quot;&quot;&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">soup</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+</code></pre></div>
+
+<h4 id="agent_5">文件系统 Agent</h4>
+<div class="codehilite"><pre><span></span><code><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_files</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;列出目录文件&quot;&quot;&quot;</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_file_content</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;读取文件内容&quot;&quot;&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="module-6">Module 6 核心总结</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>实现方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码执行</td>
+<td>Python REPL tool + exec() + 输出捕获</td>
+</tr>
+<tr>
+<td>错误自修正</td>
+<td>错误信息反馈 → Agent 重写代码</td>
+</tr>
+<tr>
+<td>数据分析</td>
+<td>pandas tool + matplotlib tool</td>
+</tr>
+<tr>
+<td>安全保护</td>
+<td>模块白名单 + 操作确认 + 迭代上限</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="module-7-agent">Module 7: 综合项目 -- 科研自动化 Agent</h2>
+<h3 id="_51">学习目标</h3>
+<p>整合所有学到的技术，构建一个完整的科研自动化助手。</p>
+<hr />
+<h3 id="_52">系统架构</h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────┐
+│              Gradio Web UI                  │
+│         (自然语言交互界面)                     │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│         Orchestrator (LangGraph)             │
+│    ┌─────────────────────────────────┐      │
+│    │  Supervisor (意图分类 + 路由)    │      │
+│    └──────────┬──────────────────────┘      │
+│               │                              │
+│    ┌──────────▼──────────────────────┐      │
+│    │     Sub-Agent 集群               │      │
+│    │  ├─ Literature Agent (CrewAI)   │      │
+│    │  ├─ Deep Read Agent             │      │
+│    │  ├─ Synthesis Agent             │      │
+│    │  ├─ Writing Agent               │      │
+│    │  └─ Experiment Agent            │      │
+│    └──────────┬──────────────────────┘      │
+└───────────────┼─────────────────────────────┘
+                │
+┌───────────────▼─────────────────────────────┐
+│           Tool Layer (工具层)                │
+│  ├─ arXiv API (论文搜索)                     │
+│  ├─ Paper Processor (PDF解析)               │
+│  ├─ Vision Tool (图表分析)                   │
+│  └─ Citation Tool (引用管理)                 │
+└───────────────┬─────────────────────────────┘
+                │
+┌───────────────▼─────────────────────────────┐
+│         Memory Layer (记忆层)                │
+│  ├─ ChromaDB (论文向量索引)                  │
+│  ├─ SQLite (对话历史 + 论文元数据)            │
+│  └─ Experiment Registry (实验跟踪)           │
+└─────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h3 id="_53">核心能力</h3>
+<h4 id="1-3-bev">1. 文献搜索 <code>"找 3 篇 BEV 感知论文"</code></h4>
+<div class="codehilite"><pre><span></span><code>Supervisor 识别意图 &quot;literature&quot;
+→ Literature Agent (CrewAI: Searcher + Analyzer)
+→ arXiv API 搜索
+→ 返回结构化论文列表
+</code></pre></div>
+
+<h4 id="2-bevformer">2. 论文深度分析 <code>"分析 BEVFormer 的方法"</code></h4>
+<div class="codehilite"><pre><span></span><code>Supervisor 识别意图 &quot;deep_read&quot;
+→ Deep Read Agent
+→ 加载 PDF → 分块 → 向量索引
+→ 检索相关段落 → LLM 分析 → 结构化报告
+</code></pre></div>
+
+<h4 id="3-3d">3. 跨论文综合 <code>"3D 检测有什么新趋势？"</code></h4>
+<div class="codehilite"><pre><span></span><code>Supervisor 识别意图 &quot;synthesis&quot;
+→ Synthesis Agent
+→ 多论文查询 → 交叉对比 → 识别趋势和空白
+</code></pre></div>
+
+<h4 id="4-bev-related-work">4. 综述撰写 <code>"写一段 BEV 感知的 related work"</code></h4>
+<div class="codehilite"><pre><span></span><code>Supervisor 识别意图 &quot;writing&quot;
+→ Writing Agent
+→ 检索相关论文 → 组织叙事 → 生成学术风格的文本
+</code></pre></div>
+
+<h4 id="5-bevdet-map042">5. 实验跟踪 <code>"记录实验: BEVDet, mAP=0.42"</code></h4>
+<div class="codehilite"><pre><span></span><code>Supervisor 识别意图 &quot;experiment&quot;
+→ Experiment Agent
+→ 存入 SQLite → 生成排行榜
+</code></pre></div>
+
+<hr />
+<h3 id="_54">关键文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agents/orchestrator.py</code></td>
+<td>LangGraph 主编排器，Intent → Route → Specialist</td>
+</tr>
+<tr>
+<td><code>tools/arxiv_tool.py</code></td>
+<td>arXiv API 搜索工具</td>
+</tr>
+<tr>
+<td><code>tools/paper_processor.py</code></td>
+<td>PDF 解析、分块、索引</td>
+</tr>
+<tr>
+<td><code>tools/vision_tool.py</code></td>
+<td>论文图表视觉分析</td>
+</tr>
+<tr>
+<td><code>memory/vector_store.py</code></td>
+<td>ChromaDB 持久化向量索引</td>
+</tr>
+<tr>
+<td><code>memory/paper_registry.py</code></td>
+<td>SQLite 论文元数据管理</td>
+</tr>
+<tr>
+<td><code>app.py</code></td>
+<td>Gradio Web 交互界面</td>
+</tr>
+<tr>
+<td><code>config.py</code></td>
+<td>配置中心</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="_55">启动方式</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">## Web 界面</span>
+python<span class="w"> </span>module_07_capstone/app.py
+<span class="c1">## 打开 http://localhost:7860</span>
+</code></pre></div>
+
+<hr />
+<h3 id="module-7">Module 7 核心总结</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>技术</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UI</strong></td>
+<td>Gradio ChatInterface</td>
+</tr>
+<tr>
+<td><strong>编排</strong></td>
+<td>LangGraph StateGraph + 条件路由</td>
+</tr>
+<tr>
+<td><strong>子 Agent</strong></td>
+<td>CrewAI (文献搜索) + LangGraph (深度分析)</td>
+</tr>
+<tr>
+<td><strong>工具</strong></td>
+<td>arXiv API + PDF 解析 + Vision LLM</td>
+</tr>
+<tr>
+<td><strong>记忆</strong></td>
+<td>ChromaDB (向量) + SQLite (结构化)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="_56">扩展方向</h3>
+<ol>
+<li><strong>真实 PDF 解析</strong>：接入 PyPDFLoader 解析用户上传的论文</li>
+<li><strong>论文图表提取</strong>：用 Vision LLM 分析论文中的 Figure</li>
+<li><strong>定时推送</strong>：每日自动搜索新论文并推送摘要</li>
+<li><strong>Slack/微信集成</strong>：通过 Bot 接口在聊天工具中使用</li>
+<li><strong>多语言</strong>：支持中英文论文混合检索</li>
+</ol>
+<hr />
+    </div>
+</body>
+</html>
