@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1: 从零构建Agent - AI Agent 教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --success: #10b981;
+        --warn: #f59e0b;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Nav */
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    /* Container */
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* Breadcrumb */
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    /* Content */
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    /* Module title area */
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    /* Code */
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    /* Blockquote */
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    /* ASCII diagrams */
+    pre.ascii { line-height: 1.4; }
+
+    /* Nav between modules */
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav a.disabled { color: #ccc; pointer-events: none; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    /* Source code link */
+    .source-link {
+        display: inline-flex; align-items: center; gap: .3rem;
+        margin-top: 1.5rem; font-size: .85rem; color: var(--text-secondary);
+        text-decoration: none;
+    }
+    .source-link:hover { color: var(--accent); }
+
+    /* Index page-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 2rem 0; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/Agent/">AI Agent 教程</a><span class="sep">/</span><span>Module 1</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">Module 1</div>
+  <h1>Module 1: 从零构建Agent</h1>
+  <p>用纯 Python 手写一个完整的 ReAct Agent，理解 Agent = LLM + Tools + Loop 的本质。</p>
+  <div class="module-meta"><span class="tag">LLM 调用</span><span class="tag">工具定义</span><span class="tag">ReAct 循环</span><span class="tag">记忆系统</span><span class="tag">错误处理</span></div>
+</div>
+
+<p><strong>这是整个教程最重要的模块</strong>。理解这一章后，你会发现 LangChain、LangGraph 等框架只是&quot;简化了这些步骤&quot;。</p>
+
+<h2 id="">学习路线</h2>
+
+<pre><code class="language-">
+simple_llm_call.py  → tool_schema.py  → react_loop.py  → memory.py  → error_handling.py  → full_agent.py  → agent.py
+   (基础调用)         (定义工具)        (核心循环)       (记忆)        (容错)               (完整组装)       (最终版本)
+</code></pre>
+
+<hr>
+
+<h2 id="11-llm-simple_llm_callpy">1.1 基础 LLM 调用 (<code>simple_llm_call.py</code>)</h2>
+
+<h3 id="">核心概念</h3>
+
+<p class="highlight-text"><strong>LLM 的消息格式：</strong></p>
+
+<pre><code class="language-python">
+from langchain_core.messages import SystemMessage, HumanMessage
+
+messages = [
+    SystemMessage(content=&quot;你是一个自动驾驶专家。&quot;),
+    HumanMessage(content=&quot;什么是 BEV 感知？&quot;),
+]
+response = llm.invoke(messages)
+</code></pre>
+
+<p>三种消息类型：</p>
+<p>- <strong>SystemMessage</strong>: 设定 AI 的角色和行为规则</p>
+<p>- <strong>HumanMessage</strong>: 用户输入</p>
+<p>- <strong>AIMessage</strong>: AI 的回复（用于多轮对话）</p>
+
+<h3 id="">关键参数</h3>
+
+<table><thead><tr>
+<th>参数</th>
+<th>作用</th>
+<th>Agent 开发建议</th>
+</tr></thead><tbody>
+<tr>
+<td><code>temperature</code></td>
+<td>控制随机性 (0=确定, 1=创意)</td>
+<td>Agent 中设为 0，确保行为可预测</td>
+</tr>
+<tr>
+<td><code>max_tokens</code></td>
+<td>输出长度上限</td>
+<td>根据任务复杂度设置</td>
+</tr>
+</tbody></table>
+
+<h3 id="">运行</h3>
+
+<pre><code class="language-bash">
+python module_01_from_scratch/simple_llm_call.py
+</code></pre>
+
+<hr>
+
+<h2 id="12-tool_schemapy">1.2 工具定义 (<code>tool_schema.py</code>)</h2>
+
+<h3 id="agent">Agent 的本质</h3>
+
+<pre><code class="language-">
+LLM (大脑) ──决定调用什么工具──&gt; Tool (手脚) ──执行具体操作──&gt; 返回结果
+</code></pre>
+
+<h3 id="">一个工具包含什么？</h3>
+
+<pre><code class="language-python">
+@dataclass
+class Tool:
+    name: str              # 工具名称 (LLM 用这个名字来调用)
+    description: str       # 功能描述 (LLM 根据这个判断是否使用)
+    parameters: dict       # 参数 JSON Schema (LLM 按这个格式传参)
+    function: Callable     # 实际的 Python 函数
+</code></pre>
+
+<h3 id="description">为什么 description 如此重要？</h3>
+
+<p><strong>LLM 完全依赖 description 来决定何时调用哪个工具</strong>。一个好的 description 应该：</p>
+<p>1. 清楚说明工具的功能</p>
+<p>2. 暗示什么时候应该用这个工具</p>
+<p>3. 描述参数的含义</p>
+
+<h3 id="">工具注册表</h3>
+
+<pre><code class="language-python">
+TOOL_REGISTRY = [
+    Tool(name=&quot;calculator&quot;, description=&quot;执行数学计算...&quot;, function=calculator),
+    Tool(name=&quot;get_current_time&quot;, description=&quot;获取当前时间...&quot;, function=get_current_time),
+    Tool(name=&quot;search_papers&quot;, description=&quot;搜索论文...&quot;, function=search_papers),
+]
+</code></pre>
+
+<h3 id="">运行</h3>
+
+<pre><code class="language-bash">
+python module_01_from_scratch/tool_schema.py
+</code></pre>
+
+<hr>
+
+<h2 id="13-react-react_looppy">1.3 ReAct 循环 (<code>react_loop.py</code>) ⭐ 核心</h2>
+
+<h3 id="react-reasoning-acting">ReAct = Reasoning + Acting</h3>
+
+<p>这是 Ian AI Agent 的&quot;心脏&quot;：</p>
+
+<pre><code class="language-">
+┌──────────┐     ┌──────────┐     ┌──────────┐
+│ Thought  │ --&gt; │  Action  │ --&gt; │ Observe  │
+│ (推理)    │     │ (调用工具)│     │ (观察结果)│
+└──────────┘     └──────────┘     └──────────┘
+     ^                                   │
+     └───────────────────────────────────┘
+             循环直到 LLM 给出最终答案
+</code></pre>
+
+<h3 id="">实现步骤</h3>
+
+<p class="highlight-text"><strong>Step 1: System Prompt 告诉 LLM 怎么做</strong></p>
+
+<pre><code class="language-">
+你是一个智能助手。当需要获取信息时：
+1. 思考需要什么
+2. 调用工具 (以 JSON 格式输出)
+3. 观察结果
+4. 重复直到能回答
+</code></pre>
+
+<p class="highlight-text"><strong>Step 2: 解析 LLM 的响应</strong></p>
+
+<p>LLM 返回 JSON：</p>
+<pre><code class="language-json">
+{&quot;action&quot;: &quot;calculator&quot;, &quot;action_input&quot;: {&quot;expression&quot;: &quot;sqrt(144)&quot;}}
+</code></pre>
+
+<p>代码解析后调用 <code>calculator(expression=&quot;sqrt(144)&quot;)</code>。</p>
+
+<p class="highlight-text"><strong>Step 3: 执行工具并反馈</strong></p>
+
+<pre><code class="language-">
+工具返回: &quot;计算结果: 12.0&quot;
+→ 追加到对话历史
+→ LLM 继续思考或给出最终答案
+</code></pre>
+
+<p class="highlight-text"><strong>Step 4: 循环直到 final_answer</strong></p>
+
+<pre><code class="language-json">
+{&quot;action&quot;: &quot;final_answer&quot;, &quot;action_input&quot;: &quot;答案是 12&quot;}
+</code></pre>
+
+<h3 id="">关键代码</h3>
+
+<pre><code class="language-python">
+class ReActAgent:
+    def run(self, user_query: str) -&gt; str:
+        messages = [SystemMessage(content=system_prompt),
+                     HumanMessage(content=user_query)]
+
+        for iteration in range(max_iterations):
+            response = self.llm.invoke(messages)
+            action = parse_llm_action(response.content)
+
+            if action[&quot;action&quot;] == &quot;final_answer&quot;:
+                return action[&quot;action_input&quot;]
+
+            # 执行工具
+            result = tool.run(**action[&quot;action_input&quot;])
+            # 反馈结果
+            messages.append(AIMessage(content=response.content))
+            messages.append(HumanMessage(content=f&quot;工具结果: {result}&quot;))
+</code></pre>
+
+<h3 id="">运行</h3>
+
+<pre><code class="language-bash">
+python module_01_from_scratch/react_loop.py
+</code></pre>
+
+<hr>
+
+<h2 id="14-memorypy">1.4 记忆系统 (<code>memory.py</code>)</h2>
+
+<h3 id="">为什么需要记忆管理？</h3>
+
+<p>- LLM 上下文窗口有限（DeepSeek: 64K tokens）</p>
+<p>- 长对话超出限制导致错误或高昂成本</p>
+<p>- 聪明的记忆策略让 Agent 在长任务中保持高效</p>
+
+<h3 id="">两种策略</h3>
+
+<p class="highlight-text"><strong>策略 1: 滑动窗口（Sliding Window）</strong></p>
+
+<p>只保留最近 N 轮对话，旧的直接丢弃。</p>
+<p>- 优点：简单，Token 可控</p>
+<p>- 缺点：旧信息丢失</p>
+
+<p class="highlight-text"><strong>策略 2: 摘要记忆（Summary Memory）</strong></p>
+
+<p>用 LLM 将旧对话压缩为摘要。</p>
+<p>- 优点：保留关键信息，Token 高效</p>
+<p>- 缺点：需要额外 LLM 调用</p>
+
+<h3 id="">运行</h3>
+
+<pre><code class="language-bash">
+python module_01_from_scratch/memory.py
+</code></pre>
+
+<hr>
+
+<h2 id="15-error_handlingpy">1.5 错误处理 (<code>error_handling.py</code>)</h2>
+
+<h3 id="agent">Agent 可能出错的环节</h3>
+
+<p>1. <strong>LLM 输出格式错误</strong>：返回的不是合法 JSON</p>
+<p>2. <strong>API 调用失败</strong>：网络波动、限流</p>
+<p>3. <strong>工具执行异常</strong>：参数错误、超时</p>
+
+<h3 id="">容错策略</h3>
+
+<pre><code class="language-python">
+# 1. 多重 JSON 解析策略
+strategies = [
+    extract_json_from_markdown,
+    extract_first_brace_pair,
+    fix_single_quotes,
+]
+
+# 2. API 重试 (指数退避)
+for attempt in range(max_retries):
+    try:
+        return llm.invoke(messages)
+    except RateLimitError:
+        time.sleep(2 ** attempt)  # 2s, 4s, 8s
+
+# 3. 最大迭代保护
+if iteration &gt;= max_iterations:
+    return &quot;Agent 停止，请简化问题。&quot;
+</code></pre>
+
+<h3 id="">运行</h3>
+
+<pre><code class="language-bash">
+python module_01_from_scratch/error_handling.py
+</code></pre>
+
+<hr>
+
+<h2 id="16-agent-agentpy">1.6 完整 Agent (<code>agent.py</code>)</h2>
+
+<h3 id="">最终架构</h3>
+
+<pre><code class="language-">
+Agent
+├── LLM (DeepSeek via ChatOpenAI)
+├── Tools (calculator, search, time, file)
+├── Memory (summary/sliding window)
+├── ReAct Loop (thought → action → observe)
+└── Error Handling (retry, parse fallback, guard)
+</code></pre>
+
+<h3 id="">使用方式</h3>
+
+<pre><code class="language-python">
+from module_01_from_scratch.agent import Agent
+
+agent = Agent(verbose=True)
+answer = agent.chat(&quot;帮我算一下 256 的平方根&quot;)
+print(answer)
+
+# 多轮对话
+answer = agent.chat(&quot;搜索 BEV 感知的论文&quot;)
+# Agent 记住了之前的上下文
+</code></pre>
+
+<h3 id="">运行</h3>
+
+<pre><code class="language-bash">
+python module_01_from_scratch/agent.py
+</code></pre>
+
+<hr>
+
+<h2 id="module-1">Module 1 核心总结</h2>
+
+<table><thead><tr>
+<th>概念</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Agent = LLM + Tools + Loop</strong></td>
+<td>Agent 的本质是让 LLM 在&quot;思考-行动-观察&quot;循环中使用工具</td>
+</tr>
+<tr>
+<td><strong>System Prompt</strong></td>
+<td>定义 Agent 是谁、有什么工具、如何输出</td>
+</tr>
+<tr>
+<td><strong>Tool Schema</strong></td>
+<td>工具的 name + description + parameters，LLM 据此决策</td>
+</tr>
+<tr>
+<td><strong>ReAct Loop</strong></td>
+<td>核心循环，LLM 反复推理和调用工具直到得到答案</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td>管理对话历史，防止超出 token 限制</td>
+</tr>
+<tr>
+<td><strong>Error Handling</strong></td>
+<td>JSON 解析容错、API 重试、迭代上限保护</td>
+</tr>
+</tbody></table>
+
+
+  <div class="module-nav"><a href="00-setup.html" class="prev">← Module 0: 环境配置</a><a href="02-langgraph.html" class="next">Module 2: LangChain & LangGraph →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/Agent/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

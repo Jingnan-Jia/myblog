@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3: RAG 知识检索 - AI Agent 教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --success: #10b981;
+        --warn: #f59e0b;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Nav */
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    /* Container */
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* Breadcrumb */
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    /* Content */
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    /* Module title area */
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    /* Code */
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    /* Blockquote */
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    /* ASCII diagrams */
+    pre.ascii { line-height: 1.4; }
+
+    /* Nav between modules */
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav a.disabled { color: #ccc; pointer-events: none; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    /* Source code link */
+    .source-link {
+        display: inline-flex; align-items: center; gap: .3rem;
+        margin-top: 1.5rem; font-size: .85rem; color: var(--text-secondary);
+        text-decoration: none;
+    }
+    .source-link:hover { color: var(--accent); }
+
+    /* Index page-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 2rem 0; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/Agent/">AI Agent 教程</a><span class="sep">/</span><span>Module 3</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">Module 3</div>
+  <h1>Module 3: RAG 知识检索</h1>
+  <p>构建完整的 RAG 系统，让 Agent 能基于外部知识库回答专业问题。</p>
+  <div class="module-meta"><span class="tag">文档加载</span><span class="tag">分块策略</span><span class="tag">向量嵌入</span><span class="tag">ChromaDB</span><span class="tag">高级检索</span></div>
+</div>
+
+<h2 id="">学习目标</h2>
+
+<p>构建完整的 RAG（Retrieval-Augmented Generation）系统，让 Agent 能基于外部知识库回答问题。</p>
+
+<h2 id="rag">RAG 解决了什么问题？</h2>
+
+<p>LLM 的两大缺陷：</p>
+<p>1. <strong>知识截止日期</strong>：训练数据有时间限制，不知道最新论文</p>
+<p>2. <strong>幻觉</strong>：可能编造不存在的信息</p>
+
+<p>RAG 的解决思路：<strong>先检索相关文档，再让 LLM 基于文档回答</strong>。</p>
+
+<hr>
+
+<h2 id="31-document_loadingpy">3.1 文档加载 (<code>document_loading.py</code>)</h2>
+
+<h3 id="langchain-document">LangChain Document 对象</h3>
+
+<pre><code class="language-python">
+from langchain_core.documents import Document
+
+doc = Document(
+    page_content=&quot;BEVFormer uses spatiotemporal transformers...&quot;,
+    metadata={&quot;source&quot;: &quot;BEVFormer&quot;, &quot;year&quot;: 2022, &quot;venue&quot;: &quot;ECCV&quot;}
+)
+</code></pre>
+
+<h3 id="">支持的加载器</h3>
+
+<table><thead><tr>
+<th>格式</th>
+<th>加载器</th>
+<th>用法</th>
+</tr></thead><tbody>
+<tr>
+<td>PDF</td>
+<td>PyPDFLoader</td>
+<td><code>Loader(&quot;paper.pdf&quot;).load()</code></td>
+</tr>
+<tr>
+<td>网页</td>
+<td>WebBaseLoader</td>
+<td><code>Loader(&quot;https://...&quot;).load()</code></td>
+</tr>
+<tr>
+<td>CSV</td>
+<td>CSVLoader</td>
+<td><code>Loader(&quot;data.csv&quot;).load()</code></td>
+</tr>
+<tr>
+<td>文本</td>
+<td>TextLoader</td>
+<td><code>Loader(&quot;file.txt&quot;).load()</code></td>
+</tr>
+</tbody></table>
+
+<hr>
+
+<h2 id="32-chunking_strategiespy">3.2 分块策略 (<code>chunking_strategies.py</code>)</h2>
+
+<h3 id="rag">这是 RAG 质量最关键的参数</h3>
+
+<table><thead><tr>
+<th>chunk_size</th>
+<th>效果</th>
+</tr></thead><tbody>
+<tr>
+<td>太小 (100)</td>
+<td>检索精确，但可能丢失上下文</td>
+</tr>
+<tr>
+<td>太大 (2000)</td>
+<td>上下文完整，但检索精度下降</td>
+</tr>
+<tr>
+<td>中等 (300-500)</td>
+<td>推荐：平衡精度和完整性</td>
+</tr>
+</tbody></table>
+
+<h3 id="chunk_overlap">chunk_overlap</h3>
+
+<p>相邻块的重叠字符数（通常为 chunk_size 的 10-20%）。</p>
+<p class="highlight-text"><strong>为什么需要 overlap？</strong></p>
+<p>答案可能恰好落在两个 chunk 的边界上，overlap 确保不会丢失这段信息。</p>
+
+<h3 id="">三种分割器</h3>
+
+<pre><code class="language-python">
+# 1. 递归分割（推荐默认）
+RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+
+# 2. 固定字符分割（简单但可能截断句子）
+CharacterTextSplitter(chunk_size=500, separator=&quot;&quot;)
+
+# 3. 语义分割（最智能，需要 embedding 模型）
+SemanticChunker(embeddings)
+</code></pre>
+
+<hr>
+
+<h2 id="33-embeddings_vectorstorepy">3.3 向量嵌入与存储 (<code>embeddings_vectorstore.py</code>)</h2>
+
+<h3 id="">流程</h3>
+
+<pre><code class="language-">
+文本 → Embedding 模型 → 768 维向量 → 向量数据库 → 相似度搜索
+</code></pre>
+
+<h3 id="embedding">Embedding 选择</h3>
+
+<table><thead><tr>
+<th>选项</th>
+<th>维度</th>
+<th>成本</th>
+</tr></thead><tbody>
+<tr>
+<td>sentence-transformers (all-MiniLM-L6-v2)</td>
+<td>384</td>
+<td>免费，本地运行</td>
+</tr>
+<tr>
+<td>OpenAI text-embedding-3-small</td>
+<td>1536</td>
+<td>按 token 收费</td>
+</tr>
+</tbody></table>
+
+<h3 id="vector-store">Vector Store 选择</h3>
+
+<table><thead><tr>
+<th>选项</th>
+<th>特点</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>ChromaDB</strong></td>
+<td>本地持久化，内置元数据过滤，推荐开发用</td>
+</tr>
+<tr>
+<td><strong>FAISS</strong></td>
+<td>纯内存，速度最快，需手动保存</td>
+</tr>
+</tbody></table>
+
+<h3 id="">相似度搜索</h3>
+
+<pre><code class="language-python">
+# 基础搜索
+docs = vector_store.similarity_search(&quot;BEV perception&quot;, k=3)
+
+# MMR 搜索（避免结果重复）
+docs = vector_store.max_marginal_relevance_search(query, k=3, fetch_k=6)
+
+# 带元数据过滤
+docs = vector_store.similarity_search(query, filter={&quot;year&quot;: {&quot;$gte&quot;: 2022}})
+</code></pre>
+
+<hr>
+
+<h2 id="34-rag-chain-basic_rag_chainpy">3.4 基础 RAG Chain (<code>basic_rag_chain.py</code>)</h2>
+
+<h3 id="">完整流水线</h3>
+
+<pre><code class="language-python">
+# 1. 构建检索器
+retriever = vector_store.as_retriever(search_kwargs={&quot;k&quot;: 3})
+
+# 2. RAG Prompt
+prompt = ChatPromptTemplate.from_messages([
+    (&quot;system&quot;, &quot;基于以下参考资料回答:\n{context}&quot;),
+    (&quot;human&quot;, &quot;{question}&quot;),
+])
+
+# 3. 组合
+def format_docs(docs):
+    return &quot;\n\n&quot;.join(d.page_content for d in docs)
+
+rag_chain = (
+    {&quot;context&quot;: retriever | format_docs, &quot;question&quot;: RunnablePassthrough()}
+    | prompt | llm | StrOutputParser()
+)
+
+# 4. 使用
+answer = rag_chain.invoke(&quot;BEVFormer 的架构是什么？&quot;)
+</code></pre>
+
+<hr>
+
+<h2 id="35-advanced_retrievalpy">3.5 高级检索策略 (<code>advanced_retrieval.py</code>)</h2>
+
+<h3 id="multi-query">Multi-Query</h3>
+
+<pre><code class="language-python">
+# 自动生成多个查询变体，综合检索结果
+retriever = MultiQueryRetriever.from_llm(retriever=base, llm=llm)
+# &quot;BEV perception&quot; → [&quot;BEV perception survey&quot;, &quot;bird's eye view detection&quot;, ...]
+</code></pre>
+
+<h3 id="hyde-hypothetical-document-embeddings">HyDE (Hypothetical Document Embeddings)</h3>
+
+<pre><code class="language-">
+用户问题 → LLM 生成&quot;假设答案&quot; → 用假设答案的 embedding 检索
+</code></pre>
+
+<p>当问题和文档用词不一致时非常有效。</p>
+
+<h3 id="self-query">Self-Query</h3>
+
+<pre><code class="language-python">
+# 从自然语言中提取元数据过滤条件
+# &quot;2022年后的 BEV 论文&quot; → filter={&quot;year&quot;: {&quot;$gte&quot;: 2022}}
+</code></pre>
+
+<hr>
+
+<h2 id="38-rag-agent-rag_agentpy">3.8 RAG Agent (<code>rag_agent.py</code>) ⭐</h2>
+
+<h3 id="agent">将检索封装为 Agent 工具</h3>
+
+<p>这是 RAG 最强大的用法：Agent 可以自主决定<strong>何时检索、检索什么</strong>。</p>
+
+<pre><code class="language-python">
+@tool
+def query_papers(question: str) -&gt; str:
+    &quot;&quot;&quot;查询论文知识库&quot;&quot;&quot;
+    docs = knowledge_base.query(question)
+    return format_docs(docs)
+
+# 与其他工具一起注册
+tools = [query_papers, calculator, search_papers]
+</code></pre>
+
+<h3 id="rag-chain-vs-rag-agent">对比：RAG Chain vs RAG Agent</h3>
+
+<table><thead><tr>
+<th></th>
+<th>RAG Chain</th>
+<th>RAG Agent</th>
+</tr></thead><tbody>
+<tr>
+<td>检索次数</td>
+<td>1 次</td>
+<td>多次，Agent 自主决定</td>
+</tr>
+<tr>
+<td>工具组合</td>
+<td>无</td>
+<td>检索 + 计算 + 搜索...</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>固定流程</td>
+<td>动态决策</td>
+</tr>
+</tbody></table>
+
+<hr>
+
+<h2 id="module-3">Module 3 核心总结</h2>
+
+<table><thead><tr>
+<th>步骤</th>
+<th>关键决策</th>
+</tr></thead><tbody>
+<tr>
+<td>文档加载</td>
+<td>选对 Loader（PDF/Web/CSV）</td>
+</tr>
+<tr>
+<td>分块</td>
+<td>chunk_size 500 + overlap 100（中文英文有所不同）</td>
+</tr>
+<tr>
+<td>Embedding</td>
+<td>本地免费（sentence-transformers）vs 云端收费（OpenAI）</td>
+</tr>
+<tr>
+<td>向量存储</td>
+<td>ChromaDB（持久化）vs FAISS（纯内存）</td>
+</tr>
+<tr>
+<td>检索</td>
+<td>默认 similarity + MMR，特殊场景用 Multi-Query / HyDE</td>
+</tr>
+<tr>
+<td>RAG Agent</td>
+<td>检索作为工具，Agent 自主决策何时使用</td>
+</tr>
+</tbody></table>
+
+
+  <div class="module-nav"><a href="02-langgraph.html" class="prev">← Module 2: LangChain & LangGraph</a><a href="04-crewai.html" class="next">Module 4: Multi-Agent 协作 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/Agent/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

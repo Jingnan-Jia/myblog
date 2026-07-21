@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2: LangChain & LangGraph - AI Agent 教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --success: #10b981;
+        --warn: #f59e0b;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Nav */
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    /* Container */
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* Breadcrumb */
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    /* Content */
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    /* Module title area */
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    /* Code */
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    /* Blockquote */
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    /* ASCII diagrams */
+    pre.ascii { line-height: 1.4; }
+
+    /* Nav between modules */
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav a.disabled { color: #ccc; pointer-events: none; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    /* Source code link */
+    .source-link {
+        display: inline-flex; align-items: center; gap: .3rem;
+        margin-top: 1.5rem; font-size: .85rem; color: var(--text-secondary);
+        text-decoration: none;
+    }
+    .source-link:hover { color: var(--accent); }
+
+    /* Index page-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 2rem 0; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/Agent/">AI Agent 教程</a><span class="sep">/</span><span>Module 2</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">Module 2</div>
+  <h1>Module 2: LangChain & LangGraph</h1>
+  <p>从手写 Agent 过渡到工业级框架，掌握 LangChain 工具系统和 LangGraph 状态图。</p>
+  <div class="module-meta"><span class="tag">@tool 装饰器</span><span class="tag">LCEL 管道符</span><span class="tag">StateGraph</span><span class="tag">bind_tools</span><span class="tag">Human-in-the-Loop</span></div>
+</div>
+
+<h2 id="">学习目标</h2>
+
+<p>从手写 Agent 过渡到工业级框架，掌握 LangChain 工具系统和 LangGraph 状态图。</p>
+
+<h2 id="langgraph">为什么需要 LangGraph？</h2>
+
+<p>Module 1 的手写 Agent 有这些问题：</p>
+<p>- 手动管理消息列表容易出错</p>
+<p>- 状态管理没有规范化</p>
+<p>- 没有内置的持久化、流式输出</p>
+<p>- 复杂 Agent（多分支、并行）难以实现</p>
+
+<p><strong>LangGraph 将 Agent 建模为一个状态机</strong>，解决了以上所有问题。</p>
+
+<hr>
+
+<h2 id="21-langchain-langchain_toolspy">2.1 LangChain 工具抽象 (<code>langchain_tools.py</code>)</h2>
+
+<h3 id="">三种创建方式</h3>
+
+<pre><code class="language-python">
+# 方式 1: @tool 装饰器 (推荐，最简洁)
+@tool
+def calculator(expression: str) -&gt; str:
+    &quot;&quot;&quot;执行数学计算。&quot;&quot;&quot;
+    ...
+
+# 方式 2: StructuredTool (自定义 schema)
+search_papers = StructuredTool.from_function(
+    func=search_papers_func,
+    name=&quot;search_papers&quot;,
+    description=&quot;搜索自动驾驶论文&quot;,
+)
+
+# 方式 3: BaseTool 子类 (完全控制)
+class ReadFileTool(BaseTool):
+    name: str = &quot;read_file&quot;
+    args_schema: type[BaseModel] = ReadFileInput
+    def _run(self, filepath: str) -&gt; str: ...
+</code></pre>
+
+<h3 id="module-1">对比 Module 1</h3>
+
+<table><thead><tr>
+<th></th>
+<th>Module 1 (手写)</th>
+<th>Module 2 (LangChain)</th>
+</tr></thead><tbody>
+<tr>
+<td>工具定义</td>
+<td>dataclass + 手动 schema</td>
+<td>@tool 装饰器自动生成</td>
+</tr>
+<tr>
+<td>LLM 绑定</td>
+<td>手动 prompt 拼接</td>
+<td>llm.bind_tools(tools)</td>
+</tr>
+<tr>
+<td>工具调用</td>
+<td>手动 JSON 解析</td>
+<td>AIMessage.tool_calls 自动解析</td>
+</tr>
+</tbody></table>
+
+<hr>
+
+<h2 id="22-lcel-simple_chainpy">2.2 LCEL 链式调用 (<code>simple_chain.py</code>)</h2>
+
+<h3 id="lcel-langchain-expression-language">LCEL = LangChain Expression Language</h3>
+
+<p>核心操作：<code>|</code> (管道符)</p>
+
+<pre><code class="language-python">
+# 最简单的 chain
+chain = prompt | llm | StrOutputParser()
+result = chain.invoke({&quot;role&quot;: &quot;专家&quot;, &quot;question&quot;: &quot;什么是 BEV？&quot;})
+
+# 带结构化输出
+chain = prompt | llm | JsonOutputParser(pydantic_object=MyModel)
+
+# 并行执行
+parallel = RunnableParallel(
+    academic=prompt_aca | llm | parser,
+    practical=prompt_pra | llm | parser,
+)
+</code></pre>
+
+<hr>
+
+<h2 id="23-stategraph-first_graphpy">2.3 StateGraph 入门 (<code>first_graph.py</code>) ⭐</h2>
+
+<h3 id="">三个核心概念</h3>
+
+<pre><code class="language-python">
+# State: Agent 的&quot;记忆&quot;
+class AgentState(TypedDict):
+    messages: Annotated[list[BaseMessage], add_messages]
+
+# Node: 处理函数
+def chatbot_node(state: AgentState) -&gt; dict:
+    response = llm.invoke(state[&quot;messages&quot;])
+    return {&quot;messages&quot;: [response]}
+
+# Edge: 状态转移
+graph.add_edge(START, &quot;chatbot&quot;)
+graph.add_edge(&quot;chatbot&quot;, END)
+</code></pre>
+
+<h3 id="">条件路由</h3>
+
+<pre><code class="language-python">
+# 根据分类结果路由到不同专家
+graph.add_conditional_edges(
+    &quot;classifier&quot;,
+    route_by_category,  # 返回 &quot;tech&quot; | &quot;science&quot; | &quot;general&quot;
+    {&quot;tech&quot;: &quot;tech_expert&quot;, &quot;science&quot;: &quot;science_expert&quot;, &quot;general&quot;: &quot;general&quot;}
+)
+</code></pre>
+
+<hr>
+
+<h2 id="24-agent-tool_calling_agentpy">2.4 工具调用 Agent (<code>tool_calling_agent.py</code>)</h2>
+
+<h3 id="bind_tools-agent-api">bind_tools -- Agent 开发的核心 API</h3>
+
+<pre><code class="language-python">
+llm = create_llm()
+llm_with_tools = llm.bind_tools(tools)
+
+# LLM 会自动产生 tool_calls
+response = llm_with_tools.invoke(messages)
+# response.tool_calls = [{&quot;name&quot;: &quot;calculator&quot;, &quot;args&quot;: {&quot;expression&quot;: &quot;2+3&quot;}}]
+</code></pre>
+
+<h3 id="graph">Graph 结构</h3>
+
+<pre><code class="language-">
+START → llm_node → [router] → tool_node → llm_node → ...
+                       └→ END (无工具调用时)
+</code></pre>
+
+<hr>
+
+<h2 id="25-react-agent-graph-react_agent_graphpy">2.5 手动 ReAct Agent Graph (<code>react_agent_graph.py</code>) ⭐ 核心模板</h2>
+
+<p><strong>这是整个教程最重要的 Graph 模板</strong>。后续 Module 3-7 的所有 Agent 都在此基础上扩展。</p>
+
+<h3 id="">手动构建的意义</h3>
+
+<p>虽然 LangGraph 提供了 <code>create_react_agent</code> 预构建函数，但手动构建能让你理解：</p>
+<p>1. agent_node 做什么（调用 LLM，决定是否用工具）</p>
+<p>2. tool_node 做什么（执行工具，返回 ToolMessage）</p>
+<p>3. should_continue 做什么（条件路由）</p>
+<p>4. State 如何在节点间流动</p>
+
+<h3 id="">完整代码结构</h3>
+
+<pre><code class="language-python">
+def build_react_agent(tools, system_prompt):
+    llm_with_tools = create_llm().bind_tools(tools)
+
+    def agent_node(state):   # 大脑: 调用 LLM
+        return {&quot;messages&quot;: [llm_with_tools.invoke(state[&quot;messages&quot;])]}
+
+    def tool_node(state):    # 手脚: 执行工具
+        tool_calls = state[&quot;messages&quot;][-1].tool_calls
+        results = [execute_tool(tc) for tc in tool_calls]
+        return {&quot;messages&quot;: results}
+
+    def should_continue(state):  # 路由器
+        if state[&quot;messages&quot;][-1].tool_calls:
+            return &quot;tools&quot;
+        return END
+
+    builder = StateGraph(State)
+    builder.add_node(&quot;agent&quot;, agent_node)
+    builder.add_node(&quot;tools&quot;, tool_node)
+    builder.add_edge(START, &quot;agent&quot;)
+    builder.add_conditional_edges(&quot;agent&quot;, should_continue, ...)
+    builder.add_edge(&quot;tools&quot;, &quot;agent&quot;)
+    return builder.compile()
+</code></pre>
+
+<hr>
+
+<h2 id="26-agent-routing_agentpy">2.6 条件路由 Agent (<code>routing_agent.py</code>)</h2>
+
+<h3 id="supervisor-specialists">模式：Supervisor + Specialists</h3>
+
+<pre><code class="language-">
+START → supervisor → [router]
+                       ├→ ad_expert (自动驾驶工具)
+                       ├→ cv_expert  (CV 工具)
+                       └→ general    (通用聊天)
+</code></pre>
+
+<p>适用：客服路由、多领域专家系统、代码审查分类。</p>
+
+<hr>
+
+<h2 id="27-plan-and-execute-plan_executepy">2.7 Plan-and-Execute (<code>plan_execute.py</code>)</h2>
+
+<h3 id="vs-react">vs ReAct</h3>
+
+<table><thead><tr>
+<th></th>
+<th>ReAct</th>
+<th>Plan-Execute</th>
+</tr></thead><tbody>
+<tr>
+<td>思路</td>
+<td>思考→行动→观察→再思考</td>
+<td>先规划→逐步执行→汇总</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>简单短任务</td>
+<td>复杂多步任务</td>
+</tr>
+<tr>
+<td>可见性</td>
+<td>看不到全局计划</td>
+<td>用户能看到完整计划</td>
+</tr>
+</tbody></table>
+
+<pre><code class="language-">
+START → planner → executor → [more?] → executor → summarizer → END
+</code></pre>
+
+<hr>
+
+<h2 id="28-checkpoint-streaming_checkpointspy">2.8 流式输出与 Checkpoint (<code>streaming_checkpoints.py</code>)</h2>
+
+<h3 id="streaming">Streaming</h3>
+
+<pre><code class="language-python">
+# 实时看到 Agent 每一步做了什么
+for event in agent.stream(input, config, stream_mode=&quot;updates&quot;):
+    print(event)
+</code></pre>
+
+<h3 id="checkpoints">Checkpoints (断点续聊)</h3>
+
+<pre><code class="language-python">
+memory = MemorySaver()
+agent = builder.compile(checkpointer=memory)
+
+# 同一 thread_id = 共享记忆
+config = {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;user-123&quot;}}
+agent.invoke(msg1, config)  # 第1轮
+agent.invoke(msg2, config)  # 第2轮，记住第1轮内容
+</code></pre>
+
+<hr>
+
+<h2 id="29-human-in-the-loop-human_in_looppy">2.9 Human-in-the-Loop (<code>human_in_loop.py</code>)</h2>
+
+<h3 id="">高风险操作需要审批</h3>
+
+<pre><code class="language-python">
+agent = builder.compile(
+    checkpointer=memory,
+    interrupt_before=[&quot;tools&quot;],  # 执行工具前暂停
+)
+
+result = agent.invoke(...)  # 在 tools 前自动暂停
+# 人工审批后继续
+agent.invoke(Command(resume={&quot;approved&quot;: True}), config)
+</code></pre>
+
+<hr>
+
+<h2 id="module-2">Module 2 核心总结</h2>
+
+<table><thead><tr>
+<th>概念</th>
+<th>一行理解</th>
+</tr></thead><tbody>
+<tr>
+<td><code>@tool</code></td>
+<td>装饰器自动生成工具 schema</td>
+</tr>
+<tr>
+<td>`\</td>
+<td>` 管道符</td>
+<td>LCEL 的核心语法：`prompt \</td>
+<td>llm \</td>
+<td>parser`</td>
+</tr>
+<tr>
+<td><code>StateGraph</code></td>
+<td>Agent = 状态机 (State + Nodes + Edges)</td>
+</tr>
+<tr>
+<td><code>bind_tools</code></td>
+<td>让 LLM 能够自动产生 tool_calls</td>
+</tr>
+<tr>
+<td><code>add_conditional_edges</code></td>
+<td>根据 LLM 输出路由到不同节点</td>
+</tr>
+<tr>
+<td><code>MemorySaver</code></td>
+<td>自动持久化，支持断点续聊</td>
+</tr>
+<tr>
+<td><code>interrupt_before</code></td>
+<td>关键操作前暂停等审批</td>
+</tr>
+</tbody></table>
+
+
+  <div class="module-nav"><a href="01-from-scratch.html" class="prev">← Module 1: 从零构建Agent</a><a href="03-rag.html" class="next">Module 3: RAG 知识检索 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/Agent/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 7: 综合项目 - AI Agent 教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --success: #10b981;
+        --warn: #f59e0b;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Nav */
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    /* Container */
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* Breadcrumb */
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    /* Content */
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    /* Module title area */
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    /* Code */
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    /* Blockquote */
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    /* ASCII diagrams */
+    pre.ascii { line-height: 1.4; }
+
+    /* Nav between modules */
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav a.disabled { color: #ccc; pointer-events: none; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    /* Source code link */
+    .source-link {
+        display: inline-flex; align-items: center; gap: .3rem;
+        margin-top: 1.5rem; font-size: .85rem; color: var(--text-secondary);
+        text-decoration: none;
+    }
+    .source-link:hover { color: var(--accent); }
+
+    /* Index page-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 2rem 0; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/Agent/">AI Agent 教程</a><span class="sep">/</span><span>Module 7</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">Module 7</div>
+  <h1>Module 7: 综合项目</h1>
+  <p>整合所有技术，构建完整的科研自动化助手（LangGraph + CrewAI + Gradio）。</p>
+  <div class="module-meta"><span class="tag">LangGraph 编排</span><span class="tag">CrewAI 子Agent</span><span class="tag">Gradio UI</span><span class="tag">ArXiv API</span><span class="tag">端到端系统</span></div>
+</div>
+
+<h2 id="">学习目标</h2>
+
+<p>整合所有学到的技术，构建一个完整的科研自动化助手。</p>
+
+<hr>
+
+<h2 id="">系统架构</h2>
+
+<pre><code class="language-">
+┌─────────────────────────────────────────────┐
+│              Gradio Web UI                  │
+│         (自然语言交互界面)                     │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│         Orchestrator (LangGraph)             │
+│    ┌─────────────────────────────────┐      │
+│    │  Supervisor (意图分类 + 路由)    │      │
+│    └──────────┬──────────────────────┘      │
+│               │                              │
+│    ┌──────────▼──────────────────────┐      │
+│    │     Sub-Agent 集群               │      │
+│    │  ├─ Literature Agent (CrewAI)   │      │
+│    │  ├─ Deep Read Agent             │      │
+│    │  ├─ Synthesis Agent             │      │
+│    │  ├─ Writing Agent               │      │
+│    │  └─ Experiment Agent            │      │
+│    └──────────┬──────────────────────┘      │
+└───────────────┼─────────────────────────────┘
+                │
+┌───────────────▼─────────────────────────────┐
+│           Tool Layer (工具层)                │
+│  ├─ arXiv API (论文搜索)                     │
+│  ├─ Paper Processor (PDF解析)               │
+│  ├─ Vision Tool (图表分析)                   │
+│  └─ Citation Tool (引用管理)                 │
+└───────────────┬─────────────────────────────┘
+                │
+┌───────────────▼─────────────────────────────┐
+│         Memory Layer (记忆层)                │
+│  ├─ ChromaDB (论文向量索引)                  │
+│  ├─ SQLite (对话历史 + 论文元数据)            │
+│  └─ Experiment Registry (实验跟踪)           │
+└─────────────────────────────────────────────┘
+</code></pre>
+
+<hr>
+
+<h2 id="">核心能力</h2>
+
+<h3 id="1-3-bev">1. 文献搜索 <code>&quot;找 3 篇 BEV 感知论文&quot;</code></h3>
+
+<pre><code class="language-">
+Supervisor 识别意图 &quot;literature&quot;
+→ Literature Agent (CrewAI: Searcher + Analyzer)
+→ arXiv API 搜索
+→ 返回结构化论文列表
+</code></pre>
+
+<h3 id="2-bevformer">2. 论文深度分析 <code>&quot;分析 BEVFormer 的方法&quot;</code></h3>
+
+<pre><code class="language-">
+Supervisor 识别意图 &quot;deep_read&quot;
+→ Deep Read Agent
+→ 加载 PDF → 分块 → 向量索引
+→ 检索相关段落 → LLM 分析 → 结构化报告
+</code></pre>
+
+<h3 id="3-3d">3. 跨论文综合 <code>&quot;3D 检测有什么新趋势？&quot;</code></h3>
+
+<pre><code class="language-">
+Supervisor 识别意图 &quot;synthesis&quot;
+→ Synthesis Agent
+→ 多论文查询 → 交叉对比 → 识别趋势和空白
+</code></pre>
+
+<h3 id="4-bev-related-work">4. 综述撰写 <code>&quot;写一段 BEV 感知的 related work&quot;</code></h3>
+
+<pre><code class="language-">
+Supervisor 识别意图 &quot;writing&quot;
+→ Writing Agent
+→ 检索相关论文 → 组织叙事 → 生成学术风格的文本
+</code></pre>
+
+<h3 id="5-bevdet-map042">5. 实验跟踪 <code>&quot;记录实验: BEVDet, mAP=0.42&quot;</code></h3>
+
+<pre><code class="language-">
+Supervisor 识别意图 &quot;experiment&quot;
+→ Experiment Agent
+→ 存入 SQLite → 生成排行榜
+</code></pre>
+
+<hr>
+
+<h2 id="">关键文件</h2>
+
+<table><thead><tr>
+<th>文件</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td><code>agents/orchestrator.py</code></td>
+<td>LangGraph 主编排器，Intent → Route → Specialist</td>
+</tr>
+<tr>
+<td><code>tools/arxiv_tool.py</code></td>
+<td>arXiv API 搜索工具</td>
+</tr>
+<tr>
+<td><code>tools/paper_processor.py</code></td>
+<td>PDF 解析、分块、索引</td>
+</tr>
+<tr>
+<td><code>tools/vision_tool.py</code></td>
+<td>论文图表视觉分析</td>
+</tr>
+<tr>
+<td><code>memory/vector_store.py</code></td>
+<td>ChromaDB 持久化向量索引</td>
+</tr>
+<tr>
+<td><code>memory/paper_registry.py</code></td>
+<td>SQLite 论文元数据管理</td>
+</tr>
+<tr>
+<td><code>app.py</code></td>
+<td>Gradio Web 交互界面</td>
+</tr>
+<tr>
+<td><code>config.py</code></td>
+<td>配置中心</td>
+</tr>
+</tbody></table>
+
+<hr>
+
+<h2 id="">启动方式</h2>
+
+<pre><code class="language-bash">
+# Web 界面
+python module_07_capstone/app.py
+# 打开 http://localhost:7860
+</code></pre>
+
+<hr>
+
+<h2 id="module-7">Module 7 核心总结</h2>
+
+<table><thead><tr>
+<th>层级</th>
+<th>技术</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>UI</strong></td>
+<td>Gradio ChatInterface</td>
+</tr>
+<tr>
+<td><strong>编排</strong></td>
+<td>LangGraph StateGraph + 条件路由</td>
+</tr>
+<tr>
+<td><strong>子 Agent</strong></td>
+<td>CrewAI (文献搜索) + LangGraph (深度分析)</td>
+</tr>
+<tr>
+<td><strong>工具</strong></td>
+<td>arXiv API + PDF 解析 + Vision LLM</td>
+</tr>
+<tr>
+<td><strong>记忆</strong></td>
+<td>ChromaDB (向量) + SQLite (结构化)</td>
+</tr>
+</tbody></table>
+
+<hr>
+
+<h2 id="">扩展方向</h2>
+
+<p>1. <strong>真实 PDF 解析</strong>：接入 PyPDFLoader 解析用户上传的论文</p>
+<p>2. <strong>论文图表提取</strong>：用 Vision LLM 分析论文中的 Figure</p>
+<p>3. <strong>定时推送</strong>：每日自动搜索新论文并推送摘要</p>
+<p>4. <strong>Slack/微信集成</strong>：通过 Bot 接口在聊天工具中使用</p>
+<p>5. <strong>多语言</strong>：支持中英文论文混合检索</p>
+
+
+  <div class="module-nav"><a href="06-automation.html" class="prev">← Module 6: Task 自动化</a><span></span></div>
+  <div class="footer-note">
+    <a href="/tutorials/Agent/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

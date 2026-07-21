@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Agent 智能体开发系统教程</title>
+<title>Module 0: 环境配置 - AI Agent 教程</title>
 <style>
     :root {
         --bg: #fafafa;
@@ -189,107 +189,125 @@
   </div>
 </nav>
 <div class="container">
-  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><span>AI Agent 教程</span></div>
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/Agent/">AI Agent 教程</a><span class="sep">/</span><span>Module 0</span></div>
   
-<div class="hero">
-  <h1>AI Agent 智能体开发系统教程</h1>
-  <p>从零构建 AI Agent：一个面向 PhD 研究者的系统化实践教程。覆盖 LLM Agent、RAG、Multi-Agent、CV Agent、Task Automation。</p>
-  <div class="tech-stack">
-    <span>Python 3.12</span><span>LangChain</span><span>LangGraph</span>
-    <span>CrewAI</span><span>DeepSeek</span><span>ChromaDB</span>
-    <span>Gradio</span><span>arXiv API</span>
-  </div>
+<div class="module-header">
+  <div class="module-badge">Module 0</div>
+  <h1>Module 0: 环境配置</h1>
+  <p>配置开发环境，理解 LLM API 调用方式，创建可切换国内模型的统一工厂函数。</p>
+  <div class="module-meta"><span class="tag">LLM API 生态</span><span class="tag">环境变量管理</span><span class="tag">llm_factory 工厂函数</span></div>
 </div>
 
-<h2>学习路线</h2>
-<div class="module-grid">
-<a href="00-setup.html" class="module-card">
-  <div class="card-num">0</div>
-  <div class="card-content">
-    <h3>⚙️ Module 0: 环境配置</h3>
-    <p>配置开发环境，理解 LLM API 调用方式，创建可切换国内模型的统一工厂函数。</p>
-    <div class="card-tags"><span>LLM API 生态</span><span>环境变量管理</span><span>llm_factory 工厂函数</span></div>
-  </div>
-</a>
-<a href="01-from-scratch.html" class="module-card">
-  <div class="card-num">1</div>
-  <div class="card-content">
-    <h3>🧱 Module 1: 从零构建Agent</h3>
-    <p>用纯 Python 手写一个完整的 ReAct Agent，理解 Agent = LLM + Tools + Loop 的本质。</p>
-    <div class="card-tags"><span>LLM 调用</span><span>工具定义</span><span>ReAct 循环</span><span>记忆系统</span><span>错误处理</span></div>
-  </div>
-</a>
-<a href="02-langgraph.html" class="module-card">
-  <div class="card-num">2</div>
-  <div class="card-content">
-    <h3>🔗 Module 2: LangChain & LangGraph</h3>
-    <p>从手写 Agent 过渡到工业级框架，掌握 LangChain 工具系统和 LangGraph 状态图。</p>
-    <div class="card-tags"><span>@tool 装饰器</span><span>LCEL 管道符</span><span>StateGraph</span><span>bind_tools</span><span>Human-in-the-Loop</span></div>
-  </div>
-</a>
-<a href="03-rag.html" class="module-card">
-  <div class="card-num">3</div>
-  <div class="card-content">
-    <h3>📚 Module 3: RAG 知识检索</h3>
-    <p>构建完整的 RAG 系统，让 Agent 能基于外部知识库回答专业问题。</p>
-    <div class="card-tags"><span>文档加载</span><span>分块策略</span><span>向量嵌入</span><span>ChromaDB</span><span>高级检索</span></div>
-  </div>
-</a>
-<a href="04-crewai.html" class="module-card">
-  <div class="card-num">4</div>
-  <div class="card-content">
-    <h3>🤝 Module 4: Multi-Agent 协作</h3>
-    <p>构建多 Agent 协作系统，用 CrewAI 实现角色驱动的 Agent 团队设计。</p>
-    <div class="card-tags"><span>CrewAI</span><span>角色设计</span><span>Sequential/Hierarchical</span><span>科研团队流水线</span></div>
-  </div>
-</a>
-<a href="05-cv.html" class="module-card">
-  <div class="card-num">5</div>
-  <div class="card-content">
-    <h3>👁️ Module 5: CV & Agent 集成</h3>
-    <p>将计算机视觉能力整合到 Agent，构建自动驾驶场景分析系统。</p>
-    <div class="card-tags"><span>Vision LLM</span><span>CV Tool</span><span>自动驾驶场景</span><span>多模态 RAG</span></div>
-  </div>
-</a>
-<a href="06-automation.html" class="module-card">
-  <div class="card-num">6</div>
-  <div class="card-content">
-    <h3>🤖 Module 6: Task 自动化</h3>
-    <p>构建能自动写代码、运行代码、从错误中学习的 Agent。</p>
-    <div class="card-tags"><span>Python REPL</span><span>错误自修正</span><span>数据分析流水线</span><span>安全机制</span></div>
-  </div>
-</a>
-<a href="07-capstone.html" class="module-card">
-  <div class="card-num">7</div>
-  <div class="card-content">
-    <h3>🚀 Module 7: 综合项目</h3>
-    <p>整合所有技术，构建完整的科研自动化助手（LangGraph + CrewAI + Gradio）。</p>
-    <div class="card-tags"><span>LangGraph 编排</span><span>CrewAI 子Agent</span><span>Gradio UI</span><span>ArXiv API</span><span>端到端系统</span></div>
-  </div>
-</a>
+<h2 id="">学习目标</h2>
 
-</div>
+<p>配置开发环境，理解 LLM API 调用方式，创建可切换国内模型的统一工厂函数。</p>
 
-<h2>关于本教程</h2>
-<p>本教程采用<strong>"从第一原理出发"</strong>的教学方法，先手写再框架，让你理解每个抽象层背后真正在做什么。</p>
-<ul>
-  <li><strong>Module 0</strong>: 环境配置，适配国内 DeepSeek / 智谱 / 通义千问 API</li>
-  <li><strong>Module 1</strong>: 纯 Python 手写 ReAct Agent（最重要的模块）⭐</li>
-  <li><strong>Module 2</strong>: 用 LangChain + LangGraph 工业化你的 Agent</li>
-  <li><strong>Module 3</strong>: 给 Agent 加上 RAG 知识检索能力</li>
-  <li><strong>Module 4</strong>: 用 CrewAI 组建多 Agent 协作团队</li>
-  <li><strong>Module 5</strong>: 接入视觉模型，构建自动驾驶场景分析</li>
-  <li><strong>Module 6</strong>: 让 Agent 自己写代码、运行、Debug</li>
-  <li><strong>Module 7</strong>: 综合项目：科研自动化助手（LangGraph + CrewAI + Gradio）</li>
-</ul>
+<h2 id="">核心概念</h2>
 
-<h2>源码</h2>
-<p>完整 Python 源码可在 GitHub 获取（含环境配置、逐模块可运行代码、Capstone Gradio 应用）。</p>
-<p><a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">github.com/Jingnan-Jia/research →</a></p>
+<h3 id="1-api">1. 国内模型 API 生态</h3>
 
-<div class="footer-note">
-  <a href="/tutorials/">← 返回教程列表</a>
-</div>
+<table><thead><tr>
+<th>模型</th>
+<th>API 地址</th>
+<th>兼容性</th>
+<th>特点</th>
+</tr></thead><tbody>
+<tr>
+<td>DeepSeek</td>
+<td>api.deepseek.com/v1</td>
+<td>OpenAI 兼容</td>
+<td>性价比高，tool calling 强</td>
+</tr>
+<tr>
+<td>智谱 GLM</td>
+<td>open.bigmodel.cn/api/paas/v4</td>
+<td>OpenAI 兼容</td>
+<td>中英双语优秀</td>
+</tr>
+<tr>
+<td>通义千问</td>
+<td>dashscope.aliyuncs.com/compatible-mode/v1</td>
+<td>OpenAI 兼容</td>
+<td>阿里云生态，VL 视觉模型</td>
+</tr>
+</tbody></table>
+
+<p>所有模型都兼容 OpenAI API 格式，意味着<strong>同一个 <code>ChatOpenAI</code> 类可以调用所有模型</strong>，只需切换 <code>base_url</code>。</p>
+
+<h3 id="2-llm_factory">2. 为什么需要一个 llm_factory？</h3>
+
+<p>在开发 Agent 时，你可能需要：</p>
+<p>- 开发阶段用便宜的模型（DeepSeek）</p>
+<p>- 生产阶段用更强的模型（GPT-4o）</p>
+<p>- 视觉任务用多模态模型（通义千问 VL）</p>
+
+<p><code>llm_factory.py</code> 通过环境变量统一管理这些切换。</p>
+
+<h3 id="3">3. 关键代码</h3>
+
+<pre><code class="language-python">
+from module_00_setup.llm_factory import create_llm
+
+# 默认使用 .env 中配置的 provider
+llm = create_llm()
+
+# 或指定 provider
+llm = create_llm(provider=&quot;zhipu&quot;)
+
+# 调用
+response = llm.invoke(&quot;你好&quot;)
+print(response.content)
+</code></pre>
+
+<h2 id="">动手实践</h2>
+
+<pre><code class="language-bash">
+# 1. 复制配置模板
+cp .env.template .env
+# 2. 编辑 .env 填入 API Key
+# 3. 验证环境
+python module_00_setup/check_environment.py
+# 4. 测试 API 连通性
+python module_00_setup/llm_factory.py
+</code></pre>
+
+<h2 id="">关键文件</h2>
+
+<table><thead><tr>
+<th>文件</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td><code>.env.template</code></td>
+<td>API 配置模板</td>
+</tr>
+<tr>
+<td><code>module_00_setup/llm_factory.py</code></td>
+<td>LLM 工厂函数</td>
+</tr>
+<tr>
+<td><code>module_00_setup/check_environment.py</code></td>
+<td>环境检查脚本</td>
+</tr>
+<tr>
+<td><code>requirements.txt</code></td>
+<td>依赖清单</td>
+</tr>
+</tbody></table>
+
+<h2 id="">核心理解</h2>
+
+<p>- 所有国内主流模型都提供 OpenAI 兼容 API</p>
+<p>- 善用 <code>.env</code> 管理敏感信息（<strong>永远不要把 API Key 提交到 git</strong>）</p>
+<p>- <code>ChatOpenAI</code> 通过 <code>base_url</code> 参数适配任意兼容 API</p>
+
+
+  <div class="module-nav"><span></span><a href="01-from-scratch.html" class="next">Module 1: 从零构建Agent →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/Agent/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
 </div>
 </body>
 </html>

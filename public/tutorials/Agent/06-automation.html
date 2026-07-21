@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Agent 智能体开发系统教程</title>
+<title>Module 6: Task 自动化 - AI Agent 教程</title>
 <style>
     :root {
         --bg: #fafafa;
@@ -189,107 +189,141 @@
   </div>
 </nav>
 <div class="container">
-  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><span>AI Agent 教程</span></div>
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/Agent/">AI Agent 教程</a><span class="sep">/</span><span>Module 6</span></div>
   
-<div class="hero">
-  <h1>AI Agent 智能体开发系统教程</h1>
-  <p>从零构建 AI Agent：一个面向 PhD 研究者的系统化实践教程。覆盖 LLM Agent、RAG、Multi-Agent、CV Agent、Task Automation。</p>
-  <div class="tech-stack">
-    <span>Python 3.12</span><span>LangChain</span><span>LangGraph</span>
-    <span>CrewAI</span><span>DeepSeek</span><span>ChromaDB</span>
-    <span>Gradio</span><span>arXiv API</span>
-  </div>
+<div class="module-header">
+  <div class="module-badge">Module 6</div>
+  <h1>Module 6: Task 自动化</h1>
+  <p>构建能自动写代码、运行代码、从错误中学习的 Agent。</p>
+  <div class="module-meta"><span class="tag">Python REPL</span><span class="tag">错误自修正</span><span class="tag">数据分析流水线</span><span class="tag">安全机制</span></div>
 </div>
 
-<h2>学习路线</h2>
-<div class="module-grid">
-<a href="00-setup.html" class="module-card">
-  <div class="card-num">0</div>
-  <div class="card-content">
-    <h3>⚙️ Module 0: 环境配置</h3>
-    <p>配置开发环境，理解 LLM API 调用方式，创建可切换国内模型的统一工厂函数。</p>
-    <div class="card-tags"><span>LLM API 生态</span><span>环境变量管理</span><span>llm_factory 工厂函数</span></div>
-  </div>
-</a>
-<a href="01-from-scratch.html" class="module-card">
-  <div class="card-num">1</div>
-  <div class="card-content">
-    <h3>🧱 Module 1: 从零构建Agent</h3>
-    <p>用纯 Python 手写一个完整的 ReAct Agent，理解 Agent = LLM + Tools + Loop 的本质。</p>
-    <div class="card-tags"><span>LLM 调用</span><span>工具定义</span><span>ReAct 循环</span><span>记忆系统</span><span>错误处理</span></div>
-  </div>
-</a>
-<a href="02-langgraph.html" class="module-card">
-  <div class="card-num">2</div>
-  <div class="card-content">
-    <h3>🔗 Module 2: LangChain & LangGraph</h3>
-    <p>从手写 Agent 过渡到工业级框架，掌握 LangChain 工具系统和 LangGraph 状态图。</p>
-    <div class="card-tags"><span>@tool 装饰器</span><span>LCEL 管道符</span><span>StateGraph</span><span>bind_tools</span><span>Human-in-the-Loop</span></div>
-  </div>
-</a>
-<a href="03-rag.html" class="module-card">
-  <div class="card-num">3</div>
-  <div class="card-content">
-    <h3>📚 Module 3: RAG 知识检索</h3>
-    <p>构建完整的 RAG 系统，让 Agent 能基于外部知识库回答专业问题。</p>
-    <div class="card-tags"><span>文档加载</span><span>分块策略</span><span>向量嵌入</span><span>ChromaDB</span><span>高级检索</span></div>
-  </div>
-</a>
-<a href="04-crewai.html" class="module-card">
-  <div class="card-num">4</div>
-  <div class="card-content">
-    <h3>🤝 Module 4: Multi-Agent 协作</h3>
-    <p>构建多 Agent 协作系统，用 CrewAI 实现角色驱动的 Agent 团队设计。</p>
-    <div class="card-tags"><span>CrewAI</span><span>角色设计</span><span>Sequential/Hierarchical</span><span>科研团队流水线</span></div>
-  </div>
-</a>
-<a href="05-cv.html" class="module-card">
-  <div class="card-num">5</div>
-  <div class="card-content">
-    <h3>👁️ Module 5: CV & Agent 集成</h3>
-    <p>将计算机视觉能力整合到 Agent，构建自动驾驶场景分析系统。</p>
-    <div class="card-tags"><span>Vision LLM</span><span>CV Tool</span><span>自动驾驶场景</span><span>多模态 RAG</span></div>
-  </div>
-</a>
-<a href="06-automation.html" class="module-card">
-  <div class="card-num">6</div>
-  <div class="card-content">
-    <h3>🤖 Module 6: Task 自动化</h3>
-    <p>构建能自动写代码、运行代码、从错误中学习的 Agent。</p>
-    <div class="card-tags"><span>Python REPL</span><span>错误自修正</span><span>数据分析流水线</span><span>安全机制</span></div>
-  </div>
-</a>
-<a href="07-capstone.html" class="module-card">
-  <div class="card-num">7</div>
-  <div class="card-content">
-    <h3>🚀 Module 7: 综合项目</h3>
-    <p>整合所有技术，构建完整的科研自动化助手（LangGraph + CrewAI + Gradio）。</p>
-    <div class="card-tags"><span>LangGraph 编排</span><span>CrewAI 子Agent</span><span>Gradio UI</span><span>ArXiv API</span><span>端到端系统</span></div>
-  </div>
-</a>
+<h2 id="">学习目标</h2>
 
-</div>
+<p>构建能自动写代码、运行代码、从错误中学习的 Agent。</p>
 
-<h2>关于本教程</h2>
-<p>本教程采用<strong>"从第一原理出发"</strong>的教学方法，先手写再框架，让你理解每个抽象层背后真正在做什么。</p>
-<ul>
-  <li><strong>Module 0</strong>: 环境配置，适配国内 DeepSeek / 智谱 / 通义千问 API</li>
-  <li><strong>Module 1</strong>: 纯 Python 手写 ReAct Agent（最重要的模块）⭐</li>
-  <li><strong>Module 2</strong>: 用 LangChain + LangGraph 工业化你的 Agent</li>
-  <li><strong>Module 3</strong>: 给 Agent 加上 RAG 知识检索能力</li>
-  <li><strong>Module 4</strong>: 用 CrewAI 组建多 Agent 协作团队</li>
-  <li><strong>Module 5</strong>: 接入视觉模型，构建自动驾驶场景分析</li>
-  <li><strong>Module 6</strong>: 让 Agent 自己写代码、运行、Debug</li>
-  <li><strong>Module 7</strong>: 综合项目：科研自动化助手（LangGraph + CrewAI + Gradio）</li>
-</ul>
+<hr>
 
-<h2>源码</h2>
-<p>完整 Python 源码可在 GitHub 获取（含环境配置、逐模块可运行代码、Capstone Gradio 应用）。</p>
-<p><a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">github.com/Jingnan-Jia/research →</a></p>
+<h2 id="61-agent-code_execution_agentpy">6.1 代码执行 Agent (<code>code_execution_agent.py</code>)</h2>
 
-<div class="footer-note">
-  <a href="/tutorials/">← 返回教程列表</a>
-</div>
+<h3 id="python-repl">核心：Python REPL 工具</h3>
+
+<pre><code class="language-python">
+@tool
+def python_repl(code: str) -&gt; str:
+    &quot;&quot;&quot;执行 Python 代码并返回结果&quot;&quot;&quot;
+    # 安全限制：只允许导入白名单中的模块
+    stdout = io.StringIO()
+    exec(code, {&quot;__builtins__&quot;: __builtins__})
+    return stdout.getvalue()
+</code></pre>
+
+<h3 id="">错误自修正循环</h3>
+
+<pre><code class="language-">
+Agent 写代码 → 执行 → 报错 → Agent 读取错误 → 修复代码 → 重新执行 → 成功
+</code></pre>
+
+<p>这是 Agent 最令人惊叹的能力之一：它会自己 Debug！</p>
+
+<h3 id="">安全机制</h3>
+
+<p>- <strong>模块白名单</strong>：只允许导入 math, numpy, pandas 等安全模块</p>
+<p>- <strong>输出捕获</strong>：stdout/stderr 重定向</p>
+<p>- <strong>迭代上限</strong>：防止无限循环</p>
+
+<hr>
+
+<h2 id="62-agent-data_pipeline_agentpy">6.2 数据分析流水线 Agent (<code>data_pipeline_agent.py</code>)</h2>
+
+<h3 id="">流程</h3>
+
+<pre><code class="language-">
+数据加载 → 探索性分析 → 数据清洗 → 统计分析 → 可视化 → 报告
+</code></pre>
+
+<h3 id="">工具设计</h3>
+
+<pre><code class="language-python">
+@tool
+def analyze_dataframe(code: str) -&gt; str:
+    &quot;&quot;&quot;用 pandas 分析数据。变量 df 是当前数据集。&quot;&quot;&quot;
+
+@tool
+def generate_plot(plot_code: str) -&gt; str:
+    &quot;&quot;&quot;生成 matplotlib 图表。&quot;&quot;&quot;
+</code></pre>
+
+<h3 id="">使用示例</h3>
+
+<pre><code class="language-">
+用户: &quot;加载 benchmark 数据，找出 mAP 最高的 3 个模型&quot;
+Agent:
+  1. 调用 analyze_dataframe('print(df.nlargest(3, &quot;mAP&quot;))')
+  2. 调用 generate_plot('df.plot.bar(x=&quot;model&quot;, y=&quot;mAP&quot;)')
+  3. 给出分析结论
+</code></pre>
+
+<hr>
+
+<h2 id="63-agent">6.3 其他自动化 Agent 类型</h2>
+
+<h3 id="agent">网页浏览 Agent</h3>
+
+<pre><code class="language-python">
+@tool
+def fetch_webpage(url: str) -&gt; str:
+    &quot;&quot;&quot;抓取网页内容&quot;&quot;&quot;
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, &quot;html.parser&quot;)
+    return soup.get_text()
+</code></pre>
+
+<h3 id="agent">文件系统 Agent</h3>
+
+<pre><code class="language-python">
+@tool
+def list_files(path: str) -&gt; str:
+    &quot;&quot;&quot;列出目录文件&quot;&quot;&quot;
+
+@tool
+def read_file_content(path: str) -&gt; str:
+    &quot;&quot;&quot;读取文件内容&quot;&quot;&quot;
+</code></pre>
+
+<hr>
+
+<h2 id="module-6">Module 6 核心总结</h2>
+
+<table><thead><tr>
+<th>能力</th>
+<th>实现方式</th>
+</tr></thead><tbody>
+<tr>
+<td>代码执行</td>
+<td>Python REPL tool + exec() + 输出捕获</td>
+</tr>
+<tr>
+<td>错误自修正</td>
+<td>错误信息反馈 → Agent 重写代码</td>
+</tr>
+<tr>
+<td>数据分析</td>
+<td>pandas tool + matplotlib tool</td>
+</tr>
+<tr>
+<td>安全保护</td>
+<td>模块白名单 + 操作确认 + 迭代上限</td>
+</tr>
+</tbody></table>
+
+
+  <div class="module-nav"><a href="05-cv.html" class="prev">← Module 5: CV & Agent 集成</a><a href="07-capstone.html" class="next">Module 7: 综合项目 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/Agent/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
 </div>
 </body>
 </html>

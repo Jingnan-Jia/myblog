@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Agent 智能体开发系统教程</title>
+<title>Module 5: CV & Agent 集成 - AI Agent 教程</title>
 <style>
     :root {
         --bg: #fafafa;
@@ -189,107 +189,134 @@
   </div>
 </nav>
 <div class="container">
-  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><span>AI Agent 教程</span></div>
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/Agent/">AI Agent 教程</a><span class="sep">/</span><span>Module 5</span></div>
   
-<div class="hero">
-  <h1>AI Agent 智能体开发系统教程</h1>
-  <p>从零构建 AI Agent：一个面向 PhD 研究者的系统化实践教程。覆盖 LLM Agent、RAG、Multi-Agent、CV Agent、Task Automation。</p>
-  <div class="tech-stack">
-    <span>Python 3.12</span><span>LangChain</span><span>LangGraph</span>
-    <span>CrewAI</span><span>DeepSeek</span><span>ChromaDB</span>
-    <span>Gradio</span><span>arXiv API</span>
-  </div>
+<div class="module-header">
+  <div class="module-badge">Module 5</div>
+  <h1>Module 5: CV & Agent 集成</h1>
+  <p>将计算机视觉能力整合到 Agent，构建自动驾驶场景分析系统。</p>
+  <div class="module-meta"><span class="tag">Vision LLM</span><span class="tag">CV Tool</span><span class="tag">自动驾驶场景</span><span class="tag">多模态 RAG</span></div>
 </div>
 
-<h2>学习路线</h2>
-<div class="module-grid">
-<a href="00-setup.html" class="module-card">
-  <div class="card-num">0</div>
-  <div class="card-content">
-    <h3>⚙️ Module 0: 环境配置</h3>
-    <p>配置开发环境，理解 LLM API 调用方式，创建可切换国内模型的统一工厂函数。</p>
-    <div class="card-tags"><span>LLM API 生态</span><span>环境变量管理</span><span>llm_factory 工厂函数</span></div>
-  </div>
-</a>
-<a href="01-from-scratch.html" class="module-card">
-  <div class="card-num">1</div>
-  <div class="card-content">
-    <h3>🧱 Module 1: 从零构建Agent</h3>
-    <p>用纯 Python 手写一个完整的 ReAct Agent，理解 Agent = LLM + Tools + Loop 的本质。</p>
-    <div class="card-tags"><span>LLM 调用</span><span>工具定义</span><span>ReAct 循环</span><span>记忆系统</span><span>错误处理</span></div>
-  </div>
-</a>
-<a href="02-langgraph.html" class="module-card">
-  <div class="card-num">2</div>
-  <div class="card-content">
-    <h3>🔗 Module 2: LangChain & LangGraph</h3>
-    <p>从手写 Agent 过渡到工业级框架，掌握 LangChain 工具系统和 LangGraph 状态图。</p>
-    <div class="card-tags"><span>@tool 装饰器</span><span>LCEL 管道符</span><span>StateGraph</span><span>bind_tools</span><span>Human-in-the-Loop</span></div>
-  </div>
-</a>
-<a href="03-rag.html" class="module-card">
-  <div class="card-num">3</div>
-  <div class="card-content">
-    <h3>📚 Module 3: RAG 知识检索</h3>
-    <p>构建完整的 RAG 系统，让 Agent 能基于外部知识库回答专业问题。</p>
-    <div class="card-tags"><span>文档加载</span><span>分块策略</span><span>向量嵌入</span><span>ChromaDB</span><span>高级检索</span></div>
-  </div>
-</a>
-<a href="04-crewai.html" class="module-card">
-  <div class="card-num">4</div>
-  <div class="card-content">
-    <h3>🤝 Module 4: Multi-Agent 协作</h3>
-    <p>构建多 Agent 协作系统，用 CrewAI 实现角色驱动的 Agent 团队设计。</p>
-    <div class="card-tags"><span>CrewAI</span><span>角色设计</span><span>Sequential/Hierarchical</span><span>科研团队流水线</span></div>
-  </div>
-</a>
-<a href="05-cv.html" class="module-card">
-  <div class="card-num">5</div>
-  <div class="card-content">
-    <h3>👁️ Module 5: CV & Agent 集成</h3>
-    <p>将计算机视觉能力整合到 Agent，构建自动驾驶场景分析系统。</p>
-    <div class="card-tags"><span>Vision LLM</span><span>CV Tool</span><span>自动驾驶场景</span><span>多模态 RAG</span></div>
-  </div>
-</a>
-<a href="06-automation.html" class="module-card">
-  <div class="card-num">6</div>
-  <div class="card-content">
-    <h3>🤖 Module 6: Task 自动化</h3>
-    <p>构建能自动写代码、运行代码、从错误中学习的 Agent。</p>
-    <div class="card-tags"><span>Python REPL</span><span>错误自修正</span><span>数据分析流水线</span><span>安全机制</span></div>
-  </div>
-</a>
-<a href="07-capstone.html" class="module-card">
-  <div class="card-num">7</div>
-  <div class="card-content">
-    <h3>🚀 Module 7: 综合项目</h3>
-    <p>整合所有技术，构建完整的科研自动化助手（LangGraph + CrewAI + Gradio）。</p>
-    <div class="card-tags"><span>LangGraph 编排</span><span>CrewAI 子Agent</span><span>Gradio UI</span><span>ArXiv API</span><span>端到端系统</span></div>
-  </div>
-</a>
+<h2 id="">学习目标</h2>
 
-</div>
+<p>将计算机视觉能力整合到 Agent 中，构建自动驾驶场景分析系统。</p>
 
-<h2>关于本教程</h2>
-<p>本教程采用<strong>"从第一原理出发"</strong>的教学方法，先手写再框架，让你理解每个抽象层背后真正在做什么。</p>
-<ul>
-  <li><strong>Module 0</strong>: 环境配置，适配国内 DeepSeek / 智谱 / 通义千问 API</li>
-  <li><strong>Module 1</strong>: 纯 Python 手写 ReAct Agent（最重要的模块）⭐</li>
-  <li><strong>Module 2</strong>: 用 LangChain + LangGraph 工业化你的 Agent</li>
-  <li><strong>Module 3</strong>: 给 Agent 加上 RAG 知识检索能力</li>
-  <li><strong>Module 4</strong>: 用 CrewAI 组建多 Agent 协作团队</li>
-  <li><strong>Module 5</strong>: 接入视觉模型，构建自动驾驶场景分析</li>
-  <li><strong>Module 6</strong>: 让 Agent 自己写代码、运行、Debug</li>
-  <li><strong>Module 7</strong>: 综合项目：科研自动化助手（LangGraph + CrewAI + Gradio）</li>
-</ul>
+<h2 id="cv-agent">为什么需要 CV + Agent？</h2>
 
-<h2>源码</h2>
-<p>完整 Python 源码可在 GitHub 获取（含环境配置、逐模块可运行代码、Capstone Gradio 应用）。</p>
-<p><a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">github.com/Jingnan-Jia/research →</a></p>
+<p>传统 CV 流水线：输入图片 → 模型推理 → 输出结果 → 人工分析。</p>
 
-<div class="footer-note">
-  <a href="/tutorials/">← 返回教程列表</a>
-</div>
+<p>CV + Agent：输入图片 → Agent 自主调用检测模型 → 综合分析 → 给出自然语言结论。</p>
+
+<hr>
+
+<h2 id="51-llm-vision_llm_basicspy">5.1 视觉 LLM (<code>vision_llm_basics.py</code>)</h2>
+
+<h3 id="">支持的视觉模型</h3>
+
+<table><thead><tr>
+<th>模型</th>
+<th>接入方式</th>
+<th>用途</th>
+</tr></thead><tbody>
+<tr>
+<td>通义千问 VL (qwen-vl-plus)</td>
+<td>OpenAI 兼容</td>
+<td>图片理解、场景描述</td>
+</tr>
+<tr>
+<td>智谱 GLM-4V</td>
+<td>OpenAI 兼容</td>
+<td>图片理解、图表分析</td>
+</tr>
+</tbody></table>
+
+<h3 id="">图片传入方式</h3>
+
+<pre><code class="language-python">
+message = HumanMessage(content=[
+    {&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;请描述这张图片&quot;},
+    {&quot;type&quot;: &quot;image_url&quot;, &quot;image_url&quot;: {
+        &quot;url&quot;: &quot;https://example.com/image.jpg&quot;  # 或 base64
+    }},
+])
+response = vl_llm.invoke([message])
+</code></pre>
+
+<hr>
+
+<h2 id="52-cv-ad_scenario_agentpy">5.2 CV 模型作为工具 (<code>ad_scenario_agent.py</code>) ⭐</h2>
+
+<h3 id="">架构</h3>
+
+<pre><code class="language-">
+用户上传图片 → Agent 调用 CV 工具 → 检测结果 → LLM 综合分析 → 场景报告
+</code></pre>
+
+<h3 id="cv">CV 工具封装</h3>
+
+<pre><code class="language-python">
+@tool
+def detect_objects(image_path: str) -&gt; str:
+    &quot;&quot;&quot;检测图像中的目标（车辆、行人、车道线等）&quot;&quot;&quot;
+    # 调用 YOLO / PETR / BEVFormer 等模型
+    results = model.predict(image_path)
+    return format_results(results)
+
+@tool
+def analyze_lanes(image_path: str) -&gt; str:
+    &quot;&quot;&quot;分析车道线信息&quot;&quot;&quot;
+    ...
+
+@tool
+def check_weather_lighting(image_path: str) -&gt; str:
+    &quot;&quot;&quot;评估天气和光照条件&quot;&quot;&quot;
+    ...
+</code></pre>
+
+<h3 id="prompt">自动驾驶场景分析 Prompt</h3>
+
+<pre><code class="language-">
+你是一个自动驾驶场景分析系统。请分析：
+1. 场景类型（城市/高速/乡村）
+2. 检测到的道路使用者
+3. 潜在危险情况
+4. 建议的驾驶行为
+</code></pre>
+
+<hr>
+
+<h2 id="module-5">Module 5 核心总结</h2>
+
+<table><thead><tr>
+<th>概念</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Vision LLM</strong></td>
+<td>直接理解图片内容（qwen-vl-plus / glm-4v）</td>
+</tr>
+<tr>
+<td><strong>CV Tool</strong></td>
+<td>将 YOLO 等检测模型封装为 Agent 工具</td>
+</tr>
+<tr>
+<td><strong>多模态 RAG</strong></td>
+<td>用自然语言检索图片，用图片辅助回答</td>
+</tr>
+<tr>
+<td><strong>AD 场景分析</strong></td>
+<td>检测 + 推理 + 风险评估的完整流水线</td>
+</tr>
+</tbody></table>
+
+
+  <div class="module-nav"><a href="04-crewai.html" class="prev">← Module 4: Multi-Agent 协作</a><a href="06-automation.html" class="next">Module 6: Task 自动化 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/Agent/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/research" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
 </div>
 </body>
 </html>
