@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2章：视觉基础模型 - VLA 端到端自动驾驶教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .stage-badge {
+        display: inline-block; background: #fef3c7; color: #b45309;
+        padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 500;
+        margin-left: .5rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    /* Index-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .stage-section { margin: 2.5rem 0 1.5rem; }
+    .stage-title {
+        font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;
+        padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .outline-flow {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.5rem; margin: 1.5rem 0; font-family: "SF Mono", "Fira Code", monospace;
+        font-size: .85rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/vla/">VLA 教程</a><span class="sep">/</span><span>第2章</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">第2章<span class="stage-badge"></span></div>
+  <h1>第2章：视觉基础模型</h1>
+  <p>从零实现 ViT、MAE 预训练、DINO 自监督学习，掌握 Swin Transformer、Deformable DETR 等层次化视觉架构。</p>
+  <div class="module-meta"><span class="tag">ViT</span><span class="tag">MAE</span><span class="tag">DINO/DINOv2</span><span class="tag">Swin Transformer</span><span class="tag">Deformable DETR</span></div>
+</div>
+
+<h2 id="vit-mae-dino-ai">ViT, MAE, DINO — 奠定视觉 AI 的基础</h2>
+
+<hr>
+
+<h2 id="vision-transformer-vit">第一部分：Vision Transformer (ViT)</h2>
+
+<h3 id="11-an-image-is-worth-16x16-words">1.1 核心思想：An Image is Worth 16x16 Words</h3>
+
+<p>ViT 的核心洞察：图像可以被视为由 patch（类似于 NLP 中的 token）组成的序列。这意味着：</p>
+
+<p>- <strong>打破 CNN 范式</strong>：不再依赖卷积的局部感受野</p>
+<p>- <strong>统一架构</strong>：视觉和语言可以使用相同的 Transformer 处理</p>
+<p>- <strong>全局理解</strong>：第一层起每个 patch 就能看到所有其他 patch</p>
+
+<h3 id="12-patch-embedding-tokenizer">1.2 Patch Embedding — 图像的 Tokenizer</h3>
+
+<p>一张 224×224 的 RGB 图像，使用 16×16 的 patch：</p>
+<p>- 产生 14×14 = 196 个视觉 tokens</p>
+<p>- 每个 token 是 16×16×3 = 768 维向量</p>
+<p>- 通过线性投影映射到 hidden_dim</p>
+
+<p>Patch Embedding 实际上等价于一个 kernel_size=stride=16 的大卷积核 Conv2d。</p>
+
+<h3 id="13-cls-token">1.3 [CLS] Token — 全局信息聚合器</h3>
+
+<p>ViT 在所有 patch tokens 前面添加一个可学习的 [CLS] token。经过 Transformer 处理后，[CLS] 的输出包含了整张图像的全局表示。</p>
+
+<p>这个设计来自 BERT，但 ViT 不能简单地用平均池化替代吗？可以，经验上差距不大，但 [CLS] token 通过 attention 学习到了&quot;哪些 patch 重要&quot;。</p>
+
+<h3 id="14-vit-vs-cnn">1.4 ViT vs CNN — 归纳偏置的权衡</h3>
+
+<table><thead><tr>
+<th>特性</th>
+<th>CNN</th>
+<th>ViT</th>
+</tr></thead><tbody>
+<tr>
+<td>感受野</td>
+<td>从小到大（逐层扩大）</td>
+<td>全局（第一层起）</td>
+</tr>
+<tr>
+<td>归纳偏置</td>
+<td>局部性、平移不变性</td>
+<td>几乎没有</td>
+</tr>
+<tr>
+<td>数据需求</td>
+<td>较少</td>
+<td>需要大规模数据</td>
+</tr>
+<tr>
+<td>全局理解</td>
+<td>需要深层</td>
+<td>天然全局</td>
+</tr>
+<tr>
+<td>多尺度</td>
+<td>天然支持</td>
+<td>需要特殊设计</td>
+</tr>
+</tbody></table>
+
+<h3 id="15">1.5 自动驾驶视角</h3>
+
+<p>ViT 的全局理解能力对自动驾驶很有价值：</p>
+<p>- 场景理解：同时关注车辆、行人、交通灯</p>
+<p>- 多视角融合：天然的全局注意力适合多相机输入</p>
+<p>- 统一架构：与 LLM 共享结构，便于后续 VLA 设计</p>
+
+<hr>
+
+<h2 id="masked-autoencoder-mae">第二部分：Masked Autoencoder (MAE)</h2>
+
+<h3 id="21">2.1 自监督预训练的动机</h3>
+
+<p>标注数据昂贵，但未标注的驾驶视频几乎是无限的。MAE 提供了一种从海量未标注数据中学习强大视觉表示的方法。</p>
+
+<h3 id="22-75">2.2 &quot;遮住 75%，然后重建&quot;</h3>
+
+<p>MAE 的训练过程：</p>
+<p>1. 随机遮住图像 75% 的 patches</p>
+<p>2. Encoder 只处理可见的 25% patches</p>
+<p>3. Decoder 从编码特征 + mask tokens 重建完整图像</p>
+<p>4. 只计算被遮住位置的 L2 重建 loss</p>
+
+<h3 id="23-75">2.3 为什么 75% 的掩码比例？</h3>
+
+<p>- 30%: 太简单，模型可以靠局部插值填充</p>
+<p>- 75%: 迫使模型理解全局语义才能重建</p>
+<p>- 这个比例是论文通过实验找到的&quot;甜蜜点&quot;</p>
+
+<h3 id="24">2.4 不对称设计</h3>
+
+<p>MAE 的高效关键：</p>
+<p>- Encoder（大）只处理 25% 的 patches → 训练速度 ~4x</p>
+<p>- Decoder（小）处理所有 patches → 足够进行重建</p>
+<p>- 这种不对称使得预训练可以规模化</p>
+
+<h3 id="25">2.5 自动驾驶中的应用</h3>
+
+<p>- <strong>处理遮挡</strong>：从部分相机图像重建全景</p>
+<p>- <strong>占据预测</strong>：从稀疏观测重建稠密 3D 场景</p>
+<p>- <strong>世界模型</strong>：预测未来的场景状态</p>
+<p>- <strong>预训练 backbone</strong>：在大量未标注驾驶数据上预训练</p>
+
+<hr>
+
+<h2 id="dino">第三部分：DINO 自监督学习</h2>
+
+<h3 id="31">3.1 自蒸馏框架</h3>
+
+<p>DINO 的核心是 Teacher-Student 自蒸馏：</p>
+<p>- Student 通过梯度下降学习</p>
+<p>- Teacher 是 Student 的 EMA</p>
+<p>- Teacher 引导 Student 学习一致的表示</p>
+
+<h3 id="32">3.2 多裁剪策略</h3>
+
+<p>DINO 的创新之一：同时使用全局裁剪和局部裁剪</p>
+<p>- 全局裁剪（2 个）：覆盖 &gt;50% 图像 → 场景级语义</p>
+<p>- 局部裁剪（8 个）：覆盖小区域 → 细节</p>
+
+<p>Student 从局部裁剪学习匹配 Teacher 对全局裁剪的理解。</p>
+
+<h3 id="33-centering-sharpening">3.3 Centering + Sharpening</h3>
+
+<p>两个防止表示坍缩的技巧：</p>
+<p>- <strong>Centering</strong>：减去表示空间的移动平均中心</p>
+<p>- <strong>Sharpening</strong>：Teacher 用极小温度（0.04）→ 输出尖锐</p>
+<p>- 两个技巧形成对抗：centering 防止坍缩到单点，sharpening 防止坍缩到均匀分布</p>
+
+<h3 id="34-dinov2">3.4 DINOv2</h3>
+
+<p>DINOv2 是 Meta 的最新版本，在 DINO 基础上：</p>
+<p>- 更大模型、更大数据</p>
+<p>- 更精细的训练策略</p>
+<p>- 特征质量接近有监督方法</p>
+<p>- 已经成为许多视觉任务的标准 backbone</p>
+
+<hr>
+
+<h2 id="swin-transformer">第四部分：Swin Transformer 与层次化架构</h2>
+
+<h3 id="41">4.1 为什么需要层次化？</h3>
+
+<p>标准 ViT 所有层输出相同分辨率 → 不适合检测/分割等多尺度任务。</p>
+
+<p>Swin 的解决方案：</p>
+<p>- Patch Merging：阶段性降低分辨率</p>
+<p>- 从 H/4 × W/4 → H/8 × W/8 → H/16 × W/16 → H/32 × W/32</p>
+<p>- 类似 CNN 的层次化特征金字塔</p>
+
+<h3 id="42-window-attention">4.2 Window Attention</h3>
+
+<p>局部窗口内的 Self-Attention：</p>
+<p>- 复杂度从 O(N²) 降到 O(W²×N/W²) = O(W²)</p>
+<p>- W 是窗口大小（7），N 是总 token 数</p>
+<p>- 大大降低了高分辨率特征的计算量</p>
+
+<h3 id="43-shifted-window">4.3 Shifted Window</h3>
+
+<p>偶数层：标准窗口</p>
+<p>奇数层：偏移窗口（移动 W/2）</p>
+<p>→ 窗口之间通过偏移实现通信</p>
+<p>→ 不需要全局 attention 也能获得全局感受野</p>
+
+<hr>
+
+<h2 id="detr">第五部分：DETR — 端到端检测</h2>
+
+<h3 id="51">5.1 重新定义目标检测</h3>
+
+<p>DETR 将检测问题重新定义为<strong>集合预测</strong>：</p>
+<p>- 不需要 anchor boxes</p>
+<p>- 不需要 NMS（非极大值抑制）</p>
+<p>- 端到端可微</p>
+
+<h3 id="52-object-queries">5.2 Object Queries</h3>
+
+<p>DETR 使用可学习的 object queries（检测&quot;问题&quot;）：</p>
+<p>- N 个 query，每个代表一个潜在目标</p>
+<p>- 通过 Cross-Attention 与图像特征交互</p>
+<p>- 输出该位置是否有目标 + 目标的类别和位置</p>
+
+<h3 id="53">5.3 匈牙利匹配</h3>
+
+<p>训练时将 N 个预测与 M 个 GT 做最优二分匹配：</p>
+<p>- 代价 = -log P_class + L1_bbox + GIoU</p>
+<p>- 确保一对一匹配（不重复）</p>
+<p>- 自然地解决了重复检测问题</p>
+
+<hr>
+
+<h2 id="">第六部分：迁移学习到驾驶场景</h2>
+
+<h3 id="61">6.1 三种迁移策略</h3>
+
+<table><thead><tr>
+<th>策略</th>
+<th>做法</th>
+<th>适用场景</th>
+</tr></thead><tbody>
+<tr>
+<td>Linear Probing</td>
+<td>冻结 backbone，只训练分类头</td>
+<td>快速评估、数据少</td>
+</tr>
+<tr>
+<td>Full Fine-tuning</td>
+<td>全部训练</td>
+<td>数据充足、追求最佳效果</td>
+</tr>
+<tr>
+<td>LoRA</td>
+<td>只训练低秩适配器</td>
+<td>参数高效、快速适配</td>
+</tr>
+</tbody></table>
+
+<h3 id="62">6.2 驾驶场景多任务</h3>
+
+<p>将预训练 ViT 用于驾驶场景：</p>
+<p>1. 目标检测 → 车辆、行人、交通标志</p>
+<p>2. 可行驶区域 → 哪里可以开</p>
+<p>3. 交通灯状态 → 红灯/黄灯/绿灯</p>
+
+<hr>
+
+<h2 id="">总结</h2>
+
+<p>本章建立的核心能力：</p>
+<p>1. ✅ ViT 从零实现 → 理解&quot;图像即 Token&quot;</p>
+<p>2. ✅ MAE 自监督预训练 → 从遮挡中学习</p>
+<p>3. ✅ DINO 自蒸馏 → 无标签的特征学习</p>
+<p>4. ✅ Swin/DETR → 层次化 + 端到端检测</p>
+<p>5. ✅ 注意力可视化 → 理解模型决策</p>
+<p>6. ✅ 下游迁移 → 适配驾驶场景</p>
+
+<hr>
+
+<blockquote><strong>下一章</strong>：视觉-语言对齐 (CLIP) — 将视觉与语言统一起来</blockquote>
+
+
+  <div class="module-nav"><a href="chapter01_transformer_llm.html" class="prev">← 第1章：Transformer 与 LLM 基础</a><a href="chapter03_clip_contrastive.html" class="next">第3章：视觉-语言对齐 (CLIP) →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/vla/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/vlm_learn" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

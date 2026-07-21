@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第1章：Transformer 与 LLM 基础 - VLA 端到端自动驾驶教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .stage-badge {
+        display: inline-block; background: #fef3c7; color: #b45309;
+        padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 500;
+        margin-left: .5rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    /* Index-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .stage-section { margin: 2.5rem 0 1.5rem; }
+    .stage-title {
+        font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;
+        padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .outline-flow {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.5rem; margin: 1.5rem 0; font-family: "SF Mono", "Fira Code", monospace;
+        font-size: .85rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/vla/">VLA 教程</a><span class="sep">/</span><span>第1章</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">第1章<span class="stage-badge">第一阶段：基础夯实（大模型基础）</span></div>
+  <h1>第1章：Transformer 与 LLM 基础</h1>
+  <p>从零实现 Mini-GPT，深入理解 Attention 数学本质、RoPE、KV-Cache、Flash Attention，完整预训练/SFT/DPO 流程。</p>
+  <div class="module-meta"><span class="tag">Multi-Head Attention</span><span class="tag">RoPE</span><span class="tag">KV-Cache</span><span class="tag">Flash Attention</span><span class="tag">GPT</span></div>
+</div>
+
+<h2 id="mini-gpt">从零实现 Mini-GPT 完整教程</h2>
+
+<hr>
+
+<h3 id="">前言</h3>
+
+<p>本章面向有基础深度学习经验的工程师，特别是已经在使用 Transformer 做感知任务的 CNN 自动驾驶算法工程师。我们不仅讲解&quot;怎么做&quot;，更重要的是解释&quot;为什么这样做&quot;。</p>
+
+<p><strong>学完本章你将获得：</strong></p>
+<p>- 对 Transformer/LLM 每个组件的深度理解（数学原理 + 工程实践）</p>
+<p>- 一套完整可运行的 Mini-GPT 代码（~1500 行，包含详细注释）</p>
+<p>- 预训练 / SFT / DPO 三阶段训练的完整经验</p>
+<p>- LoRA 参数高效微调的实践能力</p>
+
+<hr>
+
+<h2 id="">第一部分：注意力机制深度解析</h2>
+
+<h3 id="11">1.1 为什么需要注意力机制？</h3>
+
+<p>在 Transformer 之前，处理序列数据的主流方案是 RNN/LSTM。它们有两个根本问题：</p>
+
+<p>1. <strong>顺序计算瓶颈</strong>：必须按时间步逐个处理，无法并行</p>
+<p>2. <strong>长程依赖问题</strong>：经过多层传播后，远距离 token 之间的信号变得极弱</p>
+
+<p>Self-Attention 的解决方案是：<strong>让每个 token 直接与所有 token 交互</strong>。</p>
+
+<h3 id="12">1.2 缩放点积注意力的数学推导</h3>
+
+<p>注意力机制的核心公式：</p>
+
+<pre><code class="language-">
+Attention(Q, K, V) = softmax(QK^T / √d_k) V
+</code></pre>
+
+<p>让我们逐步分析：</p>
+
+<p><strong>Step 1: QK^T —— 计算&quot;相关性&quot;</strong></p>
+
+<p>Q (Query) 和 K (Key) 的内积衡量了两个 token 之间的&quot;相关性&quot;或&quot;匹配度&quot;。如果 token i &quot;想了解&quot; token j（即它们语义相关），那么 Q_i · K_j 会比较大。</p>
+
+<p><strong>Step 2: 除以 √d_k —— 方差控制</strong></p>
+
+<p>假设 Q 和 K 的每个分量独立同分布，均值为 0，方差为 1。那么 Q_i · K_j 的方差是多少？</p>
+
+<pre><code class="language-">
+Var(Q·K) = Σ Var(q_m · k_m) = d_k · 1 = d_k
+</code></pre>
+
+<p>当 d_k = 64 时，标准差为 8；d_k = 128 时，标准差为 ~11。大的内积值会导致 softmax 输出极端（接近 0 或 1），使得梯度几乎为零（softmax 饱和区）。</p>
+
+<p>除以 √d_k 将方差控制回 1，保持梯度在合理范围。</p>
+
+<p><strong>Step 3: Softmax —— 归一化为概率</strong></p>
+
+<p>Softmax 将注意力分数转化为概率分布：每行和为 1，表示&quot;这个 query 对各 key 的关注度&quot;。</p>
+
+<p><strong>Step 4: 乘以 V —— 加权聚合</strong></p>
+
+<p>最后，用注意力概率对所有 Value 做加权求和，得到该 query 的输出表示。</p>
+
+<h3 id="13">1.3 多头注意力</h3>
+
+<p>为什么要多头？一个头只能学习一种&quot;关注模式&quot;。多头允许模型同时关注：</p>
+<p>- 语法关系（主语-谓语、动词-宾语）</p>
+<p>- 语义关系（同义词、指代消解）</p>
+<p>- 位置关系（相邻词、远距离依赖）</p>
+<p>- 特定模式（代码缩进、格式化）</p>
+
+<p>每个头有独立的 Q、K、V 投影矩阵，工作在低维子空间（d_model / n_head）。</p>
+
+<p><strong>工程实现技巧：</strong></p>
+
+<p>GPT-2 将 Q、K、V 的投影合并为一个大矩阵乘法，减少 kernel launch 开销：</p>
+
+<pre><code class="language-python">
+# 而非分别计算：
+# q = self.w_q(x); k = self.w_k(x); v = self.w_v(x)
+
+# GPT-2 的做法（更高效）：
+qkv = self.c_attn(x)  # 一次性投影
+q, k, v = qkv.split(n_embd, dim=-1)
+</code></pre>
+
+<h3 id="14">1.4 因果掩码</h3>
+
+<p>自回归语言模型在训练时使用因果掩码（Causal Mask），确保 token i 只能看到 token 0, 1, ..., i（不能看到未来的 token）。这在概念上与驾驶中的因果性一致：规划只能基于过去和当前的感知，不能基于未来。</p>
+
+<hr>
+
+<h2 id="">第二部分：位置编码</h2>
+
+<h3 id="21">2.1 为什么需要位置编码？</h3>
+
+<p>Self-Attention 对位置不敏感：交换两个 token 的位置，它们的注意力输出也会相应交换。没有位置信息，模型无法区分&quot;狗咬人&quot;和&quot;人咬狗&quot;。</p>
+
+<h3 id="22">2.2 四种位置编码方案对比</h3>
+
+<p><strong>Sinusoidal (原始 Transformer)</strong></p>
+<p>- 优点：可外推，无需学习</p>
+<p>- 缺点：表达能力有限</p>
+<p>- 适合：教学理解、特殊外推需求</p>
+
+<p><strong>Learned (GPT-2, BERT)</strong></p>
+<p>- 优点：灵活，模型可学习最优模式</p>
+<p>- 缺点：无法外推，增加参数</p>
+<p>- 适合：固定长度的任务</p>
+
+<p><strong>RoPE (LLaMA, Mistral, Qwen — 当前主流)</strong></p>
+<p>- 优点：天然编码相对位置，可外推</p>
+<p>- 缺点：计算稍复杂（但可忽略）</p>
+<p>- 核心公式：q_m @ R(θ, m) · (k_n @ R(θ, n))^T = q_m @ R(θ, m-n) @ k_n</p>
+<p>- 旋转编码使得内积只依赖于相对位置 (m-n)</p>
+
+<p><strong>ALiBi (BLOOM)</strong></p>
+<p>- 优点：极简，强外推，零参数</p>
+<p>- 缺点：绝对位置信息弱</p>
+<p>- 方法：直接在注意力分数上加线性偏置</p>
+
+<p><strong>选择建议（2025年）：</strong> 新项目首推 RoPE，它是当前几乎所有主流 LLM 的选择。</p>
+
+<h3 id="23-rope">2.3 RoPE 深入</h3>
+
+<p>RoPE 的核心思想：通过对 Q 和 K 向量施加位置相关的旋转，使得注意力计算自然地编码了相对位置。</p>
+
+<p>对每个维度对 (x_{2i}, x_{2i+1}) 施加 2D 旋转：</p>
+<pre><code class="language-">
+x_{2i}'   = x_{2i} · cos(m·θ_i) - x_{2i+1} · sin(m·θ_i)
+x_{2i+1}' = x_{2i} · sin(m·θ_i) + x_{2i+1} · cos(m·θ_i)
+</code></pre>
+
+<p>其中 θ_i = 1 / (base_theta)^{2i/d}，不同维度有不同的旋转频率。</p>
+
+<hr>
+
+<h2 id="transformer-block">第三部分：Transformer Block 架构</h2>
+
+<h3 id="31-pre-norm-vs-post-norm">3.1 Pre-Norm vs Post-Norm</h3>
+
+<p>这是 Transformer 训练稳定性的关键选择。</p>
+
+<p><strong>Post-Norm (原始方案)：</strong></p>
+<pre><code class="language-">
+x = LayerNorm(x + Attention(x))
+x = LayerNorm(x + FFN(x))
+</code></pre>
+<p>问题：随着层数增加，残差路径上的信号可能不断放大，导致训练不稳定。</p>
+
+<p><strong>Pre-Norm (现代方案，GPT-2 起)：</strong></p>
+<pre><code class="language-">
+x = x + Attention(LayerNorm(x))
+x = x + FFN(LayerNorm(x))
+</code></pre>
+<p>LayerNorm 放在子层&quot;之前&quot;而非&quot;之后&quot;，有效控制每一层输入的方差，允许训练更深的网络（100+ 层）。</p>
+
+<p><strong>你的代码中：</strong> 默认使用 Pre-Norm，这是生产环境的推荐选择。</p>
+
+<h3 id="32-ffn">3.2 FFN 设计</h3>
+
+<p>FFN 占 Transformer 参数量的 ~2/3，负责 token 级的非线性变换：</p>
+<pre><code class="language-">
+FFN(x) = W_2 · GELU(W_1 · x)
+</code></pre>
+<p>其中 W_1 将维度从 d_model 扩展到 4×d_model，W_2 再压缩回去。</p>
+
+<p>GELU (Gaussian Error Linear Unit) 是 ReLU 的平滑版本，在 0 附近提供非零梯度，对训练有帮助。</p>
+
+<hr>
+
+<h2 id="gpt">第四部分：GPT 模型架构</h2>
+
+<h3 id="41">4.1 完整架构图</h3>
+
+<pre><code class="language-">
+Token IDs → Token Embedding + Position Embedding
+  → Dropout
+  → [TransformerBlock × N]
+  → Final LayerNorm
+  → LM Head (Linear)
+  → Logits
+</code></pre>
+
+<h3 id="42-next-token-prediction">4.2 训练目标：Next Token Prediction</h3>
+
+<p>对于序列 [t_0, t_1, ..., t_n]，目标是预测 [t_1, t_2, ..., t_{n+1}]。这是自监督学习，不需要人工标注。</p>
+
+<h3 id="43-weight-tying">4.3 Weight Tying</h3>
+
+<p>输入的 Token Embedding 和输出的 LM Head 共享权重矩阵。这减少了 ~30% 的参数量（对于大 vocab），并提供了自然的正则化。</p>
+
+<hr>
+
+<h2 id="kv-cache">第五部分：KV-Cache</h2>
+
+<h3 id="51">5.1 问题</h3>
+
+<p>自回归生成时，每生成一个新 token，需要将所有历史 token 重新输入模型计算。不做优化的话：</p>
+<p>- 每步都重新算所有历史 K、V</p>
+<p>- 第 n 步的计算量是 O(n²)</p>
+<p>- n 步总计是 O(n³)</p>
+
+<h3 id="52">5.2 解决方案</h3>
+
+<p>缓存之前计算好的 K 和 V。新 token 只需要：</p>
+<p>1. 计算自己的 Q、K、V</p>
+<p>2. 将新 K、V 追加到缓存</p>
+<p>3. Q 与全部 K 做注意力</p>
+
+<p>这样每步的计算量是 O(n)，总计 O(n²)。</p>
+
+<h3 id="53-pagedattention-vllm">5.3 PagedAttention (vLLM)</h3>
+
+<p>进一步优化：将 KV-Cache 分页管理，按需分配，减少显存碎片。vLLM 借此实现了 2-4x 的推理吞吐提升。</p>
+
+<hr>
+
+<h2 id="flash-attention">第六部分：Flash Attention</h2>
+
+<h3 id="61">6.1 内存瓶颈</h3>
+
+<p>标准注意力的中间结果 S = QK^T 是 O(N²) 的，必须写入 GPU HBM：</p>
+<p>- N=2048: ~16MB / 头 (fp16)</p>
+<p>- N=8192: ~256MB / 头</p>
+<p>- 当 N 很大时，HBM 带宽成为瓶颈</p>
+
+<h3 id="62">6.2 核心思想</h3>
+
+<p>不在 HBM 中存储完整的 S 和 P 矩阵，而是：</p>
+<p>1. <strong>Tiling</strong>: 将 Q/K/V 分块，每次只在 SRAM 中处理一块</p>
+<p>2. <strong>Online Softmax</strong>: 增量计算 softmax（运行中维护 max 和 sum）</p>
+<p>3. <strong>Recomputation</strong>: 反向传播时重新计算 S（而不是存储）</p>
+
+<p>结果：HBM 读写量大幅减少，在 A100 上可达 2-4x 加速。</p>
+
+<h3 id="63">6.3 实践建议</h3>
+
+<p>PyTorch 2.0+ 内置了 Flash Attention 支持：</p>
+<pre><code class="language-python">
+output = F.scaled_dot_product_attention(q, k, v, is_causal=True)
+</code></pre>
+<p>这会自动选择最优实现，无需额外配置。</p>
+
+<hr>
+
+<h2 id="tokenizer">第七部分：Tokenizer</h2>
+
+<h3 id="71-bpe">7.1 BPE 原理</h3>
+
+<p>Byte Pair Encoding 反复合最高频的相邻 token 对，直到达到目标词汇量。它平衡了字符级（太细）和词级（词汇太大）的缺点。</p>
+
+<h3 id="72-chat-template">7.2 Chat Template</h3>
+
+<p>将对话格式化为模型可理解的文本。不同模型有不同的模板：</p>
+
+<table><thead><tr>
+<th>模型</th>
+<th>模板格式</th>
+</tr></thead><tbody>
+<tr>
+<td>LLaMA 2</td>
+<td><code>[INST] ... [/INST]</code></td>
+</tr>
+<tr>
+<td>ChatML</td>
+<td>`&lt;</td>
+<td>im_start</td>
+<td>&gt;role\nmsg&lt;</td>
+<td>im_end</td>
+<td>&gt;`</td>
+</tr>
+<tr>
+<td>Vicuna</td>
+<td><code>USER: ... ASSISTANT:</code></td>
+</tr>
+</tbody></table>
+
+<p>正确的 Chat Template 对指令微调的效果至关重要。</p>
+
+<hr>
+
+<h2 id="">第八部分：三阶段训练</h2>
+
+<h3 id="81-stage-1-pretraining">8.1 Stage 1: 预训练 (Pretraining)</h3>
+
+<p><strong>目标：</strong> 学习语言的统计规律和世界知识</p>
+
+<p><strong>数据：</strong> 海量无标注文本（几百 GB 到几 TB）</p>
+<p><strong>Loss：</strong> 所有 token 的交叉熵</p>
+<p><strong>关键技巧：</strong></p>
+<p>- 大 batch size + 梯度累积</p>
+<p>- Warmup + Cosine LR 调度</p>
+<p>- 梯度裁剪 (max_norm=1.0)</p>
+<p>- 混合精度训练 (bf16)</p>
+
+<h3 id="82-stage-2-sft">8.2 Stage 2: 指令微调 (SFT)</h3>
+
+<p><strong>目标：</strong> 让模型学会遵循指令格式</p>
+
+<p><strong>数据：</strong> (指令, 回复) 对（几千到几十万条）</p>
+<p><strong>Loss：</strong> 只在回复部分计算（prompt 部分 labels = -100）</p>
+<p><strong>关键技巧：</strong></p>
+<p>- 从预训练 checkpoint 开始</p>
+<p>- 更小的学习率 (1e-5 ~ 2e-5)</p>
+<p>- 更少的训练步数</p>
+
+<h3 id="83-stage-3-dpo">8.3 Stage 3: 偏好对齐 (DPO)</h3>
+
+<p><strong>目标：</strong> 让模型的回复更符合人类偏好</p>
+
+<p><strong>数据：</strong> (prompt, chosen, rejected) 三元组</p>
+<p><strong>Loss：</strong> DPO loss</p>
+<pre><code class="language-">
+L = -log σ(β(log Pθ(chosen)/Pref(chosen) - log Pθ(rejected)/Pref(rejected)))
+</code></pre>
+
+<p><strong>直觉：</strong></p>
+<p>- 增加 chosen 回复的概率</p>
+<p>- 减少 rejected 回复的概率</p>
+<p>- β 控制偏离 reference 的程度</p>
+
+<p><strong>DPO vs RLHF：</strong></p>
+<p>- RLHF 需要训练独立的 Reward Model + PPO</p>
+<p>- DPO 直接从偏好数据优化策略</p>
+<p>- DPO 更简单、更稳定、训练成本更低</p>
+
+<hr>
+
+<h2 id="lora">第九部分：LoRA 参数高效微调</h2>
+
+<h3 id="91">9.1 核心思想</h3>
+
+<p>预训练权重 W 不更新，而是学习低秩增量：</p>
+<pre><code class="language-">
+W' = W + (α/r) · B · A
+</code></pre>
+<p>其中 B ∈ R^{d×r}, A ∈ R^{r×k}, r &lt;&lt; min(d,k)。</p>
+
+<h3 id="92">9.2 为什么有效？</h3>
+
+<p>微调时权重的更新 ΔW 具有低的&quot;内在秩&quot;（通常 r=4~64 就足够）。大模型的微调只需要在少数方向上调整参数。</p>
+
+<h3 id="93">9.3 优势</h3>
+
+<p>- 可训练参数减少 99%+</p>
+<p>- 训练速度快 2-3x</p>
+<p>- 显存占用大幅降低（可以微调更大的模型）</p>
+<p>- 可以快速切换多个 LoRA 适配器</p>
+<p>- 合并后推理零开销</p>
+
+<hr>
+
+<h2 id="">第十部分：在自动驾驶中的应用</h2>
+
+<h3 id="101-llm">10.1 LLM 如何助力自动驾驶？</h3>
+
+<table><thead><tr>
+<th>LLM 能力</th>
+<th>自动驾驶应用</th>
+</tr></thead><tbody>
+<tr>
+<td>文本生成</td>
+<td>驾驶决策描述、场景报告</td>
+</tr>
+<tr>
+<td>推理能力</td>
+<td>复杂交通场景的推理和决策</td>
+</tr>
+<tr>
+<td>少样本学习</td>
+<td>快速适应新的驾驶场景</td>
+</tr>
+<tr>
+<td>多模态融合</td>
+<td>将视觉信息与语言指令结合</td>
+</tr>
+</tbody></table>
+
+<h3 id="102-vla">10.2 从本章到 VLA 的路径</h3>
+
+<pre><code class="language-">
+本章：LLM 基础 (GPT, Attention, Training)
+  ↓
+第2-3章：视觉 + 多模态 (ViT, CLIP, LLaVA)
+  ↓
+第4-5章：BEV + 感知 (LSS, BEVFormer)
+  ↓
+第14-15章：VLA (RT-2, OpenVLA, 端到端驾驶)
+</code></pre>
+
+<p>你在本章学到的 Transformer、训练 pipeline、LoRA、DPO 等知识，是后续所有章节的基础。</p>
+
+<hr>
+
+<h2 id="">附录：常见问题</h2>
+
+<h3 id="q-gpt-decoder-only">Q: 为什么 GPT 使用 Decoder-only 架构？</h3>
+
+<p>Transformer 有三种变体：</p>
+<p>- Encoder-only (BERT): 双向注意力，适合理解任务</p>
+<p>- Encoder-Decoder (T5): 适合序列到序列任务</p>
+<p>- Decoder-only (GPT): 单向注意力 + 自回归生成</p>
+
+<p>Decoder-only 在语言建模和生成任务上表现最好，且架构更简单，更容易规模扩展。</p>
+
+<h3 id="q-layernorm-pre-norm">Q: 为什么 LayerNorm 放在前面（Pre-Norm）更好？</h3>
+
+<p>Pre-Norm 确保每层输入都经过归一化，信号不会逐层放大。这使得：</p>
+<p>- 训练更稳定（可以用更大的学习率）</p>
+<p>- warmup 要求降低</p>
+<p>- 可以训练更深的网络</p>
+
+<h3 id="q-kv-cache">Q: KV-Cache 的显存开销有多大？</h3>
+
+<p>对于 LLaMA-7B (32层, 32头, head_dim=128)：</p>
+<p>- 单 token: 32 × 2 × 32 × 128 × 2 bytes = 0.5 MB</p>
+<p>- 2048 tokens: ~1 GB</p>
+<p>- 因此推理时需要预留足够的显存给 KV-Cache</p>
+
+<h3 id="q-rope-alibi">Q: 我应该使用 RoPE 还是 ALiBi？</h3>
+
+<p>2025年的主流选择是 RoPE（LLaMA、Mistral、Qwen、Gemma 都在用）。</p>
+<p>ALiBi 简单但绝对位置表达力弱。RoPE 是当前事实标准。</p>
+
+<hr>
+
+<h2 id="">下一步</h2>
+
+<p>完成本章后，建议：</p>
+<p>1. 运行所有演示脚本，确保代码可以正常工作</p>
+<p>2. 尝试在小数据集上完成一次完整的预训练</p>
+<p>3. 实验不同的超参数（学习率、batch size、模型大小）</p>
+<p>4. 阅读 GPT-2 和 LLaMA 的原始论文，对比你的实现</p>
+<p>5. 进入第2章：视觉基础模型</p>
+
+<hr>
+
+<blockquote><strong>本章项目地址：</strong> <code>vla_learn/chapter01_transformer_llm/</code></blockquote>
+<blockquote><strong>完整代码行数：</strong> ~2000+ 行 Python</blockquote>
+<blockquote><strong>预计学习时间：</strong> 2-4 天（含代码阅读和实验）</blockquote>
+
+
+  <div class="module-nav"><span></span><a href="chapter02_vision_foundation.html" class="next">第2章：视觉基础模型 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/vla/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/vlm_learn" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

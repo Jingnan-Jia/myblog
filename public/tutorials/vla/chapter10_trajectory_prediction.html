@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第10章：轨迹预测 - VLA 端到端自动驾驶教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .stage-badge {
+        display: inline-block; background: #fef3c7; color: #b45309;
+        padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 500;
+        margin-left: .5rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    /* Index-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .stage-section { margin: 2.5rem 0 1.5rem; }
+    .stage-title {
+        font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;
+        padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .outline-flow {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.5rem; margin: 1.5rem 0; font-family: "SF Mono", "Fira Code", monospace;
+        font-size: .85rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/vla/">VLA 教程</a><span class="sep">/</span><span>第10章</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">第10章<span class="stage-badge">第四阶段：规划与控制</span></div>
+  <h1>第10章：轨迹预测</h1>
+  <p>实现交互式轨迹预测（VectorNet、SceneTransformer），掌握多模态未来生成与社会交互建模。</p>
+  <div class="module-meta"><span class="tag">VectorNet</span><span class="tag">SceneTransformer</span><span class="tag">多模态轨迹</span><span class="tag">目标条件预测</span><span class="tag">minADE/minFDE</span></div>
+</div>
+
+<h2 id="vectornet-multi-modal-prediction">VectorNet, Multi-Modal Prediction — 预测未来轨迹</h2>
+
+<hr>
+
+<h2 id="vectornet">第一部分: VectorNet 编码器</h2>
+
+<h3 id="11">1.1 为什么需要折线编码?</h3>
+
+<p>自动驾驶场景由道路元素组成: 车道线、路缘、人行道都是折线。</p>
+
+<pre><code class="language-">
+地图元素 (折线): 车道线、路缘、停止线
+轨迹历史 (折线): 车辆/行人过去 2 秒的路径
+</code></pre>
+
+<p>VectorNet 用统一的折线表示处理两类输入。</p>
+
+<h3 id="12-subgraph-global-graph">1.2 Subgraph + Global Graph</h3>
+
+<p>- <strong>Subgraph (子图)</strong>: 编码每条折线内部的几何形状</p>
+<p>- <strong>Global Graph (全局图)</strong>: 编码折线之间的交互关系</p>
+
+<pre><code class="language-">
+Subgraph:  self-attn  on each polyline → polyline feature
+Global:    cross-attn across polylines → context-aware features
+</code></pre>
+
+<hr>
+
+<h2 id="">第二部分: 多模态轨迹预测</h2>
+
+<h3 id="21">2.1 为什么需要多模态?</h3>
+
+<p>一辆车在路口可能:</p>
+<p>- 直行 (概率 0.6)</p>
+<p>- 左转 (概率 0.3)</p>
+<p>- 右转 (概率 0.1)</p>
+
+<p>单条轨迹预测无法覆盖这种不确定性。</p>
+
+<h3 id="22">2.2 锚点+残差预测</h3>
+
+<pre><code class="language-">
+traj_k = anchor_k + offset_k  (k = 1, ..., K)
+probs = softmax(cls_logits)   (K 个模式的概率)
+</code></pre>
+
+<p>预定义 K 个锚点轨迹, 网络预测偏移量和置信度。</p>
+
+<hr>
+
+<h2 id="goal-conditioned">第三部分: Goal-Conditioned 预测</h2>
+
+<h3 id="31-tnt-target-driven-trajectory">3.1 TNT: Target-driveN Trajectory</h3>
+
+<p>TNT 将轨迹预测解耦为两步:</p>
+<p>1. <strong>目标预测</strong>: 选 top-K 个可能的目标点</p>
+<p>2. <strong>轨迹补全</strong>: 对每个目标点生成完整轨迹</p>
+
+<p>优势: 目标点 (位置) 和完整轨迹 (时间+空间) 解耦。</p>
+
+<h3 id="32">3.2 训练策略</h3>
+
+<pre><code class="language-python">
+goal_loss = CE(goal_logits, target_goal)
+traj_loss = Huber(pred_traj, gt_traj)
+total = goal_loss + traj_loss
+</code></pre>
+
+<hr>
+
+<h2 id="adefde">第四部分: ADE/FDE 评估</h2>
+
+<h3 id="41">4.1 指标定义</h3>
+
+<table><thead><tr>
+<th>指标</th>
+<th>定义</th>
+<th>含义</th>
+</tr></thead><tbody>
+<tr>
+<td>ADE</td>
+<td>avg(</td>
+<td></td>
+<td>pred_t - gt_t</td>
+<td></td>
+<td>)</td>
+<td>平均位移误差</td>
+</tr>
+<tr>
+<td>FDE</td>
+<td></td>
+<td></td>
+<td>pred_T - gt_T</td>
+<td></td>
+<td></td>
+<td>终点位移误差</td>
+</tr>
+<tr>
+<td>minADE</td>
+<td>min_K(ADE_k)</td>
+<td>最佳模式的 ADE</td>
+</tr>
+<tr>
+<td>Miss Rate</td>
+<td>P(minFDE &gt; 2m)</td>
+<td>超过 2m 误差的比例</td>
+</tr>
+</tbody></table>
+
+<h3 id="42-winner-takes-all">4.2 Winner-Takes-All 训练</h3>
+
+<p>只对最佳预测模式回传梯度, 鼓励模式覆盖不同的可能性。</p>
+
+<hr>
+
+<h2 id="">第五部分: 自动驾驶应用</h2>
+
+<h3 id="51">5.1 预测范围</h3>
+<p>- 观测: 2 秒 (20 步 @ 10Hz)</p>
+<p>- 预测: 3 秒 (30 步 @ 10Hz)</p>
+
+<h3 id="52">5.2 应用场景</h3>
+<p>- 近距离: 路口让行、避让行人</p>
+<p>- 高速公路: 变道预测</p>
+<p>- 多车交互: 谁先通过路口</p>
+
+<hr>
+
+<h2 id="">总结</h2>
+
+<p>1. ✅ <strong>VectorNet</strong>: Subgraph + Global Graph 折线编码</p>
+<p>2. ✅ <strong>多模态</strong>: K 种可能轨迹覆盖不确定性</p>
+<p>3. ✅ <strong>Goal-Conditioned</strong>: 先目标→后轨迹 (TNT)</p>
+<p>4. ✅ <strong>ADE/FDE</strong>: 轨迹预测标准评估</p>
+<p>5. ✅ <strong>交互建模</strong>: 车辆间相互影响</p>
+
+<hr>
+
+<blockquote><strong>下一章</strong>: 模仿学习与行为克隆 — 从专家数据学习驾驶策略</blockquote>
+
+
+  <div class="module-nav"><a href="chapter09_e2e_perception.html" class="prev">← 第9章：端到端感知框架</a><a href="chapter11_imitation_learning.html" class="next">第11章：模仿学习与行为克隆 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/vla/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/vlm_learn" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

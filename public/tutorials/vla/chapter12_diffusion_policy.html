@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第12章：扩散策略 (Diffusion Policy) - VLA 端到端自动驾驶教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .stage-badge {
+        display: inline-block; background: #fef3c7; color: #b45309;
+        padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 500;
+        margin-left: .5rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    /* Index-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .stage-section { margin: 2.5rem 0 1.5rem; }
+    .stage-title {
+        font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;
+        padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .outline-flow {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.5rem; margin: 1.5rem 0; font-family: "SF Mono", "Fira Code", monospace;
+        font-size: .85rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/vla/">VLA 教程</a><span class="sep">/</span><span>第12章</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">第12章<span class="stage-badge"></span></div>
+  <h1>第12章：扩散策略 (Diffusion Policy)</h1>
+  <p>从零实现 DDPM/DDIM，构建 Diffusion Policy 用于驾驶动作生成，掌握条件扩散与 Classifier-Free Guidance。</p>
+  <div class="module-meta"><span class="tag">DDPM</span><span class="tag">DDIM</span><span class="tag">Diffusion Policy</span><span class="tag">DiT</span><span class="tag">Classifier-Free Guidance</span></div>
+</div>
+
+<h2 id="ddpm-cfg-action-generation">DDPM, CFG, Action Generation — 用扩散模型生成驾驶动作</h2>
+
+<hr>
+
+<h2 id="ddpm">第一部分: DDPM 原理</h2>
+
+<h3 id="11">1.1 核心思想</h3>
+
+<p>扩散模型通过两个过程学习数据分布:</p>
+
+<pre><code class="language-">
+前向 (加噪): x_0 → x_1 → ... → x_T (逐步加噪声)
+反向 (去噪): x_T → x_{T-1} → ... → x_0 (逐步去噪声)
+</code></pre>
+
+<p>训练: 学习反向过程如何去噪</p>
+<p>推理: 从随机噪声 x_T ~ N(0,I) 开始, 逐步去噪得到 x_0</p>
+
+<h3 id="12">1.2 数学定义</h3>
+
+<p>前向过程:</p>
+<pre><code class="language-">
+q(x_t | x_{t-1}) = N(rt(1-b_t) * x_{t-1}, b_t * I)
+x_t = sqrt(a_bar_t) * x_0 + sqrt(1-a_bar_t) * eps
+</code></pre>
+
+<p>反向过程:</p>
+<pre><code class="language-">
+p(x_{t-1} | x_t) = N(mu_theta(x_t, t), sigma_t^2 * I)
+mu_theta = 1/sqrt(a_t) * (x_t - (1-a_t)/sqrt(1-a_bar_t) * eps_theta)
+</code></pre>
+
+<p>训练目标: 最小化 ||eps_theta(x_t, t) - eps||^2</p>
+
+<hr>
+
+<h2 id="classifier-free-guidance">第二部分: Classifier-Free Guidance</h2>
+
+<h3 id="21">2.1 动机</h3>
+
+<p>无条件扩散生成随机样本, 条件扩散生成特定类别样本。CFG 允许在两者之间插值:</p>
+
+<pre><code class="language-">
+eps_cfg = eps_uncond + w * (eps_cond - eps_uncond)
+</code></pre>
+
+<h3 id="22">2.2 训练技巧</h3>
+
+<p>训练时以概率 p_drop 随机丢弃条件标签:</p>
+<p>- p_drop = 0: 纯条件生成</p>
+<p>- p_drop = 0.1: CFG 训练 (推理时 w &gt; 1)</p>
+
+<h3 id="23">2.3 推理行为</h3>
+
+<table><thead><tr>
+<th>w</th>
+<th>行为</th>
+</tr></thead><tbody>
+<tr>
+<td>w = 0</td>
+<td>无条件生成 (随机)</td>
+</tr>
+<tr>
+<td>w = 1</td>
+<td>正常条件生成</td>
+</tr>
+<tr>
+<td>w = 1.5-2.0</td>
+<td>增强条件 (更&quot;自信&quot;)</td>
+</tr>
+<tr>
+<td>w &gt;&gt; 2</td>
+<td>过度强调条件 (可能质量下降)</td>
+</tr>
+</tbody></table>
+
+<hr>
+
+<h2 id="diffusion-policy">第三部分: Diffusion Policy</h2>
+
+<h3 id="31">3.1 架构</h3>
+
+<pre><code class="language-">
+观测 → Encoder → obs_feat (条件)
+                         ↓
+x_T ~ N(0,I) → 去噪器(obs_feat, t) → x_{T-1} → ... → x_0 (动作序列)
+</code></pre>
+
+<h3 id="32-bc">3.2 相比 BC 的优势</h3>
+
+<table><thead><tr>
+<th>方面</th>
+<th>BC</th>
+<th>Diffusion Policy</th>
+</tr></thead><tbody>
+<tr>
+<td>输出</td>
+<td>单点预测</td>
+<td>完整分布</td>
+</tr>
+<tr>
+<td>多模态</td>
+<td>困难</td>
+<td>天然支持</td>
+</tr>
+<tr>
+<td>动作平滑</td>
+<td>有抖动</td>
+<td>逐步去噪, 平滑</td>
+</tr>
+<tr>
+<td>可控性</td>
+<td>弱</td>
+<td>CFG 控制风格</td>
+</tr>
+</tbody></table>
+
+<hr>
+
+<h2 id="">第四部分: 自动驾驶应用</h2>
+
+<h3 id="41">4.1 工作流程</h3>
+
+<pre><code class="language-">
+摄像头 → 特征提取 → obs_feat
+                        ↓
+          随机噪声 → N 步去噪 → 动作序列 (steer, throttle, brake)
+</code></pre>
+
+<h3 id="42">4.2 实际部署</h3>
+
+<p>- DDIM 10 步采样实现实时推理 (~50ms)</p>
+<p>- CFG 控制谨慎/激进风格</p>
+<p>- 多模态采样 + 安全性过滤</p>
+
+<hr>
+
+<h2 id="">总结</h2>
+
+<p>1. ✅ <strong>DDPM</strong>: 前向加噪 + 反向去噪</p>
+<p>2. ✅ <strong>噪声调度</strong>: cosine/linear/sigmoid</p>
+<p>3. ✅ <strong>CFG</strong>: 条件-无条件插值控制生成</p>
+<p>4. ✅ <strong>Diffusion Policy</strong>: 扩散模型生成动作序列</p>
+<p>5. ✅ <strong>DDIM</strong>: 10 步加速采样</p>
+
+<hr>
+
+<blockquote><strong>下一章</strong>: RL Planning — 强化学习驾驶策略优化</blockquote>
+
+
+  <div class="module-nav"><a href="chapter11_imitation_learning.html" class="prev">← 第11章：模仿学习与行为克隆</a><a href="chapter13_rl_planning.html" class="next">第13章：强化学习规划 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/vla/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/vlm_learn" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

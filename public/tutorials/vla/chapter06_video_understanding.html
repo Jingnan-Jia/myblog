@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第6章：视频理解模型 - VLA 端到端自动驾驶教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .stage-badge {
+        display: inline-block; background: #fef3c7; color: #b45309;
+        padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 500;
+        margin-left: .5rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    /* Index-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .stage-section { margin: 2.5rem 0 1.5rem; }
+    .stage-title {
+        font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;
+        padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .outline-flow {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.5rem; margin: 1.5rem 0; font-family: "SF Mono", "Fira Code", monospace;
+        font-size: .85rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/vla/">VLA 教程</a><span class="sep">/</span><span>第6章</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">第6章<span class="stage-badge"></span></div>
+  <h1>第6章：视频理解模型</h1>
+  <p>构建驾驶视频理解模型，掌握 3D Conv/TimeSformer 视频编码、时序池化、Video-LLM 架构与流式处理。</p>
+  <div class="module-meta"><span class="tag">TimeSformer</span><span class="tag">VideoMAE</span><span class="tag">Video-LLM</span><span class="tag">时序池化</span><span class="tag">驾驶视频QA</span></div>
+</div>
+
+<h2 id="timesformer-video-llm">TimeSformer, Video-LLM — 理解驾驶视频</h2>
+
+<hr>
+
+<h2 id="3d-patch-embedding">第一部分：3D Patch Embedding</h2>
+
+<h3 id="11">1.1 从图像到视频</h3>
+
+<p>第2章的 ViT 将图像分割为空间 patches。视频的挑战在于增加了时间维度：</p>
+
+<pre><code class="language-">
+图像: (C, H, W) → Patch: (patch_size, patch_size) → N = (H/P) × (W/P) tokens
+视频: (C, T, H, W) → Patch: (patch_size_t, patch_size, patch_size) → N = (T/Pt) × (H/P) × (W/P) tokens
+</code></pre>
+
+<p>例如 16帧 224×224 视频，patch_size=16, patch_size_t=2：</p>
+<p>- T' = 16/2 = 8 时间块</p>
+<p>- H' = W' = 14 空间块</p>
+<p>- 共计 8×14×14 = 1568 个时空 tokens</p>
+
+<h3 id="12-3d">1.2 3D 卷积实现</h3>
+
+<pre><code class="language-python">
+self.proj = nn.Conv3d(
+    3, hidden_dim,
+    kernel_size=(patch_size_t, patch_size, patch_size),
+    stride=(patch_size_t, patch_size, patch_size),
+)
+</code></pre>
+
+<hr>
+<h2 id="divided-space-time-attention">第二部分：Divided Space-Time Attention</h2>
+
+<h3 id="21">2.1 核心创新</h3>
+
+<p>全时空 attention 复杂度为 O((T×N)²)，对于视频完全不可行。</p>
+
+<p>TimeSformer 将注意力分解为：</p>
+<p>- <strong>空间注意力 (S-Attn)</strong>: 每帧内 patch 之间的 attention → O(T × N²)</p>
+<p>- <strong>时间注意力 (T-Attn)</strong>: 每个空间位置跨帧的 attention → O(N × T²)</p>
+
+<h3 id="22">2.2 直观理解</h3>
+
+<p>- S-Attn: &quot;这一帧里，哪些区域是相关的？&quot;</p>
+<p>- T-Attn: &quot;这个位置上的物体，在不同帧间如何变化？&quot;</p>
+<p>- 两者交替执行，信息逐步融合</p>
+
+<h3 id="23">2.3 复杂度对比</h3>
+
+<table><thead><tr>
+<th>方案</th>
+<th>复杂度</th>
+<th>T=8, N=196</th>
+</tr></thead><tbody>
+<tr>
+<td>Joint</td>
+<td>O(T²N²)</td>
+<td>~2.5M ops</td>
+</tr>
+<tr>
+<td>Divided</td>
+<td>O(TN² + NT²)</td>
+<td>~320K ops</td>
+</tr>
+<tr>
+<td>加速比</td>
+<td>—</td>
+<td>~8x</td>
+</tr>
+</tbody></table>
+
+<hr>
+<h2 id="">第三部分：时序池化</h2>
+
+<h3 id="31">3.1 为什么需要池化？</h3>
+
+<p>1568 个时空 tokens + LLM 的文本 tokens = 序列太长。需要压缩。</p>
+
+<h3 id="32">3.2 池化策略</h3>
+
+<table><thead><tr>
+<th>策略</th>
+<th>输出长度</th>
+<th>适用场景</th>
+</tr></thead><tbody>
+<tr>
+<td>Mean Pool</td>
+<td>1</td>
+<td>简单场景分类</td>
+</tr>
+<tr>
+<td>Max Pool</td>
+<td>1</td>
+<td>关键帧检测</td>
+</tr>
+<tr>
+<td>Token Merge</td>
+<td>N/r</td>
+<td>需要保留部分时序信息</td>
+</tr>
+<tr>
+<td>Q-Former</td>
+<td>K (learned)</td>
+<td>自适应关键信息提取</td>
+</tr>
+<tr>
+<td>Last Frame</td>
+<td>64</td>
+<td>取最后帧（最近信息）</td>
+</tr>
+</tbody></table>
+
+<hr>
+<h2 id="">第四部分：驾驶视频应用</h2>
+
+<h3 id="41">4.1 行为识别</h3>
+<p>- 变道、转弯、刹车、加速、停车</p>
+
+<h3 id="42">4.2 时序定位</h3>
+<p>- &quot;变道发生在第30-70帧&quot;</p>
+
+<h3 id="43">4.3 驾驶视频问答</h3>
+<p>- &quot;What happened between frame 30 and 70?&quot;</p>
+<p>- &quot;Is the driver changing lanes safely?&quot;</p>
+
+<h3 id="44">4.4 实时流处理</h3>
+<p>- 滑动窗口（8-16帧 buffer）</p>
+<p>- 逐帧/逐片段增量处理</p>
+<p>- 适合车载部署</p>
+
+<hr>
+<h2 id="">总结</h2>
+
+<p>1. ✅ <strong>3D Patch Embedding</strong>: 时空 tokenization</p>
+<p>2. ✅ <strong>Divided Attention</strong>: O(TN²+NT²) 高效时空注意力</p>
+<p>3. ✅ <strong>时序池化</strong>: 5种策略压缩时序 token</p>
+<p>4. ✅ <strong>Video-LLM</strong>: 视频+语言的完整 pipeline</p>
+<p>5. ✅ <strong>Temporal Grounding</strong>: 定位行为起止帧</p>
+<p>6. ✅ <strong>实时流处理</strong>: 滑动窗口车载部署</p>
+
+<hr>
+<blockquote><strong>下一章</strong>：BEV 感知 — 多相机融合的 3D 空间理解</blockquote>
+
+
+  <div class="module-nav"><a href="chapter05_multimodal_reasoning.html" class="prev">← 第5章：多模态理解与推理</a><a href="chapter07_bev_perception.html" class="next">第7章：3D 视觉与 BEV 感知 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/vla/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/vlm_learn" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

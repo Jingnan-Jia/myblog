@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4章：多模态大语言模型 (LLaVA) - VLA 端到端自动驾驶教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .stage-badge {
+        display: inline-block; background: #fef3c7; color: #b45309;
+        padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 500;
+        margin-left: .5rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    /* Index-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .stage-section { margin: 2.5rem 0 1.5rem; }
+    .stage-title {
+        font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;
+        padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .outline-flow {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.5rem; margin: 1.5rem 0; font-family: "SF Mono", "Fira Code", monospace;
+        font-size: .85rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/vla/">VLA 教程</a><span class="sep">/</span><span>第4章</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">第4章<span class="stage-badge">第二阶段：多模态大模型</span></div>
+  <h1>第4章：多模态大语言模型 (LLaVA)</h1>
+  <p>从零实现 Mini-LLaVA，掌握 Vision Encoder + Projector + LLM 架构，两阶段训练（特征对齐 + 指令微调）。</p>
+  <div class="module-meta"><span class="tag">LLaVA</span><span class="tag">Vision-Language 连接器</span><span class="tag">两阶段训练</span><span class="tag">多图推理</span><span class="tag">高分辨率处理</span></div>
+</div>
+
+<h2 id="llm">让 LLM 具备&quot;视觉&quot;能力</h2>
+
+<hr>
+
+<h2 id="llm">第一部分：为什么需要多模态 LLM？</h2>
+
+<h3 id="11-clip-llava">1.1 从 CLIP 到 LLaVA — 从&quot;对齐&quot;到&quot;理解&quot;</h3>
+
+<p>第3章的 CLIP 解决了视觉-语言对齐问题——它能判断图像与文本是否匹配。但它不能&quot;对话&quot;：你不能问它&quot;图像里发生了什么？接下来该怎么办？&quot;</p>
+
+<p>LLaVA (Liu et al., 2023) 解决了这个问题：将 CLIP 的视觉编码器与大语言模型连接起来，使 LLM 能够&quot;看见&quot;并&quot;讨论&quot;图像。</p>
+
+<h3 id="12">1.2 对自动驾驶的意义</h3>
+
+<p>对于 VLA 自动驾驶，多模态 LLM 是核心能力：</p>
+<p>- <strong>场景理解</strong>：用自然语言描述和推理驾驶场景</p>
+<p>- <strong>指令理解</strong>：将&quot;在前方路口右转&quot;联系到实际视觉场景</p>
+<p>- <strong>决策解释</strong>：理解模型为什么会做出某个驾驶决策</p>
+<p>- <strong>VLA 基础</strong>：DriveVLM 等驾驶 VLA 就是 LLaVA + 行动输出</p>
+
+<h3 id="13-vla">1.3 在 VLA 学习路线中的位置</h3>
+
+<pre><code class="language-">
+第1-2章: Transformer + ViT（组件）
+第3章:   CLIP（视觉-语言对齐）
+第4章:   LLaVA（多模态对话）← 当前
+第5章:   多模态推理（Grounding, CoT）
+第14章:  VLA（视觉→语言→行动）
+</code></pre>
+
+<hr>
+<h2 id="llava">第二部分：LLaVA 架构</h2>
+
+<h3 id="21">2.1 三组件架构</h3>
+
+<pre><code class="language-">
+┌─────────────────────────────────────────────────────┐
+│                     LLaVA 架构                       │
+│                                                      │
+│  图像 (336×336)         文本 &quot;What do you see?&quot;       │
+│       │                       │                      │
+│  CLIP ViT-L/14          Tokenizer                    │
+│  (Vision Encoder)           │                        │
+│       │                       │                      │
+│  Patch Features          Text Tokens                 │
+│  (576 × 1024)            (T,)                        │
+│       │                       │                      │
+│  MLP Projector               │                        │
+│  (2-layer GELU)              │                        │
+│       │                       │                      │
+│  Visual Tokens         Text Embeddings               │
+│  (576 × 4096)          (T × 4096)                    │
+│       │                       │                      │
+│       └───────┬───────────────┘                      │
+│               │                                      │
+│       [Visual | Text] Concatenation                  │
+│       (576 + T) × 4096                               │
+│               │                                      │
+│       Causal LLM (LLaMA/Vicuna)                      │
+│               │                                      │
+│       Generated Response                             │
+│                                                      │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+
+<p>三个核心组件：</p>
+<p>1. <strong>Vision Encoder</strong>：CLIP ViT（预训练，冻结）</p>
+<p>2. <strong>Projector</strong>：MLP/Q-Former，将视觉特征映射到 LLM 空间</p>
+<p>3. <strong>LLM</strong>：Causal Language Model（预训练，Stage 2 解冻）</p>
+
+<h3 id="22-vision-encoder">2.2 Vision Encoder</h3>
+
+<p>LLaVA 使用 CLIP 的视觉编码器作为&quot;视觉 Frontend&quot;：</p>
+
+<p>- 通常是 ViT-L/14（Large，patch=14）</p>
+<p>- 输入 336×336 → 24×24 + CLS = 577 tokens</p>
+<p>- 输出 577 × 1024 特征向量（保留空间结构）</p>
+
+<p>关键设计选择：</p>
+<p>- 使用 patch features（不用 [CLS] token）：保留空间信息</p>
+<p>- 使用倒数第二层特征（penultimate layer）：比最后一层特征更具语义性</p>
+<p>- 视觉编码器保持冻结：预训练的对齐能力已经足够</p>
+
+<h3 id="23-projector">2.3 Projector（连接器）</h3>
+
+<p>Projector 是视觉和语言之间的&quot;翻译器&quot;。三种主流方案：</p>
+
+<table><thead><tr>
+<th>方案</th>
+<th>架构</th>
+<th>输出 tokens</th>
+<th>参数</th>
+<th>使用场景</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>MLP</strong> (LLaVA v1.5)</td>
+<td>2层 Linear+GELU</td>
+<td>576</td>
+<td>~0.1B</td>
+<td>标准方案</td>
+</tr>
+<tr>
+<td><strong>Q-Former</strong> (BLIP-2)</td>
+<td>N个可学习 query + Cross-Attn</td>
+<td>32-64</td>
+<td>~0.2B</td>
+<td>token 压缩</td>
+</tr>
+<tr>
+<td><strong>C-Abstractor</strong></td>
+<td>卷积下采样 + 抽象</td>
+<td>144</td>
+<td>~0.05B</td>
+<td>效率优化</td>
+</tr>
+</tbody></table>
+
+<p><strong>MLP 为什么有效？</strong></p>
+<p>- 简单反而好：2 层 MLP 就能学好跨模态映射</p>
+<p>- 不需要压缩 token：LLM 有能力处理 576 个额外的&quot;视觉词&quot;</p>
+<p>- 保留完整的空间信息：每个视觉 token 对应图像的一个区域</p>
+
+<h3 id="24-llm">2.4 LLM</h3>
+
+<p>LLaVA 使用预训练的 LLM 作为&quot;语言后端&quot;：</p>
+
+<p>- LLaVA v1.5 使用 Vicuna-7B/13B（LLaMA 微调版）</p>
+<p>- 4096 维隐藏层</p>
+<p>- 因果自注意力</p>
+
+<p>关键 insight：LLM 将 visual tokens 视为一种&quot;外语&quot;——projector 学会了将视觉特征&quot;翻译&quot;为 LLM 能理解的表示。</p>
+
+<hr>
+<h2 id="tokenization">第三部分：对话格式与 Tokenization</h2>
+
+<h3 id="31-llava">3.1 LLaVA 对话模板</h3>
+
+<pre><code class="language-">
+USER: &lt;image&gt;\nWhat do you see in this image?
+ASSISTANT: I see a busy city intersection with traffic lights
+and several pedestrians crossing the street.&lt;/s&gt;
+USER: What should a driver be aware of?
+ASSISTANT: The driver should pay attention to:
+1. Traffic light status (currently green)
+2. Pedestrians on the crosswalk
+3. Vehicles in adjacent lanes
+4. Turn signals from other cars&lt;/s&gt;
+</code></pre>
+
+<p>关键设计：</p>
+<p>- <code>&lt;image&gt;</code> token 是视觉占位符，被替换为 visual tokens</p>
+<p>- <code>USER:</code> 和 <code>ASSISTANT:</code> 明确对话角色</p>
+<p>- <code>&lt;/s&gt;</code> 是 EOS token，表示回复结束</p>
+<p>- 训练时只对 ASSISTANT 部分计算 loss</p>
+
+<h3 id="32-visual-token">3.2 Visual Token 替换</h3>
+
+<pre><code class="language-">
+原始序列:
+&quot;&lt;image&gt;\nUSER: What do you see?&quot;
+
+Tokenize 后:
+[&lt;image&gt;, USER, :, What, do, you, see, ?]
+
+替换 &lt;image&gt;:
+[visual_1, visual_2, ..., visual_576, USER, :, What, do, you, see, ?]
+
+最终嵌入:
+[V1, V2, ..., V576, T1, T2, T3, T4, T5, T6, T7]  共 576+7 个 tokens
+</code></pre>
+
+<h3 id="33-loss-masking">3.3 Loss Masking</h3>
+
+<p>只对 ASSISTANT 的回复部分计算 loss：</p>
+
+<pre><code class="language-">
+Position: 0...............50, 51, 52, 53, 54, 55
+Content:  [Visual Tokens | USER... | ASSISTANT: ...]
+Labels:   [-100, -100, ... -100,  51,  52,  53,  54]
+                        ↑              ↑
+                prompt不计算loss     只计算assistant部分
+</code></pre>
+
+<pre><code class="language-python">
+labels = input_ids.clone()
+# 找到 assistant 开始位置
+assistant_start = prompt.index(&quot;ASSISTANT:&quot;)
+labels[:, :assistant_start] = -100  # 不计算 loss
+</code></pre>
+
+<hr>
+<h2 id="">第四部分：两阶段训练</h2>
+
+<h3 id="41">4.1 为什么需要两阶段？</h3>
+
+<p>LLaVA 的训练不是简单的端到端——需要分两个阶段：</p>
+
+<p><strong>直觉理解</strong>：</p>
+<p>- Stage 1 让 projector 学会&quot;翻译&quot;视觉特征</p>
+<p>- Stage 2 让 LLM 学会&quot;利用&quot;视觉信息进行对话</p>
+<p>- 如果直接做 Stage 2，projector 的梯度会与 LLM 的梯度冲突</p>
+
+<h3 id="42-stage-1-feature-alignment">4.2 Stage 1: 特征对齐 (Feature Alignment)</h3>
+
+<table><thead><tr>
+<th>设置</th>
+<th>值</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>目标</strong></td>
+<td>让 visual tokens 对 LLM 来说&quot;可理解&quot;</td>
+</tr>
+<tr>
+<td><strong>可训练</strong></td>
+<td>仅 Projector</td>
+</tr>
+<tr>
+<td><strong>冻结</strong></td>
+<td>Vision Encoder + LLM</td>
+</tr>
+<tr>
+<td><strong>数据</strong></td>
+<td>图像-描述对（简单）</td>
+</tr>
+<tr>
+<td><strong>Batch</strong></td>
+<td>256 (大)</td>
+</tr>
+<tr>
+<td><strong>学习率</strong></td>
+<td>2e-3 (大，因为只训一个小模块)</td>
+</tr>
+<tr>
+<td><strong>步数</strong></td>
+<td>~5000 steps</td>
+</tr>
+</tbody></table>
+
+<p>数据格式很简单：</p>
+<pre><code class="language-">
+USER: &lt;image&gt;\nDescribe this image in detail.
+ASSISTANT: A highway scene with three lanes, clear weather...
+</code></pre>
+
+<p>这个阶段相当于让 projector 学会&quot;对齐&quot;——将视觉特征翻译为 LLM 能理解的&quot;语言&quot;。</p>
+
+<h3 id="43-stage-2-instruction-tuning">4.3 Stage 2: 指令微调 (Instruction Tuning)</h3>
+
+<table><thead><tr>
+<th>设置</th>
+<th>值</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>目标</strong></td>
+<td>让模型学会多模态对话</td>
+</tr>
+<tr>
+<td><strong>可训练</strong></td>
+<td>Projector + LLM</td>
+</tr>
+<tr>
+<td><strong>冻结</strong></td>
+<td>Vision Encoder</td>
+</tr>
+<tr>
+<td><strong>数据</strong></td>
+<td>多模态多轮对话</td>
+</tr>
+<tr>
+<td><strong>Batch</strong></td>
+<td>128</td>
+</tr>
+<tr>
+<td><strong>学习率</strong></td>
+<td>2e-5 (LLM) / 1e-4 (Projector)</td>
+</tr>
+<tr>
+<td><strong>步数</strong></td>
+<td>~10000 steps</td>
+</tr>
+</tbody></table>
+
+<p>数据格式更丰富（多轮对话）：</p>
+<pre><code class="language-">
+USER: &lt;image&gt;\nWhat's the weather condition?
+ASSISTANT: It's raining heavily, visibility is reduced.
+USER: How should the driver adjust?
+ASSISTANT: The driver should: 1) Reduce speed 2) Turn on headlights
+3) Increase following distance 4) Be extra cautious of pedestrians
+</code></pre>
+
+<h3 id="44">4.4 分组学习率</h3>
+
+<p>Stage 2 中，projector 和 LLM 需要不同的学习率：</p>
+
+<pre><code class="language-python">
+optimizer = AdamW([
+    {&quot;params&quot;: projector_params, &quot;lr&quot;: 1e-4},   # 较大
+    {&quot;params&quot;: llm_params, &quot;lr&quot;: 2e-5},          # 较小（微调预训练模型）
+])
+</code></pre>
+
+<p>原因：projector 是随机初始化的，需要大步长学习；LLM 已经预训练过，只需小步长微调。</p>
+
+<h3 id="45-lora">4.5 LoRA 选项</h3>
+
+<p>在 Stage 2，可以用 LoRA 替代全量微调：</p>
+
+<pre><code class="language-python">
+if use_lora:
+    # 冻结 LLM，注入 LoRA adapter
+    inject_lora(llm, r=64, alpha=128)
+    # 只训练 LoRA 参数 + projector
+</code></pre>
+
+<p>- 参数效率：只训练 ~1% 的 LLM 参数</p>
+<p>- 避免灾难性遗忘</p>
+<p>- 方便切换多个下游任务</p>
+
+<hr>
+<h2 id="">第五部分：高级技术</h2>
+
+<h3 id="51">5.1 多图像处理</h3>
+
+<p>自动驾驶常有多个相机输入。LLaVA-NeXT 支持多图像：</p>
+
+<pre><code class="language-">
+前相机 ─→ Vision Encoder ─→ 576 tokens
+后相机 ─→ Vision Encoder ─→ 576 tokens
+左相机 ─→ Vision Encoder ─→ 576 tokens
+右相机 ─→ Vision Encoder ─→ 576 tokens
+                                   ↓
+                          [2304 visual tokens | text]
+                                   ↓
+                                  LLM
+</code></pre>
+
+<p>策略：</p>
+<p>1. <strong>独立编码</strong>：每张图独立过 vision encoder</p>
+<p>2. <strong>直接拼接</strong>：所有 visual tokens 放入序列</p>
+<p>3. <strong>分隔标记</strong>：用特殊 token 分隔不同图像</p>
+
+<h3 id="52-anyres">5.2 AnyRes — 高分辨率处理</h3>
+
+<p>标准 CLIP 输入是 336×336，对于驾驶场景来说太小了（需要看清远处的交通标志）。</p>
+
+<p>LLaVA v1.6 的 AnyRes 策略：</p>
+
+<pre><code class="language-">
+720×960 的高分辨率驾驶图像
+         │
+    选择最佳分辨率: 672×672（2×2网格）
+         │
+    分割: 4个 336×336 子图 + 1个缩略图
+         │
+    编码: 5×577 visual tokens = 2885 tokens
+         │
+    拼接并送入 LLM
+</code></pre>
+
+<p>效果：</p>
+<p>- 能辨认远处的小目标（交通标志、行人）</p>
+<p>- 保留全局场景理解（通过缩略图）</p>
+<p>- 代价是更多的 visual tokens</p>
+
+<h3 id="53-token">5.3 视觉 Token 压缩</h3>
+
+<p>576 个 visual tokens 对于长对话或长视频来说太多了。压缩策略：</p>
+
+<p>- <strong>Q-Former</strong>：用 32-64 个可学习 query 压缩 → 10x 压缩</p>
+<p>- <strong>Token Merge (ToMe)</strong>：合并相似的 adjacent tokens</p>
+<p>- <strong>C-Abstractor</strong>：卷积下采样 → 4x 压缩</p>
+<p>- <strong>Adaptive Pooling</strong>：简单的空间池化</p>
+
+<hr>
+<h2 id="">第六部分：驾驶场景应用</h2>
+
+<h3 id="61">6.1 驾驶场景理解</h3>
+
+<pre><code class="language-">
+USER: &lt;image&gt;\nDescribe this driving scene in detail.
+ASSISTANT: I observe an urban intersection under clear weather:
+- Road: 4-lane bidirectional with left-turn lane
+- Traffic light: Red for our direction
+- Vehicles: 3 cars stopped ahead of us
+- Pedestrians: 1 person waiting at crosswalk on the right
+- Road markings: Clear lane markings visible
+- Signs: Speed limit 40 km/h sign on the right
+</code></pre>
+
+<h3 id="62">6.2 驾驶决策推理</h3>
+
+<pre><code class="language-">
+USER: &lt;image&gt;\nThe light just turned green. What should I do?
+ASSISTANT: Even though the light is green, check:
+1. Are pedestrians still crossing? (look at crosswalk)
+2. Is the car ahead starting to move?
+3. Are there vehicles running the red light from cross street?
+After confirming safety, proceed slowly through the intersection.
+</code></pre>
+
+<h3 id="63">6.3 危险场景分析</h3>
+
+<pre><code class="language-">
+USER: &lt;image&gt;\nIs this a dangerous situation?
+ASSISTANT: Yes, this appears hazardous:
+1. The vehicle in the adjacent lane is drifting out of its lane
+2. Wet road surface (recent rain) — reduced friction
+3. The pedestrian on the sidewalk is looking at their phone
+
+Recommendations:
+- Increase distance from the drifting vehicle
+- Reduce speed for wet conditions
+- Be prepared to brake if pedestrian steps onto road
+</code></pre>
+
+<hr>
+<h2 id="">总结</h2>
+
+<p>本章建立的核心能力：</p>
+<p>1. ✅ <strong>LLaVA 三组件架构</strong>：Vision Encoder + Projector + LLM</p>
+<p>2. ✅ <strong>连接器对比</strong>：MLP vs Q-Former vs C-Abstractor</p>
+<p>3. ✅ <strong>两阶段训练</strong>：特征对齐 + 指令微调</p>
+<p>4. ✅ <strong>对话格式化</strong>：Loss Masking 只对 assistant 部分计算</p>
+<p>5. ✅ <strong>多图像处理</strong>：多相机拼接策略</p>
+<p>6. ✅ <strong>AnyRes 高分辨率</strong>：分割→多 patches 编码</p>
+<p>7. ✅ <strong>驾驶场景应用</strong>：场景描述、决策推理、危险分析</p>
+
+<hr>
+<blockquote><strong>下一章</strong>：多模态理解与推理 — 视觉定位、多模态思维链、多模态 Agent</blockquote>
+
+
+  <div class="module-nav"><a href="chapter03_clip_contrastive.html" class="prev">← 第3章：视觉-语言对齐 (CLIP)</a><a href="chapter05_multimodal_reasoning.html" class="next">第5章：多模态理解与推理 →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/vla/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/vlm_learn" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>

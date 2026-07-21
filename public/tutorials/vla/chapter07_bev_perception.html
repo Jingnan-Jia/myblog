@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第7章：3D 视觉与 BEV 感知 - VLA 端到端自动驾驶教程</title>
+<style>
+    :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --accent: #4263eb;
+        --accent-light: #e8ecff;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --code-dark: #1e1e2e;
+        --code-text: #cdd6f4;
+        --radius: 10px;
+        --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .top-nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        position: sticky; top: 0; z-index: 100;
+        backdrop-filter: blur(8px);
+    }
+    .top-nav-inner {
+        max-width: 900px; margin: 0 auto;
+        display: flex; align-items: center; gap: 1.5rem;
+        height: 56px;
+    }
+    .top-nav a { color: var(--text-secondary); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand { font-weight: 700; color: var(--text); font-size: 1rem; margin-right: auto; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .breadcrumb { display: flex; gap: .5rem; align-items: center; font-size: .85rem; color: var(--text-secondary); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { user-select: none; }
+
+    h1 { font-size: 2rem; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    h2 { font-size: 1.5rem; color: var(--text); margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 1.2rem; color: var(--text); margin: 1.8rem 0 .8rem; }
+    h4 { font-size: 1.05rem; color: var(--text); margin: 1.2rem 0 .5rem; }
+
+    p { margin: .8rem 0; }
+
+    .module-header { margin-bottom: 2rem; }
+    .module-badge {
+        display: inline-block; background: var(--accent-light); color: var(--accent);
+        padding: .25rem .75rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+        margin-bottom: .75rem;
+    }
+    .stage-badge {
+        display: inline-block; background: #fef3c7; color: #b45309;
+        padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 500;
+        margin-left: .5rem;
+    }
+    .module-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .module-meta .tag {
+        background: var(--code-bg); padding: .2rem .6rem; border-radius: 5px;
+        font-size: .78rem; color: var(--text-secondary);
+    }
+
+    code {
+        background: var(--code-bg);
+        padding: .15em .45em; border-radius: 4px;
+        font-family: "SF Mono", "Fira Code", "Consolas", "JetBrains Mono", monospace;
+        font-size: .88em; color: #d63384;
+    }
+    pre {
+        background: var(--code-dark); color: var(--code-text);
+        padding: 1.2rem; border-radius: var(--radius);
+        overflow-x: auto; margin: 1rem 0; font-size: .85rem; line-height: 1.7;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+    th { background: #f8f9fb; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    blockquote {
+        background: #f0f4ff; border-left: 4px solid var(--accent);
+        padding: .75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0;
+        color: #3b4a6b;
+    }
+
+    hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+
+    .module-nav {
+        display: flex; justify-content: space-between; margin-top: 3rem;
+        padding-top: 1.5rem; border-top: 2px solid var(--border);
+    }
+    .module-nav a {
+        display: flex; align-items: center; gap: .4rem;
+        color: var(--accent); text-decoration: none; font-weight: 500; font-size: .92rem;
+        transition: color .15s;
+    }
+    .module-nav a:hover { color: #2d4ad6; }
+    .module-nav .prev::before { content: "←"; font-size: 1.1em; }
+    .module-nav .next::after { content: "→"; font-size: 1.1em; }
+
+    .footer-note { text-align: center; padding: 2rem 0; color: var(--text-secondary); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .footer-note a { color: var(--accent); }
+
+    /* Index-specific */
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: .75rem; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+    .tech-stack { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+    .tech-stack span {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: .35rem .8rem; border-radius: 6px; font-size: .82rem;
+        color: var(--text-secondary); font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .stage-section { margin: 2.5rem 0 1.5rem; }
+    .stage-title {
+        font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;
+        padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .module-grid { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-decoration: none; color: inherit;
+        transition: all .2s; display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .module-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .module-card .card-num {
+        font-size: 1.8rem; font-weight: 800; color: var(--accent); opacity: .3;
+        min-width: 2.5rem; text-align: center; line-height: 1;
+    }
+    .module-card .card-content h3 { font-size: 1.05rem; margin: 0 0 .3rem; color: var(--text); }
+    .module-card .card-content p { font-size: .88rem; color: var(--text-secondary); margin: 0 0 .5rem; }
+    .module-card .card-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .module-card .card-tags span {
+        background: var(--accent-light); color: var(--accent);
+        padding: .1rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 500;
+    }
+
+    .outline-flow {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.5rem; margin: 1.5rem 0; font-family: "SF Mono", "Fira Code", monospace;
+        font-size: .85rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .container { padding: 1.2rem 1rem; }
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.2rem; }
+        .module-card { flex-direction: column; }
+        .module-card .card-num { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.7rem; }
+        .top-nav-inner { gap: 1rem; }
+    }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="/" class="brand">jiajingnan.cn</a>
+    <a href="/posts/">文章</a>
+    <a href="/tutorials/">教程</a>
+    <a href="/publications/">论文</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="breadcrumb"><a href="/">首页</a><span class="sep">/</span><a href="/tutorials/">教程</a><span class="sep">/</span><a href="/tutorials/vla/">VLA 教程</a><span class="sep">/</span><span>第7章</span></div>
+  
+<div class="module-header">
+  <div class="module-badge">第7章<span class="stage-badge">第三阶段：自动驾驶感知基础</span></div>
+  <h1>第7章：3D 视觉与 BEV 感知</h1>
+  <p>从零实现 BEV 感知系统（LSS + BEVFormer），掌握多视图几何、坐标变换、时序融合与多传感器融合。</p>
+  <div class="module-meta"><span class="tag">LSS</span><span class="tag">BEVFormer</span><span class="tag">BEVDet</span><span class="tag">多视图几何</span><span class="tag">时序BEV</span></div>
+</div>
+
+<h2 id="">从多相机到鸟瞰图 -- 自动驾驶感知的核心</h2>
+
+<hr>
+
+<h3 id="">前言</h3>
+
+<p>本章面向有 CNN 感知经验的自动驾驶算法工程师，讲解 BEV 感知的两大主流范式：LSS 和 BEVFormer。</p>
+
+<p><strong>学完本章你将获得：</strong></p>
+<p>- LSS 视图变换的完整数学推导</p>
+<p>- 相机几何的工程实现能力</p>
+<p>- BEVFormer 的 Deformable Cross-Attention 理解</p>
+<p>- 一套完整可运行的 BEV 感知代码</p>
+
+<hr>
+
+<h2 id="bev">第一部分：为什么需要 BEV 感知？</h2>
+
+<h3 id="11">1.1 传统透视感知的局限</h3>
+
+<p>传统自动驾驶感知在透视图像上进行 2D 检测，存在三个根本问题：</p>
+
+<p>1. <strong>尺度歧义</strong>：远处物体在图像中很小，近处很大，同一个物体在不同距离的呈现完全不同</p>
+<p>2. <strong>遮挡问题</strong>：透视图像中的遮挡难以推理，被遮挡物体可能完全不可见</p>
+<p>3. <strong>多相机融合困难</strong>：6 个相机各看各的，无法形成统一的空间理解</p>
+
+<h3 id="12-bev">1.2 BEV 的解决方案</h3>
+
+<p>BEV (Bird's Eye View) 将感知空间从透视图像转换到鸟瞰图：</p>
+
+<p>- <strong>尺度一致</strong>：BEV 空间中的物体大小由其物理尺寸决定，与距离无关</p>
+<p>- <strong>适合规划</strong>：轨迹和规划天然在 BEV 空间中进行</p>
+<p>- <strong>多传感器融合</strong>：LiDAR、Radar、地图都可以在 BEV 空间统一表示</p>
+
+<hr>
+
+<h2 id="">第二部分：相机几何基础</h2>
+
+<h3 id="21">2.1 针孔相机模型</h3>
+
+<p>核心变换链：</p>
+
+<pre><code class="language-">
+像素坐标 (u, v, d) → 相机坐标 (x_c, y_c, z_c) → 世界坐标 (x_w, y_w, z_w)
+</code></pre>
+
+<p><strong>关键公式：</strong></p>
+
+<p>像素到相机：</p>
+<pre><code class="language-">
+x_c = (u - cx) * z / fx
+y_c = (v - cy) * z / fy
+z_c = z
+</code></pre>
+
+<p>相机到世界（刚性变换）：</p>
+<pre><code class="language-">
+[x_w, y_w, z_w]^T = R @ [x_c, y_c, z_c]^T + t
+</code></pre>
+
+<h3 id="22">2.2 内参与外参</h3>
+
+<table><thead><tr>
+<th>参数类型</th>
+<th>含义</th>
+<th>示例值</th>
+</tr></thead><tbody>
+<tr>
+<td>fx, fy</td>
+<td>X/Y 方向焦距</td>
+<td>800.0</td>
+</tr>
+<tr>
+<td>cx, cy</td>
+<td>主点（光心）</td>
+<td>(800, 450)</td>
+</tr>
+<tr>
+<td>R (3x3)</td>
+<td>旋转矩阵</td>
+<td>相机朝向</td>
+</tr>
+<tr>
+<td>t (3x1)</td>
+<td>平移向量</td>
+<td>相机安装位置</td>
+</tr>
+</tbody></table>
+
+<h3 id="23">2.3 多相机系统</h3>
+
+<p>nuScenes 标准 6 相机配置：</p>
+<p>- CAM_FRONT（前视）</p>
+<p>- CAM_FRONT_LEFT / CAM_FRONT_RIGHT（前侧视）</p>
+<p>- CAM_BACK（后视）</p>
+<p>- CAM_BACK_LEFT / CAM_BACK_RIGHT（后侧视）</p>
+
+<p>每个相机有独立的内参和外参，但共享同一个世界坐标系。</p>
+
+<hr>
+
+<h2 id="lss-lift-splat-shoot">第三部分：LSS (Lift-Splat-Shoot)</h2>
+
+<h3 id="31-lift-3d">3.1 Lift -- 将图像特征提升为 3D 视锥</h3>
+
+<p><strong>核心思想</strong>：对每个像素预测其在各个深度 bin 上的概率分布。</p>
+
+<pre><code class="language-">
+输入：图像特征 F ∈ R^{C×H×W}
+输出：视锥特征 F_frustum ∈ R^{C×D×H×W}
+
+Step 1: 预测深度分布 D_dist ∈ R^{D×H×W}（softmax over depth bins）
+Step 2: 将图像特征与深度分布外积：F_frustum = F_unsqueeze ⊙ D_dist_unsqueeze
+</code></pre>
+
+<p>深度分布的学习通常需要深度监督（LiDAR 点云投影提供深度 ground truth）。</p>
+
+<h3 id="32-splat-3d-bev">3.2 Splat -- 将 3D 视锥投影到 BEV</h3>
+
+<p><strong>核心思想</strong>：利用相机几何将每个视锥体素映射到 BEV 栅格。</p>
+
+<pre><code class="language-">
+Step 1: 计算每个视锥体素的世界坐标
+Step 2: 将世界坐标映射到 BEV 栅格索引
+Step 3: Voxel Pooling -- 同一 BEV 栅格内的所有视锥特征做 sum pooling
+</code></pre>
+
+<p>Voxel Pooling 的实现技巧：</p>
+<pre><code class="language-python">
+# 使用 scatter sum 实现高效的 BEV 聚合
+bev.scatter_add_(0, bev_indices, frustum_features.view(-1, C))
+</code></pre>
+
+<h3 id="33-shoot-bev">3.3 Shoot -- BEV 特征到任务输出</h3>
+
+<p>BEV 特征通过标准的卷积网络进行后处理，输出：</p>
+<p>- 3D 检测（中心、尺寸、朝向、类别）</p>
+<p>- BEV 分割（可行驶区域、车道线）</p>
+<p>- 未来的运动预测</p>
+
+<hr>
+
+<h2 id="bevformer">第四部分：BEVFormer</h2>
+
+<h3 id="41">4.1 设计动机</h3>
+
+<p>LSS 依赖显式深度估计（可能不准确），BEVFormer 使用可学习的 BEV Queries 隐式地从图像中查询信息。</p>
+
+<h3 id="42">4.2 核心组件</h3>
+
+<p><strong>可学习的 BEV Queries：</strong></p>
+
+<pre><code class="language-">
+Q_bev ∈ R^{N_bev×C}  其中 N_bev = H_bev × W_bev
+</code></pre>
+
+<p>每个 BEV Query 对应 BEV 空间中的一个位置，通过空间交叉注意力从多相机图像中聚合信息。</p>
+
+<p><strong>Spatial Cross-Attention：</strong></p>
+
+<pre><code class="language-">
+BEV Query 对应世界坐标 (x, y) → 投影到各相机像素 (u_i, v_i)
+→ 在 (u_i, v_i) 周围采样 Deformable Points
+→ 用 Deformable Attention 聚合多相机特征
+</code></pre>
+
+<p><strong>时序自注意力 (Temporal Self-Attention)：</strong></p>
+
+<pre><code class="language-">
+当前帧 BEV Query → 与历史 BEV 特征做自注意力
+→ 历史 BEV 特征先按自车运动对齐到当前帧坐标系
+</code></pre>
+
+<h3 id="43-deformable-attention">4.3 Deformable Attention</h3>
+
+<p>与标准 Attention 不同，Deformable Attention 只在少数采样点计算注意力：</p>
+
+<pre><code class="language-">
+DeformAttn(q, p, x) = Σ W_m [Σ A_mqk · W_m' x(p + Δp_mqk)]
+</code></pre>
+
+<p>其中 p 是参考点，Δp 是可学习的偏移量。</p>
+
+<p>优点：</p>
+<p>- 计算复杂度与图像大小无关（只计算 K 个采样点）</p>
+<p>- 自然地处理多尺度特征</p>
+
+<h3 id="44">4.4 时序对齐</h3>
+
+<p>自车运动补偿：</p>
+
+<pre><code class="language-">
+当前帧坐标系 = 自车运动 × 历史帧坐标系
+T_align = T_ego_t-1^(-1) @ T_ego_t
+</code></pre>
+
+<p>将历史 BEV 特征通过 T_align 变换到当前帧后再做注意力。</p>
+
+<hr>
+
+<h2 id="3d">第五部分：3D 检测头</h2>
+
+<h3 id="51-detr-style-detection-head">5.1 DETR-style Detection Head</h3>
+
+<p>使用可学习的 Object Queries，通过 Transformer Decoder 交叉注意力从 BEV 特征中提取物体信息：</p>
+
+<pre><code class="language-">
+Object Queries (N=900) × Cross-Attention(BEV Features)
+→ 每个 Query 预测一个 3D 框或 &quot;no object&quot;
+</code></pre>
+
+<h3 id="52-3d">5.2 3D 框参数化</h3>
+
+<p>每个框用 9 个参数表示：</p>
+<p>- 中心坐标: (x, y, z)</p>
+<p>- 尺寸: (w, l, h)</p>
+<p>- 朝向: sin(θ), cos(θ)</p>
+<p>- 速度: (vx, vy)</p>
+
+<h3 id="53-loss">5.3 匹配与 Loss</h3>
+
+<p>使用 Hungarian 匹配（二分图匹配）将预测框与 GT 框配对：</p>
+<p>- 分类 Loss: Focal Loss</p>
+<p>- 回归 Loss: L1 Loss</p>
+<p>- IoU Loss: 3D IoU</p>
+
+<hr>
+
+<h2 id="">最佳实践与常见问题</h2>
+
+<h3 id="q-lss-vs-bevformer">Q: LSS vs BEVFormer 如何选择？</h3>
+
+<p>- 快速原型和实时系统：LSS（纯卷积，速度快）</p>
+<p>- 追求最高精度且有足够算力：BEVFormer</p>
+<p>- 需要时序信息：BEVFormer（原生支持）</p>
+<p>- 2025 年趋势：BEVFormer 及其变体（BEVFormer v2, BEVDepth）</p>
+
+<h3 id="q-lss">Q: 深度监督对 LSS 有多重要？</h3>
+
+<p>非常重要。没有深度监督，LSS 的深度估计会退化，导致 BEV 特征质量下降。</p>
+<p>建议使用 LiDAR 点云投影作为深度 GT，loss weight 设为 0.01-0.1。</p>
+
+<h3 id="q-bev">Q: BEV 分辨率如何选择？</h3>
+
+<p>- 0.5m/格 (200x200)：标准选择，适合城市驾驶</p>
+<p>- 0.25m/格 (400x400)：更高精度，但计算量 4x</p>
+<p>- 1.0m/格 (100x100)：高速巡航，精度要求低</p>
+
+<h3 id="q">Q: 如何处理相机外参标定误差？</h3>
+
+<p>- 训练时加入外参噪声（数据增强）</p>
+<p>- 使用可学习的外参（让网络适应微小偏移）</p>
+<p>- 在线标定模块</p>
+
+<hr>
+
+<h2 id="">下一步</h2>
+
+<p>完成本章后，建议：</p>
+<p>1. 运行演示脚本，观察 BEV 特征的可视化</p>
+<p>2. 尝试不同的 BEV 分辨率，对比效果和速度</p>
+<p>3. 阅读 LSS 和 BEVFormer 原始论文</p>
+<p>4. 进入第8章：Occupancy Network</p>
+
+<hr>
+
+<blockquote><strong>本章项目地址：</strong> <code>vla_learn/chapter07_bev_perception/</code></blockquote>
+<blockquote><strong>预计学习时间：</strong> 2-3 天（含代码阅读和理解）</blockquote>
+
+
+  <div class="module-nav"><a href="chapter06_video_understanding.html" class="prev">← 第6章：视频理解模型</a><a href="chapter08_occupancy_network.html" class="next">第8章：占据网络 (Occupancy Network) →</a></div>
+  <div class="footer-note">
+    <a href="/tutorials/vla/">← 返回教程首页</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Jingnan-Jia/vlm_learn" target="_blank" rel="noopener">GitHub 源码</a>
+  </div>
+</div>
+</body>
+</html>
