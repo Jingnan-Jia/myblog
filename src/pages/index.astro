@@ -25,7 +25,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 const homePath = getRelativeLocaleUrl(locale, "");
 
 const about = await getEntry("pages", "about");
-const aboutContent = about ? (await render(about)).Content : null;
+const AboutContent = about ? (await render(about)).Content : null;
 ---
 
 <Layout>
@@ -55,8 +55,29 @@ const aboutContent = about ? (await render(about)).Content : null;
         <span class="sr-only">RSS Feed</span>
       </a>
 
-      <div class="app-prose mt-4">
-        {aboutContent && <aboutContent />}
+      <p>
+        欢迎来到我的个人博客！这里记录了我的科研探索、技术笔记与日常思考。
+        主要关注医学影像分析、深度学习以及 Python 开发。
+      </p>
+      <p class="mt-2">
+        浏览
+        <LinkButton
+          class="hover:text-accent underline decoration-dashed underline-offset-4"
+          href={getRelativeLocaleUrl(locale, "posts")}
+        >
+          最新文章
+        </LinkButton>
+        或查看
+        <LinkButton
+          class="hover:text-accent underline decoration-dashed underline-offset-4"
+          href={getRelativeLocaleUrl(locale, "publications")}
+        >
+          论文发表
+        </LinkButton>。
+      </p>
+
+      <div class="app-prose mt-6">
+        {AboutContent && <AboutContent />}
       </div>
 
       {
