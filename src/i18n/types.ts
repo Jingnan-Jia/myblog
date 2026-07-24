@@ -9,6 +9,7 @@ export interface UIStrings {
     search: string;
     tutorials: string;
     dailyai: string;
+    guestbook: string;
   };
   post: {
     publishedAt: string;

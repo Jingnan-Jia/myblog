@@ -114,6 +114,14 @@ const isActive = (path: string) => {
             {t.nav.dailyai}
           </a>
         </li>
+        <li class="col-span-2">
+          <a
+            href={getRelativeLocaleUrl(locale, "guestbook")}
+            class:list={{ "active-nav": isActive("/guestbook") }}
+          >
+            {t.nav.guestbook}
+          </a>
+        </li>
         {
           features.showArchives && (
             <li class="col-span-2">

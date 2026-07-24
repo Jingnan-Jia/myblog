@@ -11,6 +11,7 @@ export default {
     search: "搜索",
     tutorials: "教程",
     dailyai: "每日AI",
+    guestbook: "留言板",
   },
   post: {
     publishedAt: "发布于",

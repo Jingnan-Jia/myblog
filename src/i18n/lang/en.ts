@@ -11,6 +11,7 @@ export default {
     search: "Search",
     tutorials: "Tutorials",
     dailyai: "Daily AI",
+    guestbook: "Guestbook",
   },
   post: {
     publishedAt: "Published at",
