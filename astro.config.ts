@@ -130,6 +130,21 @@ export default defineConfig({
         context: "client",
         optional: false,
       }),
+      PUBLIC_EMAILJS_PUBLIC_KEY: envField.string({
+        access: "public",
+        context: "client",
+        optional: false,
+      }),
+      PUBLIC_EMAILJS_SERVICE_ID: envField.string({
+        access: "public",
+        context: "client",
+        optional: false,
+      }),
+      PUBLIC_EMAILJS_TEMPLATE_ID: envField.string({
+        access: "public",
+        context: "client",
+        optional: false,
+      }),
     },
   },
   experimental: {

@@ -123,8 +123,13 @@ const t = useTranslations(locale);
 
 <script>
   import { supabase, type Message } from "@/utils/supabase";
+  import emailjs from "@emailjs/browser";
+
+  emailjs.init(import.meta.env.PUBLIC_EMAILJS_PUBLIC_KEY);
 
   const ADMIN_HASH = import.meta.env.PUBLIC_ADMIN_PASSWORD_HASH;
+  const EMAILJS_SERVICE_ID = import.meta.env.PUBLIC_EMAILJS_SERVICE_ID;
+  const EMAILJS_TEMPLATE_ID = import.meta.env.PUBLIC_EMAILJS_TEMPLATE_ID;
 
   async function sha256(message: string): Promise<string> {
     const msgBuffer = new TextEncoder().encode(message);
@@ -267,6 +272,16 @@ const t = useTranslations(locale);
       msgContent.value = "";
       msgStatus.textContent = "留言成功！";
       setTimeout(() => (msgStatus.textContent = ""), 3000);
+
+      // 邮件通知博主
+      emailjs
+        .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          nickname,
+          content,
+          time: formatDate(new Date().toISOString()),
+        })
+        .catch(() => {}); // 邮件失败不阻塞页面
+
       await loadMessages();
     } catch {
       msgStatus.textContent = "提交失败，请重试";
