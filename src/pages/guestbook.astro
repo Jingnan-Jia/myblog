@@ -14,83 +14,374 @@ const t = useTranslations(locale);
 <Layout title={`${t.nav.guestbook} | ${config.site.title}`}>
   <Header />
   <Breadcrumb />
-  <Main pageTitle={t.nav.guestbook} pageDesc="欢迎留言交流">
-    <div id="giscus-container" class="mt-4 min-h-[400px]"></div>
+  <Main pageTitle={t.nav.guestbook} pageDesc="欢迎留言交流，无需注册">
+    <div id="guestbook" class="mt-4">
+      <!-- Admin button -->
+      <div class="mb-6 text-right">
+        <button
+          id="admin-toggle"
+          class="text-muted-foreground hover:text-accent text-sm underline underline-offset-4 transition-colors"
+        >
+          管理
+        </button>
+        <div id="admin-panel" class="mt-2 hidden text-right">
+          <input
+            id="admin-password"
+            type="password"
+            placeholder="管理员密码"
+            class="border-border bg-background focus:ring-accent rounded border px-3 py-1 text-sm focus:ring-1 focus:outline-none"
+          />
+          <button
+            id="admin-login"
+            class="bg-accent text-background ml-2 rounded px-3 py-1 text-sm font-medium hover:opacity-80"
+          >
+            登录
+          </button>
+          <button
+            id="admin-logout"
+            class="text-muted-foreground ml-2 hidden px-3 py-1 text-sm underline"
+          >
+            退出
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="messages-container" class="space-y-6">
+        <p class="text-muted-foreground text-center">加载留言中...</p>
+      </div>
+
+      <!-- Submit form -->
+      <div class="border-border mt-10 border-t pt-6">
+        <h3 class="mb-4 text-lg font-semibold">留下你的留言</h3>
+        <form id="message-form" class="space-y-3">
+          <input
+            id="msg-nickname"
+            type="text"
+            placeholder="你的昵称"
+            maxlength="50"
+            required
+            class="border-border bg-background focus:ring-accent w-full max-w-sm rounded border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
+          />
+          <textarea
+            id="msg-content"
+            placeholder="说点什么..."
+            rows="3"
+            maxlength="1000"
+            required
+            class="border-border bg-background focus:ring-accent w-full rounded border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
+          ></textarea>
+          <div class="flex items-center gap-3">
+            <button
+              id="msg-submit"
+              type="submit"
+              class="bg-accent text-background rounded px-5 py-2 text-sm font-medium hover:opacity-80 disabled:opacity-50"
+            >
+              提交留言
+            </button>
+            <span id="msg-status" class="text-muted-foreground text-sm"></span>
+          </div>
+        </form>
+      </div>
+
+      <!-- Reply form (hidden, used by admin) -->
+      <div
+        id="reply-form"
+        class="bg-muted mt-4 hidden rounded-lg p-4"
+      >
+        <p class="mb-2 text-sm font-medium">
+          回复 <span id="reply-target" class="text-accent"></span>
+        </p>
+        <textarea
+          id="reply-content"
+          placeholder="回复内容..."
+          rows="2"
+          maxlength="1000"
+          required
+          class="border-border bg-background focus:ring-accent w-full rounded border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
+        ></textarea>
+        <div class="mt-2 flex items-center gap-2">
+          <button
+            id="reply-submit"
+            class="bg-accent text-background rounded px-4 py-1.5 text-xs font-medium hover:opacity-80"
+          >
+            提交回复
+          </button>
+          <button
+            id="reply-cancel"
+            type="button"
+            class="text-muted-foreground text-xs underline"
+          >
+            取消
+          </button>
+        </div>
+      </div>
+    </div>
   </Main>
   <Footer />
 </Layout>
 
 <script>
-  function loadGiscus() {
-    const container = document.getElementById("giscus-container");
-    if (!container || container.hasAttribute("data-giscus-loaded")) return;
-    container.setAttribute("data-giscus-loaded", "true");
+  import { supabase, type Message } from "@/utils/supabase";
 
-    const isDark = document.documentElement.classList.contains("dark");
+  const ADMIN_HASH = import.meta.env.PUBLIC_ADMIN_PASSWORD_HASH;
 
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-    script.setAttribute("data-repo", "Jingnan-Jia/myblog");
-    script.setAttribute("data-repo-id", "R_kgDOTMngLA");
-    script.setAttribute("data-category", "General");
-    script.setAttribute("data-category-id", "DIC_kwDOTMngLM4DB2_L");
-    script.setAttribute("data-mapping", "pathname");
-    script.setAttribute("data-strict", "0");
-    script.setAttribute("data-reactions-enabled", "1");
-    script.setAttribute("data-emit-metadata", "0");
-    script.setAttribute("data-input-position", "bottom");
-    script.setAttribute("data-theme", isDark ? "dark_dimmed" : "light");
-    script.setAttribute("data-lang", "zh-CN");
-    script.setAttribute("crossorigin", "anonymous");
-    script.async = true;
-
-    container.appendChild(script);
+  async function sha256(message: string): Promise<string> {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
-  function updateGiscusTheme(theme: string) {
-    const iframe = document.querySelector<HTMLIFrameElement>(
-      "iframe.giscus-frame"
-    );
-    if (!iframe) return;
-    iframe.contentWindow?.postMessage(
-      { giscus: { setConfig: { theme } } },
-      "https://giscus.app"
-    );
+  // --- State ---
+  let isAdmin = false;
+  let replyingTo: string | null = null;
+
+  const container = document.getElementById("messages-container")!;
+  const adminToggle = document.getElementById("admin-toggle")!;
+  const adminPanel = document.getElementById("admin-panel")!;
+  const adminPassword = document.getElementById("admin-password") as HTMLInputElement;
+  const adminLogin = document.getElementById("admin-login")!;
+  const adminLogout = document.getElementById("admin-logout")!;
+  const messageForm = document.getElementById("message-form") as HTMLFormElement;
+  const msgNickname = document.getElementById("msg-nickname") as HTMLInputElement;
+  const msgContent = document.getElementById("msg-content") as HTMLTextAreaElement;
+  const msgSubmit = document.getElementById("msg-submit") as HTMLButtonElement;
+  const msgStatus = document.getElementById("msg-status")!;
+  const replyForm = document.getElementById("reply-form")!;
+  const replyContent = document.getElementById("reply-content") as HTMLTextAreaElement;
+  const replySubmit = document.getElementById("reply-submit") as HTMLButtonElement;
+  const replyCancel = document.getElementById("reply-cancel")!;
+  const replyTarget = document.getElementById("reply-target")!;
+
+  // --- Load messages ---
+  function formatDate(iso: string): string {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
-  function getCurrentTheme(): string {
-    const html = document.documentElement;
-    const themeBtn = document.getElementById("theme-btn");
-    if (!themeBtn) return html.classList.contains("dark") ? "dark_dimmed" : "light";
+  function escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
 
-    const ariaLabel = themeBtn.getAttribute("aria-label");
-    if (ariaLabel === "auto") {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark_dimmed"
-        : "light";
+  function buildMessages(messages: Message[]): string {
+    const parents = messages.filter((m) => !m.parent_id);
+    const replies = messages.filter((m) => m.parent_id);
+
+    function renderMessage(m: Message, isReply = false): string {
+      const replyList = replies
+        .filter((r) => r.parent_id === m.id)
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+      const adminBadge = m.is_admin
+        ? '<span class="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300">博主</span>'
+        : "";
+
+      const replyBtn =
+        isAdmin && !isReply
+          ? `<button class="reply-btn text-muted-foreground hover:text-accent ml-2 text-xs underline" data-id="${m.id}">回复</button>`
+          : "";
+
+      const indentClass = isReply ? "ml-8 border-l-2 border-gray-200 dark:border-gray-700 pl-4" : "";
+
+      const deleteBtn =
+        isAdmin
+          ? `<button class="delete-btn text-muted-foreground hover:text-red-500 ml-2 text-xs underline" data-id="${m.id}">删除</button>`
+          : "";
+
+      let html = `
+        <div class="${indentClass} mb-4" id="msg-${m.id}">
+          <div class="flex items-baseline gap-2">
+            <span class="font-semibold text-sm">${escapeHtml(m.nickname)}</span>
+            ${adminBadge}
+            <span class="text-muted-foreground text-xs">${formatDate(m.created_at)}</span>
+            ${replyBtn}
+            ${deleteBtn}
+          </div>
+          <p class="mt-1 text-sm whitespace-pre-wrap">${escapeHtml(m.content)}</p>`;
+
+      if (replyList.length > 0) {
+        html += `<div class="mt-2">`;
+        for (const r of replyList) {
+          html += renderMessage(r, true);
+        }
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+      return html;
     }
-    return ariaLabel === "dark" ? "dark_dimmed" : "light";
+
+    return parents
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .map((m) => renderMessage(m))
+      .join("");
   }
 
-  // Load Giscus on idle
-  if ("requestIdleCallback" in window) {
-    requestIdleCallback(loadGiscus);
-  } else {
-    setTimeout(loadGiscus, 500);
+  async function loadMessages() {
+    try {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+
+      const messages = data as Message[];
+      container.innerHTML = messages.length
+        ? buildMessages(messages)
+        : '<p class="text-muted-foreground text-center">暂无留言，来做第一个留言的人吧！</p>';
+
+      bindReplyButtons();
+      bindDeleteButtons();
+    } catch {
+      container.innerHTML = '<p class="text-red-500 text-center">加载留言失败，请刷新重试</p>';
+    }
   }
 
-  // Update theme when user toggles
-  document.addEventListener("astro:page-load", () => {
-    const themeBtn = document.getElementById("theme-btn");
-    if (themeBtn) {
-      themeBtn.addEventListener("click", () => {
-        setTimeout(() => updateGiscusTheme(getCurrentTheme()), 100);
+  // --- Submit message ---
+  messageForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nickname = msgNickname.value.trim();
+    const content = msgContent.value.trim();
+    if (!nickname || !content) return;
+
+    msgSubmit.disabled = true;
+    msgStatus.textContent = "提交中...";
+
+    try {
+      const { error } = await supabase.from("messages").insert({
+        nickname,
+        content,
+        parent_id: null,
+        is_admin: false,
       });
-    }
+      if (error) throw error;
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    mediaQuery.addEventListener("change", () => {
-      updateGiscusTheme(getCurrentTheme());
-    });
+      msgNickname.value = "";
+      msgContent.value = "";
+      msgStatus.textContent = "留言成功！";
+      setTimeout(() => (msgStatus.textContent = ""), 3000);
+      await loadMessages();
+    } catch {
+      msgStatus.textContent = "提交失败，请重试";
+    } finally {
+      msgSubmit.disabled = false;
+    }
   });
+
+  // --- Admin ---
+  adminToggle.addEventListener("click", () => {
+    if (isAdmin) {
+      adminLogout.click();
+      return;
+    }
+    adminPanel.classList.toggle("hidden");
+  });
+
+  adminLogin.addEventListener("click", async () => {
+    const pwd = adminPassword.value;
+    const hash = await sha256(pwd);
+    if (hash === ADMIN_HASH) {
+      isAdmin = true;
+      adminPanel.classList.add("hidden");
+      adminLogout.classList.remove("hidden");
+      adminToggle.textContent = "管理 (已登录)";
+      adminToggle.classList.add("text-accent");
+      adminPassword.value = "";
+      await loadMessages();
+    } else {
+      adminPassword.classList.add("ring-2", "ring-red-400");
+      setTimeout(() => adminPassword.classList.remove("ring-2", "ring-red-400"), 1500);
+    }
+  });
+
+  adminLogout.addEventListener("click", () => {
+    isAdmin = false;
+    adminLogout.classList.add("hidden");
+    adminPanel.classList.add("hidden");
+    adminToggle.textContent = "管理";
+    adminToggle.classList.remove("text-accent");
+    adminPassword.value = "";
+    replyingTo = null;
+    replyForm.classList.add("hidden");
+    loadMessages();
+  });
+
+  // --- Reply ---
+  function bindReplyButtons() {
+    container.querySelectorAll(".reply-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const msgId = (btn as HTMLElement).dataset.id!;
+        replyingTo = msgId;
+        const msgEl = document.getElementById(`msg-${msgId}`)!;
+        const nickname = msgEl.querySelector(".font-semibold")?.textContent ?? "";
+        replyTarget.textContent = nickname;
+        replyForm.classList.remove("hidden");
+        msgEl.after(replyForm);
+        replyContent.focus();
+      });
+    });
+  }
+
+  // --- Delete ---
+  function bindDeleteButtons() {
+    container.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const msgId = (btn as HTMLElement).dataset.id!;
+        if (!confirm("确定要删除这条留言吗？")) return;
+
+        // Also delete replies
+        const { data: replies } = await supabase
+          .from("messages")
+          .select("id")
+          .eq("parent_id", msgId);
+
+        if (replies && replies.length > 0) {
+          await supabase.from("messages").delete().eq("parent_id", msgId);
+        }
+        await supabase.from("messages").delete().eq("id", msgId);
+        await loadMessages();
+      });
+    });
+  }
+
+  replySubmit.addEventListener("click", async () => {
+    if (!replyingTo) return;
+    const content = replyContent.value.trim();
+    if (!content) return;
+
+    replySubmit.disabled = true;
+    try {
+      const { error } = await supabase.from("messages").insert({
+        nickname: "博主",
+        content,
+        parent_id: replyingTo,
+        is_admin: true,
+      });
+      if (error) throw error;
+
+      replyContent.value = "";
+      replyingTo = null;
+      replyForm.classList.add("hidden");
+      await loadMessages();
+    } catch {
+      alert("回复失败，请重试");
+    } finally {
+      replySubmit.disabled = false;
+    }
+  });
+
+  replyCancel.addEventListener("click", () => {
+    replyingTo = null;
+    replyForm.classList.add("hidden");
+  });
+
+  // --- Init ---
+  loadMessages();
 </script>
