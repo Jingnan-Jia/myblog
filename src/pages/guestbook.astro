@@ -274,9 +274,10 @@ const t = useTranslations(locale);
       // 邮件通知博主
       emailjs
         .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          nickname,
-          content,
-          time: formatDate(new Date().toISOString()),
+          name: nickname,
+          title: `新留言: ${content.slice(0, 100)}...`,
+          email: "guestbook@jiajingnan.cn",
+          message: content,
         })
         .catch((err) => console.error("EmailJS 发送失败:", err));
 
