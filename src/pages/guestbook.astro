@@ -278,7 +278,7 @@ const t = useTranslations(locale);
           content,
           time: formatDate(new Date().toISOString()),
         })
-        .catch(() => {}); // 邮件失败不阻塞页面
+        .catch((err) => console.error("EmailJS 发送失败:", err));
 
       await loadMessages();
     } catch {
