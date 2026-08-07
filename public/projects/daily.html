@@ -67,7 +67,7 @@
 <body>
 <div class="wrap">
   <h1>今日项目汇报（2026-08-07）</h1>
-  <div class="sub">生成时间：2026-08-07 18:53 · 点击任意项目节点/行查看详情 · 数据源：扫描快照 + projects-meta.json + PROGRESS.md + token-ledger.json</div>
+  <div class="sub">生成时间：2026-08-07 18:56 · 点击任意项目节点/行查看详情 · 数据源：扫描快照 + projects-meta.json + PROGRESS.md + token-ledger.json</div>
 
   <div class="cards">
     <div class="card"><div class="num">8 / 26</div><div class="lbl">今日活跃项目</div></div>
@@ -316,13 +316,13 @@ function showProject(name) {
     '<button class="close" onclick="closeProject()">✕</button>' +
     "<h3>" + esc(p.display) + "</h3>" +
     "<div style='font-size:12px;color:#888780'>" + esc(name) + " · " + esc(p.category) + (p.stage ? " · " + esc(p.stage) : "") + "</div>" +
-    '<div class="stats">' +
+    '<div class="stats">' + 
       (p.is_remote ? '<div class="stat"><div class="n">-</div><div class="l">今日文件变化</div></div><div class="stat"><div class="n">-</div><div class="l">今日实验轮次</div></div><div class="stat"><div class="n">-</div><div class="l">今日 AI Token</div></div>'
       :
       '<div class="stat"><div class="n">' + (p.week_new + p.week_mod) + '</div><div class="l">今日文件变化</div></div>' +
       '<div class="stat"><div class="n">' + (p.week_jsonl || 0) + '</div><div class="l">今日实验轮次</div></div>' +
       '<div class="stat"><div class="n">' + fmtBigT((p.ai_tokens && p.ai_tokens["2026-08-07"]) || 0) + '</div><div class="l">今日 AI Token</div></div>')
-    '</div>' +
+ + '</div>' +
     '<div class="sec"><h4>简介</h4><ul>' + bullets(p.intro, "暂无") + '</ul></div>' +
     '<div class="sec"><h4>最终目标</h4><ul>' + bullets(p.goal, "未明确") + '</ul></div>' +
     '<div class="sec"><h4>计划</h4><ul>' + plan + '</ul></div>' +

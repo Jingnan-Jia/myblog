@@ -67,7 +67,7 @@
 <body>
 <div class="wrap">
   <h1>本周项目总览（2026-W32）</h1>
-  <div class="sub">生成时间：2026-08-07 18:53 · 点击任意项目节点/行查看详情 · 数据源：扫描快照 + projects-meta.json + PROGRESS.md + token-ledger.json</div>
+  <div class="sub">生成时间：2026-08-07 18:56 · 点击任意项目节点/行查看详情 · 数据源：扫描快照 + projects-meta.json + PROGRESS.md + token-ledger.json</div>
 
   <div class="cards">
     <div class="card"><div class="num">9 / 26</div><div class="lbl">本周有变化项目</div></div>
@@ -316,13 +316,13 @@ function showProject(name) {
     '<button class="close" onclick="closeProject()">✕</button>' +
     "<h3>" + esc(p.display) + "</h3>" +
     "<div style='font-size:12px;color:#888780'>" + esc(name) + " · " + esc(p.category) + (p.stage ? " · " + esc(p.stage) : "") + "</div>" +
-    '<div class="stats">' +
+    '<div class="stats">' + 
       (p.is_remote ? '<div class="stat"><div class="n">-</div><div class="l">实验调用累计</div></div><div class="stat"><div class="n">-</div><div class="l">API 耗时累计</div></div><div class="stat"><div class="n">-</div><div class="l">本周文件变化</div></div>'
       :
       '<div class="stat"><div class="n">' + t.calls + '</div><div class="l">实验调用累计(次)</div></div>' +
       '<div class="stat"><div class="n">' + fmtHours(t.elapsed_s) + '</div><div class="l">API 耗时累计</div></div>' +
       '<div class="stat"><div class="n">' + (p.week_new + p.week_mod) + '</div><div class="l">本周文件变化</div></div>')
-    '</div>' +
+ + '</div>' +
     '<div class="sec"><h4>简介</h4><ul>' + bullets(p.intro, "暂无") + '</ul></div>' +
     '<div class="sec"><h4>最终目标</h4><ul>' + bullets(p.goal, "未明确") + '</ul></div>' +
     '<div class="sec"><h4>计划</h4><ul>' + plan + '</ul></div>' +
