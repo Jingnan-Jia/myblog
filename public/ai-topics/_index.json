@@ -1,0 +1,14 @@
+[
+  {
+    "key": "daily",
+    "label": "每日选题",
+    "file": "daily.html",
+    "url": "/ai-topics/daily.html",
+    "title": "每日选题 · 2026-08-08（示例种子）",
+    "period": "2026-08-08",
+    "generatedAt": "2026/8/8 00:56:35",
+    "size": 6771,
+    "updatedAt": 1786121162101.4912,
+    "source": "2026-08-08.md"
+  }
+]
