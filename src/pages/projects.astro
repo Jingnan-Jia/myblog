@@ -1,0 +1,85 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import config from "@/config";
+import indexRaw from "../../public/projects/_index.json?raw";
+
+interface ProjectReport {
+  key: string;
+  label: string;
+  file: string;
+  url: string;
+  title: string;
+  period: string;
+  generatedAt: string;
+  size: number;
+  updatedAt: number;
+  source: string;
+}
+
+// 构建时通过 Vite 内联读取，避免运行时文件路径在构建环境中失效
+let reports: ProjectReport[] = [];
+try {
+  reports = JSON.parse(indexRaw);
+} catch {
+  reports = [];
+}
+
+const daily = reports.find((r) => r.key === "daily") ?? null;
+const weekly = reports.find((r) => r.key === "weekly") ?? null;
+---
+
+<Layout title={`项目总揽 | ${config.site.title}`}>
+  <Header />
+  <Breadcrumb />
+  <Main
+    pageTitle="项目总揽"
+    pageDesc="选择查看项目日报或周报，点击后直接打开对应报告"
+  >
+    <div class="grid gap-6 sm:grid-cols-2">
+      <a
+        href={daily ? daily.url : "#"}
+        class:list={[
+          "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
+          !daily && "pointer-events-none opacity-50",
+        ]}
+      >
+        <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+          日
+        </span>
+        <span class="text-2xl font-bold">日报</span>
+        <span class="text-muted-foreground text-sm">
+          {daily ? daily.period : "暂无数据"}
+          {daily?.generatedAt ? ` · ${daily.generatedAt}` : ""}
+        </span>
+        <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+          点击打开 →
+        </span>
+      </a>
+
+      <a
+        href={weekly ? weekly.url : "#"}
+        class:list={[
+          "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
+          !weekly && "pointer-events-none opacity-50",
+        ]}
+      >
+        <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+          周
+        </span>
+        <span class="text-2xl font-bold">周报</span>
+        <span class="text-muted-foreground text-sm">
+          {weekly ? weekly.period : "暂无数据"}
+          {weekly?.generatedAt ? ` · ${weekly.generatedAt}` : ""}
+        </span>
+        <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+          点击打开 →
+        </span>
+      </a>
+    </div>
+  </Main>
+  <Footer />
+</Layout>

@@ -3,11 +3,11 @@
  * update-daily-report.mjs
  *
  * 定时任务全流程脚本（每晚 23:00 由自动化任务调用）：
- *   1. 同步 tracking/weekly 下最新的项目日报到 public/projects/latest.html（固定文件名，直接替换旧内容）
+ *   1. 同步 tracking 项目最新日报/周报到 public/projects/daily.html 与 weekly.html（直接替换）
  *   2. 若内容有变化：git add + commit + push 到 GitHub（Vercel 会自动重新构建部署）
  *   3. 若内容无变化：跳过提交，直接结束（避免空提交）
  *
- * 本脚本只负责"部署"，日报内容由 tracking 项目的定时任务生成。
+ * 本脚本只负责"部署"，日报/周报内容由 tracking 项目的定时任务生成。
  * 用法：node scripts/update-daily-report.mjs
  */
 import { execSync } from "node:child_process";
@@ -22,10 +22,10 @@ function run(cmd) {
   return execSync(cmd, { cwd: projectRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 }
 
-console.log("========== 每日日报部署任务 ==========");
+console.log("========== 日报/周报部署任务 ==========");
 
-// 1. 同步最新日报（tracking/weekly -> public/projects/latest.html）
-const { changed, latest, error } = syncReports();
+// 1. 同步最新日报与周报
+const { changed, reports, error } = syncReports();
 
 if (error) {
   console.error(`[update-daily-report] 同步失败：${error}`);
@@ -33,14 +33,16 @@ if (error) {
 }
 
 if (!changed) {
-  console.log(`[update-daily-report] 日报内容无变化（${latest?.period ?? "未知"}），跳过提交推送`);
+  console.log("[update-daily-report] 日报/周报内容均无变化，跳过提交推送");
   process.exit(0);
 }
+
+const periodInfo = reports.map((r) => `${r.label}:${r.period}`).join(" ");
 
 // 2. 提交并推送（内容有变化时）
 try {
   run("git add public/projects/");
-  const commitMsg = `chore: 更新项目日报 ${latest.period}`;
+  const commitMsg = `chore: 更新项目日报/周报（${periodInfo}）`;
   run(`git commit -m "${commitMsg}"`);
   console.log(`[update-daily-report] 已提交：${commitMsg}`);
 
