@@ -12,6 +12,7 @@ export default {
     tutorials: "教程",
     dailyai: "每日AI",
     guestbook: "留言板",
+    projects: "项目总揽",
   },
   post: {
     publishedAt: "发布于",

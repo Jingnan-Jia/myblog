@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-W32 项目周报</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #F5F4F0; color: #2C2C2A; padding: 32px 20px; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .sub { color: #5F5E5A; font-size: 13px; margin-bottom: 24px; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .card { background: #fff; border: 1px solid #E3E1DA; border-radius: 12px; padding: 16px; }
+  .card .num { font-size: 26px; font-weight: 600; color: #185FA5; }
+  .card .lbl { font-size: 12px; color: #888780; margin-top: 4px; }
+  .panel { background: #fff; border: 1px solid #E3E1DA; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+  .panel h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+  svg { width: 100%; height: auto; }
+  svg .node:hover rect { stroke-width: 1.5; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: #888780; font-weight: 500; padding: 8px 10px; border-bottom: 1px solid #E3E1DA; }
+  td { padding: 8px 10px; border-bottom: 1px solid #F1EFE8; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; }
+  .tag-active { background: #FAEEDA; color: #854F0B; }
+  .tag-idle { background: #F1EFE8; color: #5F5E5A; }
+  .bar-row { display: flex; align-items: center; margin-bottom: 10px; }
+  .bar-name { width: 200px; font-size: 12px; color: #444441; text-align: right; padding-right: 12px; }
+  .bar-track { flex: 1; background: #F1EFE8; border-radius: 6px; height: 16px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; }
+  .bar-val { width: 130px; font-size: 12px; color: #888780; padding-left: 10px; }
+  ul.advice { list-style: none; }
+  ul.advice li { padding: 10px 0 10px 24px; border-bottom: 1px solid #F1EFE8; font-size: 13px; position: relative; line-height: 1.7; }
+  ul.advice li:last-child { border-bottom: none; }
+  ul.advice li::before { content: ""; position: absolute; left: 4px; top: 15px; width: 8px; height: 8px; border-radius: 50%; background: #BA7517; }
+  .modal-mask { display: none; position: fixed; inset: 0; background: rgba(44,44,42,0.45); z-index: 100; }
+  .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); width: min(640px, 92vw); max-height: 84vh; overflow-y: auto; background: #fff; border-radius: 16px; padding: 26px 30px; z-index: 101; box-shadow: 0 12px 40px rgba(0,0,0,0.18); }
+  .modal h3 { font-size: 19px; font-weight: 600; margin-bottom: 4px; }
+  .modal .close { position: absolute; top: 14px; right: 18px; cursor: pointer; font-size: 20px; color: #888780; background: none; border: none; }
+  .sec { margin-top: 16px; }
+  .sec h4 { font-size: 13px; font-weight: 500; color: #185FA5; margin-bottom: 8px; padding-left: 8px; border-left: 3px solid #185FA5; }
+  .sec p, .sec li { font-size: 13px; line-height: 1.7; color: #2C2C2A; }
+  .sec ul { padding-left: 18px; }
+  .sec ul li { margin-bottom: 5px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+  .stat { background: #F8F7F3; border: 1px solid #E3E1DA; border-radius: 10px; padding: 12px; }
+  .stat .n { font-size: 20px; font-weight: 600; color: #185FA5; }
+  .stat .l { font-size: 11px; color: #888780; margin-top: 2px; }
+  .note { font-size: 12px; color: #888780; margin-top: 14px; line-height: 1.6; }
+  .heat-legend { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #888780; margin-top: 8px; }
+  .heat-legend .cell { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .kv { font-size: 13px; line-height: 1.8; }
+  .kv b { color: #444441; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>本周项目总览（2026-W32）</h1>
+  <div class="sub">生成时间：2026-08-07 11:53 · 点击任意项目节点/行查看详情 · 数据源：扫描快照 + projects-meta.json + PROGRESS.md</div>
+
+  <div class="cards">
+    <div class="card"><div class="num">10 / 26</div><div class="lbl">本周有变化项目</div></div>
+    <div class="card"><div class="num">0</div><div class="lbl">本周新增/修改文件</div></div>
+    <div class="card"><div class="num">2285</div><div class="lbl">实验调用累计(次)</div></div>
+    <div class="card"><div class="num">32.0 h</div><div class="lbl">实验耗时累计</div></div>
+</div>
+
+  <div class="panel">
+    <h2>项目思维导图（点击查看详情）</h2>
+    <svg viewBox="0 0 680 374" width="100%" role="img">
+<title>项目思维导图</title>
+<desc>中心为我的项目，按类别分布，琥珀色为本周活跃项目，点击节点查看详情</desc>
+<g><rect x="280" y="40" width="120" height="44" rx="10" fill="#2C2C2A"/>
+<text x="340" y="58" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#FFFFFF">我的项目</text>
+<text x="340" y="74" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#D3D1C7">26 项目 · 点击查看</text></g>
+<line x1="340" y1="84" x2="340" y2="102" stroke="#B4B2A9" stroke-width="1"/>
+<line x1="195" y1="102" x2="635" y2="102" stroke="#B4B2A9" stroke-width="1"/>
+<line x1="195" y1="102" x2="195" y2="120" stroke="#B4B2A9" stroke-width="1"/>
+<text x="195" y="130" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#444441">实验</text>
+<line x1="150" y1="142" x2="240" y2="142" stroke="#D3D1C7" stroke-width="1"/>
+<g class="node" onclick="showProject('attack_llm_mypaper_chrome')" style="cursor:pointer"><rect x="150" y="92" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="160" cy="103.0" r="2.5" fill="#BA7517"/><text x="195.0" y="103.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">LLM审稿攻击·…</text></g>
+<g class="node" onclick="showProject('attack_llm_mypaper')" style="cursor:pointer"><rect x="150" y="118" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="160" cy="129.0" r="2.5" fill="#BA7517"/><text x="195.0" y="129.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">LLM审稿攻击·…</text></g>
+<g class="node" onclick="showProject('attack_llm')" style="cursor:pointer"><rect x="150" y="144" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="160" cy="155.0" r="2.5" fill="#BA7517"/><text x="195.0" y="155.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">LLM审稿攻击·…</text></g>
+<g class="node" onclick="showProject('papar_factory')" style="cursor:pointer"><rect x="150" y="170" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="195.0" y="181.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">压力感知 LLM…</text></g>
+<g class="node" onclick="showProject('vlm')" style="cursor:pointer"><rect x="150" y="196" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="195.0" y="207.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">VLM Play…</text></g>
+<line x1="305" y1="102" x2="305" y2="120" stroke="#B4B2A9" stroke-width="1"/>
+<text x="305" y="130" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#444441">论文写作</text>
+<line x1="260" y1="142" x2="350" y2="142" stroke="#D3D1C7" stroke-width="1"/>
+<g class="node" onclick="showProject('AerialBEV')" style="cursor:pointer"><rect x="260" y="92" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="305.0" y="103.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">AerialBE…</text></g>
+<g class="node" onclick="showProject('papers')" style="cursor:pointer"><rect x="260" y="118" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="270" cy="129.0" r="2.5" fill="#BA7517"/><text x="305.0" y="129.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">论文草稿合集</text></g>
+<g class="node" onclick="showProject('AI-Scientist-v2')" style="cursor:pointer"><rect x="260" y="144" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="305.0" y="155.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">AI Scien…</text></g>
+<line x1="415" y1="102" x2="415" y2="120" stroke="#B4B2A9" stroke-width="1"/>
+<text x="415" y="130" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#444441">调研</text>
+<line x1="370" y1="142" x2="460" y2="142" stroke="#D3D1C7" stroke-width="1"/>
+<g class="node" onclick="showProject('featured_paper_in_aaai_2026')" style="cursor:pointer"><rect x="370" y="92" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="380" cy="103.0" r="2.5" fill="#BA7517"/><text x="415.0" y="103.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">AAAI26 i…</text></g>
+<g class="node" onclick="showProject('animal_det')" style="cursor:pointer"><rect x="370" y="118" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="380" cy="129.0" r="2.5" fill="#BA7517"/><text x="415.0" y="129.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">宠物健康监测调研</text></g>
+<g class="node" onclick="showProject('agent')" style="cursor:pointer"><rect x="370" y="144" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="415.0" y="155.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">ModelSco…</text></g>
+<line x1="525" y1="102" x2="525" y2="120" stroke="#B4B2A9" stroke-width="1"/>
+<text x="525" y="130" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#444441">网页</text>
+<line x1="480" y1="142" x2="570" y2="142" stroke="#D3D1C7" stroke-width="1"/>
+<g class="node" onclick="showProject('llm')" style="cursor:pointer"><rect x="480" y="92" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="525.0" y="103.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">LLM/VLA …</text></g>
+<g class="node" onclick="showProject('blog')" style="cursor:pointer"><rect x="480" y="118" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="525.0" y="129.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">VuePress…</text></g>
+<g class="node" onclick="showProject('llm_paper_gen')" style="cursor:pointer"><rect x="480" y="144" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="490" cy="155.0" r="2.5" fill="#BA7517"/><text x="525.0" y="155.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">AAAI26 论…</text></g>
+<g class="node" onclick="showProject('myblog')" style="cursor:pointer"><rect x="480" y="170" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="525.0" y="181.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">Astro 个人…</text></g>
+<g class="node" onclick="showProject('q')" style="cursor:pointer"><rect x="480" y="196" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="490" cy="207.0" r="2.5" fill="#BA7517"/><text x="525.0" y="207.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">TF-MoE 科…</text></g>
+<g class="node" onclick="showProject('qy')" style="cursor:pointer"><rect x="480" y="222" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="490" cy="233.0" r="2.5" fill="#BA7517"/><text x="525.0" y="233.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">TF-MoE 科…</text></g>
+<g class="node" onclick="showProject('study')" style="cursor:pointer"><rect x="480" y="248" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="525.0" y="259.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">AI Daily…</text></g>
+<line x1="635" y1="102" x2="635" y2="120" stroke="#B4B2A9" stroke-width="1"/>
+<text x="635" y="130" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#444441">工具脚本</text>
+<line x1="590" y1="142" x2="680" y2="142" stroke="#D3D1C7" stroke-width="1"/>
+<g class="node" onclick="showProject('JackCLI')" style="cursor:pointer"><rect x="590" y="92" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="635.0" y="103.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">JackCLI …</text></g>
+<g class="node" onclick="showProject('cvpr2026')" style="cursor:pointer"><rect x="590" y="118" width="90" height="22" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/><circle cx="600" cy="129.0" r="2.5" fill="#BA7517"/><text x="635.0" y="129.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#633806">CVPR2026…</text></g>
+<g class="node" onclick="showProject('research')" style="cursor:pointer"><rect x="590" y="144" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="635.0" y="155.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">AI Agent…</text></g>
+<g class="node" onclick="showProject('ai-agent-daily')" style="cursor:pointer"><rect x="590" y="170" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="635.0" y="181.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">AI 新闻聚合系…</text></g>
+<g class="node" onclick="showProject('Hook')" style="cursor:pointer"><rect x="590" y="196" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="635.0" y="207.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">Hook Not…</text></g>
+<g class="node" onclick="showProject('c')" style="cursor:pointer"><rect x="590" y="222" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="635.0" y="233.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">杂项测试</text></g>
+<g class="node" onclick="showProject('outputs')" style="cursor:pointer"><rect x="590" y="248" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="635.0" y="259.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">模型训练输出</text></g>
+<g class="node" onclick="showProject('华锐捷')" style="cursor:pointer"><rect x="590" y="274" width="90" height="22" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/><text x="635.0" y="285.0" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">华锐捷公司资料</text></g>
+<text x="340" y="366" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#888780">点击任意节点查看项目详情</text>
+</svg>
+  </div>
+
+  <div class="panel">
+    <h2>本周活跃项目（点击查看详情）</h2>
+    <table>
+      <tr><th>项目</th><th>类别</th><th>最后活动</th><th>本周变化</th><th>状态</th></tr>
+      <tr style="cursor:pointer" onclick="showProject('animal_det')"><td>宠物健康监测调研</td><td>调研</td><td>08-07 10:47</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('attack_llm')"><td>LLM审稿攻击·调研版</td><td>实验</td><td>08-07 10:04</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('attack_llm_mypaper')"><td>LLM审稿攻击·主论文</td><td>实验</td><td>08-07 10:30</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('attack_llm_mypaper_chrome')"><td>LLM审稿攻击·官网版</td><td>实验</td><td>08-07 10:31</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('cvpr2026')"><td>CVPR2026 论文收藏站</td><td>工具</td><td>08-07 02:30</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('featured_paper_in_aaai_2026')"><td>AAAI26 idea 开发</td><td>调研</td><td>08-07 02:58</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('llm_paper_gen')"><td>AAAI26 论文翻译管线</td><td>工具</td><td>08-02 16:26</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('papers')"><td>论文草稿合集</td><td>论文写作</td><td>08-07 01:33</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('q')"><td>TF-MoE 科普排版</td><td>网页</td><td>07-31 17:58</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr><tr style="cursor:pointer" onclick="showProject('qy')"><td>TF-MoE 科普排版(备)</td><td>网页</td><td>07-31 18:51</td><td>+0 新 / 0 改</td><td><span class="tag tag-active">活跃</span></td></tr>
+    </table>
+  </div>
+  
+  <div class="panel">
+    <h2>AI Token 总账（多源）</h2>
+    <div class="cards" style="grid-template-columns:repeat(4,1fr)">
+      <div class="card"><div class="num">465.0M</div><div class="lbl">本周 Token（5 天活跃）</div></div>
+      <div class="card"><div class="num">446.9M</div><div class="lbl">本月 Token</div></div>
+      <div class="card"><div class="num">990.5M</div><div class="lbl">累计 Token（10,158 次调用）</div></div>
+      <div class="card"><div class="num">¥7,327.79</div><div class="lbl">累计估算成本</div></div>
+    </div>
+    <table style="margin-bottom:16px">
+      <tr><th>工具</th><th>调用/会话</th><th>Token</th><th>成本</th></tr>
+      <tr><td>claude-code</td><td>6,714</td><td>543.5M</td><td>¥144.40</td></tr><tr><td>opencode</td><td>3,422</td><td>445.3M</td><td>¥0.00</td></tr><tr><td>workbuddy</td><td>22</td><td>1.7M</td><td>¥7183.39</td></tr>
+    </table>
+    <h3 style="font-size:13px;font-weight:500;color:#5F5E5A;margin-bottom:10px">项目 AI Token 消耗 TOP8（琥珀 · 点击查看详情）</h3>
+    <div class="bars"><div class="bar-row" style="cursor:pointer" onclick="showProject('animal_det')"><div class="bar-name">animal_det</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#BA7517"></div></div><div class="bar-val">149.6M · ¥0.00</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('Hook')"><div class="bar-name">Hook</div><div class="bar-track"><div class="bar-fill" style="width:99%;background:#BA7517"></div></div><div class="bar-val">148.7M · ¥34.61</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('attack_llm_mypaper')"><div class="bar-name">attack_llm_mypaper</div><div class="bar-track"><div class="bar-fill" style="width:67%;background:#BA7517"></div></div><div class="bar-val">100.8M · ¥0.00</div></div><div class="bar-row" style="cursor:pointer" ><div class="bar-name">llm/paper/gen</div><div class="bar-track"><div class="bar-fill" style="width:51%;background:#BA7517"></div></div><div class="bar-val">76.7M · ¥20.72</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('attack_llm')"><div class="bar-name">attack_llm</div><div class="bar-track"><div class="bar-fill" style="width:46%;background:#BA7517"></div></div><div class="bar-val">69.1M · ¥0.00</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('featured_paper_in_aaai_2026')"><div class="bar-name">featured_paper_in_aaai_2026</div><div class="bar-track"><div class="bar-fill" style="width:44%;background:#BA7517"></div></div><div class="bar-val">65.8M · ¥0.00</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('llm')"><div class="bar-name">llm</div><div class="bar-track"><div class="bar-fill" style="width:42%;background:#BA7517"></div></div><div class="bar-val">63.8M · ¥16.61</div></div><div class="bar-row" style="cursor:pointer" ><div class="bar-name">manager</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:#BA7517"></div></div><div class="bar-val">58.2M · ¥13.53</div></div></div>
+    <h3 style="font-size:13px;font-weight:500;color:#5F5E5A;margin:18px 0 10px">项目实验脚本调用 TOP10（蓝 · 点击查看详情）</h3>
+    <div class="bars"><div class="bar-row" style="cursor:pointer" onclick="showProject('attack_llm')"><div class="bar-name">LLM审稿攻击·调研版</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#378ADD"></div></div><div class="bar-val">1127次 / 22.6 h</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('attack_llm_mypaper')"><div class="bar-name">LLM审稿攻击·主论文</div><div class="bar-track"><div class="bar-fill" style="width:66%;background:#378ADD"></div></div><div class="bar-val">745次 / 6.6 h</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('attack_llm_mypaper_chrome')"><div class="bar-name">LLM审稿攻击·官网版</div><div class="bar-track"><div class="bar-fill" style="width:26%;background:#378ADD"></div></div><div class="bar-val">301次 / 2.8 h</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('papar_factory')"><div class="bar-name">压力感知 LLM 推理</div><div class="bar-track"><div class="bar-fill" style="width:8%;background:#378ADD"></div></div><div class="bar-val">100次 / 0 min</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('vlm')"><div class="bar-name">VLM Playground</div><div class="bar-track"><div class="bar-fill" style="width:1%;background:#378ADD"></div></div><div class="bar-val">12次 / 0 min</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('AI-Scientist-v2')"><div class="bar-name">AI Scientist v2 自动化科研</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:#378ADD"></div></div><div class="bar-val">0次 / 0 min</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('AerialBEV')"><div class="bar-name">AerialBEV 无人机感知</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:#378ADD"></div></div><div class="bar-val">0次 / 0 min</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('Hook')"><div class="bar-name">Hook Notify 微信通知</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:#378ADD"></div></div><div class="bar-val">0次 / 0 min</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('JackCLI')"><div class="bar-name">JackCLI 大模型CLI</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:#378ADD"></div></div><div class="bar-val">0次 / 0 min</div></div><div class="bar-row" style="cursor:pointer" onclick="showProject('agent')"><div class="bar-name">ModelScope 天气Agent</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:#378ADD"></div></div><div class="bar-val">0次 / 0 min</div></div></div>
+    <div class="note"><b>两个维度，不重复</b>：① AI Token = 你用 AI 工具（Claude Code / OpenCode / WorkBuddy 等）在项目上工作的会话消耗（来自工具本地用量库）；② 实验调用 = 项目<u>内部实验脚本</u>跑出的 API 调用次数与耗时（来自项目内 jsonl 结果文件）。某项目 AI Token 多但实验调用为 0，说明消耗来自 AI 工具会话，而非项目内脚本实验。成本优先取原生记录，否则按模型公开单价估算。</div>
+  </div>
+
+
+  <div class="panel">
+    <h2>下周关注</h2>
+    <ul class="advice"><li><b>AI Daily Brief（study）已停滞 215 天</b>：若为待办实验，建议评估是否继续或归档。</li><li><b>杂项测试（c）已停滞 162 天</b>：若为待办实验，建议评估是否继续或归档。</li><li><b>AI 新闻聚合系统（ai-agent-daily）已停滞 153 天</b>：若为待办实验，建议评估是否继续或归档。</li><li><b>模型训练输出（outputs）已停滞 152 天</b>：若为待办实验，建议评估是否继续或归档。</li></ul>
+  </div>
+
+  <div class="sub" style="margin-top:24px">本报告由「项目周度思维导图与仪表盘」自动化任务生成 · 数据截至 2026-08-07</div>
+</div>
+
+<div class="modal-mask" id="mask" onclick="closeProject()"></div>
+<div class="modal" id="modal" style="display:none"></div>
+
+<script>
+const PROJECTS = {"AI-Scientist-v2": {"display": "AI Scientist v2 自动化科研", "category": "论文写作", "stage": "配置部署", "intro": "基于 SakanaAI 开源的 AI Scientist v2 自动化科研系统，配置了 DeepSeek 模型的自定义启动脚本（bfts_config.yaml + launch_scientist_bfts.py），用于自动生成假设、跑实验、写论文。", "goal": "跑通自动化科研流水线，端到端生成并投稿科学论文（workshop 级自动科学发现）。", "plan": ["基于 bfts 树搜索的实验配置阶段，下一步跑通首次端到端流程"], "source": "README.md / bfts_config.yaml / launch_scientist_bfts.py", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "AI-Scientist-v2/ai_scientist/fewshot_examples/attention.pdf", "ext": ".pdf", "mtime": "2026-01-18 18:21"}, {"file": "AI-Scientist-v2/ai_scientist/fewshot_examples/132_automated_relational.pdf", "ext": ".pdf", "mtime": "2026-01-18 18:21"}, {"file": "AI-Scientist-v2/ai_scientist/fewshot_examples/2_carpe_diem.pdf", "ext": ".pdf", "mtime": "2026-01-18 18:21"}, {"file": "AI-Scientist-v2/ai_scientist/treesearch/utils/viz_templates/template.html", "ext": ".html", "mtime": "2026-01-18 18:21"}], "progress": [], "heat": {"2026-01-18": 59, "2026-07-27": 11, "2026-01-21": 1, "2026-07-07": 2, "2026-01-22": 1}, "idle_days": 10, "last_change": "07-27 23:44", "ai_tokens": {}}, "AerialBEV": {"display": "AerialBEV 无人机感知", "category": "论文写作", "stage": "写作+投稿", "intro": "高度感知的鸟瞰图（BEV）多相机多无人机检测与跟踪框架，含 Height Prediction Network（HPNet）与 Indoor_UAV 真实数据集，投稿 MDPI Drones 期刊。", "goal": "解决无人机群在未知高度下的 3D 感知问题（Indoor_UAV 上 MODA 85.78% / MOTA 66.06%），支持反无人机边缘部署；为 SPIE 2026 论文的扩展期刊版。", "plan": ["论文写作与期刊投稿推进（MDPI 模板、期刊列表解析）"], "source": "latex_project/AerialBEV.tex / 期刊列表", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "AerialBEV/期刊列表-全.docx", "ext": ".docx", "mtime": "2026-07-18 19:21"}, {"file": "AerialBEV/latex_project/AerialBEV.tex", "ext": ".tex", "mtime": "2026-07-18 19:06"}, {"file": "AerialBEV/期刊列表.docx", "ext": ".docx", "mtime": "2026-07-18 19:06"}, {"file": "AerialBEV/latex_project/Definitions/logo-orcid-eps-converted-to.pdf", "ext": ".pdf", "mtime": "2026-07-08 22:52"}], "progress": [], "heat": {"2026-07-08": 63, "2026-07-18": 5, "2026-07-09": 2}, "idle_days": 19, "last_change": "07-18 20:17", "ai_tokens": {"2026-07-07": 27521, "2026-07-08": 16689812, "2026-07-18": 83778, "2026-07-09": 20400389}}, "Hook": {"display": "Hook Notify 微信通知", "category": "工具", "stage": "已打包", "intro": "AI 终端通知助手：当 Claude Code / Codex / CodeBuddy 需要确认时通过 WxPusher 推送微信通知，带 30 秒延迟取消机制；已打包为 macOS 应用。", "goal": "让用户离开终端也能即时收到 AI 授权请求通知（已完成 PyInstaller 打包 Hook Notify.app）。", "plan": [], "source": "README.md / dist", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [], "progress": [], "heat": {"2026-07-10": 4, "2026-07-16": 7, "2026-07-17": 1}, "idle_days": 21, "last_change": "07-17 00:08", "ai_tokens": {"2026-07-09": 1270319, "2026-07-10": 37896008, "2026-07-11": 3223846, "2026-07-16": 105200881, "2026-07-17": 1072982}}, "JackCLI": {"display": "JackCLI 大模型CLI", "category": "工具", "stage": "学习完成", "intro": "教育性大模型 CLI 工具（学习项目）：支持 ask 单问、REPL chat、Tool Calling 代理循环，基于 OpenAI 兼容 API。", "goal": "学习并实现一套完整的 LLM CLI（含 Agent Loop、工具注册、流式输出）。", "plan": ["已具备测试与 PyInstaller 打包配置"], "source": "CLAUDE.md / pyproject.toml", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [], "progress": [], "heat": {"2026-07-27": 45}, "idle_days": 10, "last_change": "07-27 12:37", "ai_tokens": {"2026-07-27": 19329245}}, "agent": {"display": "ModelScope 天气Agent", "category": "网页", "stage": "部署", "intro": "ModelScope 创空间演示项目（Jack9729/Agent），基于 Gradio 的城市天气查询应用（内置全国城市编码表）。", "goal": "部署一个可公开访问的 AI Agent 演示空间。", "plan": [], "source": "Agent/README.md / Agent/app.py", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "agent/test/lkeb.docx", "ext": ".docx", "mtime": "2026-06-02 09:25"}], "progress": [], "heat": {"2026-06-02": 6, "2026-06-01": 8, "2026-05-21": 2, "2026-05-23": 1}, "idle_days": 65, "last_change": "06-02 22:32", "ai_tokens": {}}, "ai-agent-daily": {"display": "AI 新闻聚合系统", "category": "网页", "stage": "运行中", "intro": "基于 Gemini AI 的智能 AI 新闻聚合系统：每天自动收集、筛选、分类 AI 动态（新闻/论文/投融资），9 点定时更新。", "goal": "每日自动生成 AI 领域重要动态总结并提供现代 UI 网页（端口 5001）。", "plan": ["核心功能已实现（手动刷新 + 定时任务）"], "source": "README.md / 启动说明.txt", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "ai-agent-daily/templates/index.html", "ext": ".html", "mtime": "2026-03-06 23:02"}], "progress": [], "heat": {"2026-03-06": 12, "2026-01-23": 1}, "idle_days": 153, "last_change": "03-06 23:02", "ai_tokens": {}}, "animal_det": {"display": "宠物健康监测调研", "category": "调研", "stage": "调研+选题", "intro": "宠物健康监测科研调研（视觉+听觉+接触式/非接触式传感器）与宠物语音识别调研，含 pet_vocalization 子项目。", "goal": "梳理宠物健康/语音识别论文全景并冲刺顶会顶刊；约束为不自行采集标注数据，全部基于开源数据。", "plan": ["按调研报告的「四章工作计划」推进", "方向 C 实验设计（语音识别报告 3.4 节新增无自采数据科研方向）"], "source": "宠物健康监测_多模态传感器调研报告.md / 宠物语音识别科研调研报告.md", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [], "progress": [], "heat": {"2026-08-04": 3, "2026-08-06": 9, "2026-08-05": 1, "2026-08-07": 1483}, "idle_days": 0, "last_change": "08-07 10:47", "ai_tokens": {"2026-08-04": 36243100, "2026-08-05": 9349820, "2026-08-06": 12846843, "2026-08-07": 91134012}}, "attack_llm": {"display": "LLM审稿攻击·调研版", "category": "实验", "stage": "实验+写作", "intro": "对 LLM 论文审稿的攻击与防御研究：调研（survey/deep_dive）、防御能力测试实验（DeepSeek/Kimi 5 类攻击，累计 1127 次调用）、论文草稿。", "goal": "系统评测对 LLM-as-a-Reviewer 的间接提示注入攻击与防御，论文《Who Guards the Gatekeepers? Field-Specific Prompt Injection Attacks against DeepSeek and Kimi as Automated Paper Reviewers》。", "plan": ["已产出攻击结果报告与 NeurIPS 风格论文草稿"], "source": "research/survey.md / deep_dive.md / attack_results.md / paper/main.tex", "totals": {"calls": 1127, "jsonl_lines": 1127, "elapsed_s": 81455.2, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [{"file": "attack_llm/research/paper/main.pdf", "ext": ".pdf", "mtime": "2026-08-07 10:04"}, {"file": "attack_llm/research/paper/main.tex", "ext": ".tex", "mtime": "2026-08-07 10:04"}], "progress": [], "heat": {"2026-08-06": 2, "2026-08-07": 15, "2026-08-05": 12}, "idle_days": 0, "last_change": "08-07 10:04", "ai_tokens": {"2026-08-05": 27894084, "2026-08-06": 1971835, "2026-08-07": 39185833}}, "attack_llm_mypaper": {"display": "LLM审稿攻击·主论文", "category": "实验", "stage": "实验+写作", "intro": "以 AerialBEV 论文为靶标的攻防实验（tex 与 PDF 双管线）+ 心理框架注入攻击论文写作，已完成 360 次大规模攻击实验（累计 745 次调用）。", "goal": "论文《Psychological Framing Injection: Semantic-Stealth Attacks on LLM-Based Peer Review》；核心发现 no_negatives（负向指令抑制）跨模型稳定满分且未被识破。", "plan": ["360 次大规模实验已完成，替换原小实验作为主结果", "按 report_analysis.md 19.3 节「论文升级方向」完善写作", "main.tex 持续更新与编译，推进定稿投稿"], "source": "PROGRESS.md / report_analysis.md / attack_paper/main.tex", "totals": {"calls": 745, "jsonl_lines": 745, "elapsed_s": 23588.1, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [{"file": "attack_llm_mypaper/attack_paper/main.pdf", "ext": ".pdf", "mtime": "2026-08-07 03:12"}, {"file": "attack_llm_mypaper/attack_paper/main.tex", "ext": ".tex", "mtime": "2026-08-07 03:06"}, {"file": "attack_llm_mypaper/corpus2/_build_p6/main.pdf", "ext": ".pdf", "mtime": "2026-08-06 17:09"}, {"file": "attack_llm_mypaper/corpus2/_build_p6/main.tex", "ext": ".tex", "mtime": "2026-08-06 17:09"}], "progress": [{"date": "2026-08-07", "stage": "实验 + 写作", "progress": "完成大规模攻击实验（360 次），large_corpus_results.jsonl 达 360 行；report_analysis.md 更新至 19.3 节「论文升级方向」：no_negatives 跨模型跨层稳定（pro 75-94%、weak 100%），社会认同在 pro×strong 组合最致命（88%），split 分散注入几乎无效；论文 main.tex 同步更新并重新编译。", "files": "large_corpus_results.jsonl、report_analysis.md、attack_paper/main.tex"}], "heat": {"2026-08-06": 96, "2026-08-05": 17, "2026-08-07": 41}, "idle_days": 0, "last_change": "08-07 10:30", "ai_tokens": {"2026-08-05": 15481583, "2026-08-06": 59150760, "2026-08-07": 26142680}}, "attack_llm_mypaper_chrome": {"display": "LLM审稿攻击·官网版", "category": "实验", "stage": "实验运行中", "intro": "黑盒官网（chat.deepseek.com）审稿攻击实验，面向「投稿人只能控制 PDF」的真实威胁模型，含 494 个文件的攻击语料/探针。", "goal": "验证现实威胁模型下官网文档通道的稳健性；核心结论：PDF 通道稳健防御，防御重点应在审稿请求构造路径（prompt 通道仍暴露 9.3-10.0）。", "plan": ["实验持续运行，文件持续增长"], "source": "PROGRESS.md / web_report_analysis.md", "totals": {"calls": 301, "jsonl_lines": 301, "elapsed_s": 10137.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [{"file": "attack_llm_mypaper_chrome/highread_pdfs/combined_multi_boxed.pdf", "ext": ".pdf", "mtime": "2026-08-06 14:55"}, {"file": "attack_llm_mypaper_chrome/highread_pdfs/combined_multi_plain.pdf", "ext": ".pdf", "mtime": "2026-08-06 14:55"}, {"file": "attack_llm_mypaper_chrome/highread_pdfs/combined_last_boxed.pdf", "ext": ".pdf", "mtime": "2026-08-06 14:55"}, {"file": "attack_llm_mypaper_chrome/highread_pdfs/combined_last_plain.pdf", "ext": ".pdf", "mtime": "2026-08-06 14:55"}], "progress": [{"date": "2026-08-07", "stage": "实验", "progress": "持续实验运行中,文件持续增长（当前 494 个文件,含 PDF 攻击语料目录）。细节待扫描快照补全。", "files": "（待补全）"}], "heat": {"2026-08-06": 455, "2026-08-07": 40}, "idle_days": 0, "last_change": "08-07 10:31", "ai_tokens": {"2026-08-06": 53461550, "2026-08-07": 4513480}}, "blog": {"display": "VuePress 技术博客", "category": "网页", "stage": "运营中", "intro": "基于 VuePress 2 + vuepress-theme-hope 的个人博客，git push 自动部署 Vercel。", "goal": "个人技术博客网站（面向 Python 用户，含 AI Agent 教程、VLA 学习体系汇总等文章）。", "plan": ["文章创建/构建/部署流程已完备"], "source": "README.md / CLAUDE.md", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "blog/docs/.vuepress/public/ai-agent-tutorial.html", "ext": ".html", "mtime": "2026-07-18 22:08"}, {"file": "blog/AI_Agent_教程.html", "ext": ".html", "mtime": "2026-07-18 21:46"}, {"file": "blog/VLA端到端自动驾驶学习体系_全册汇总.html", "ext": ".html", "mtime": "2026-07-05 12:45"}, {"file": "blog/docs/.vuepress/.temp/vite-root/index.html", "ext": ".html", "mtime": "2026-07-02 21:40"}], "progress": [], "heat": {"2026-07-02": 36, "2026-07-05": 2, "2026-07-03": 4, "2026-07-18": 4, "2026-07-06": 92}, "idle_days": 19, "last_change": "07-18 22:09", "ai_tokens": {"2026-07-18": 1367343}}, "c": {"display": "杂项测试", "category": "其他", "stage": "杂项", "intro": "杂项测试目录（a.txt 日期、b.py numpy 导入、c.txt 汉字）。", "goal": "未明确", "plan": [], "source": "a.txt / b.py / c.txt", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [], "progress": [], "heat": {"2026-02-26": 3}, "idle_days": 162, "last_change": "02-26 10:13", "ai_tokens": {}}, "cvpr2026": {"display": "CVPR2026 论文收藏站", "category": "工具", "stage": "完成", "intro": "CVPR 2026 论文收藏展示站：抓取 4068 篇论文（含摘要），提供中英双语检索界面（深色主题）。", "goal": "构建可筛选/翻译的 CVPR 2026 论文收藏页面（含 export_md 导出 Markdown 功能）。", "plan": ["已完成翻译管线（translate_titles.py 批量翻译标题）"], "source": "index.html / data/papers.json / translate_titles.py", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [{"file": "cvpr2026/index.html", "ext": ".html", "mtime": "2026-08-07 01:50"}], "progress": [], "heat": {"2026-08-07": 7}, "idle_days": 0, "last_change": "08-07 02:30", "ai_tokens": {"2026-08-07": 1983805}}, "featured_paper_in_aaai_2026": {"display": "AAAI26 idea 开发", "category": "调研", "stage": "调研+idea开发", "intro": "AAAI 2026 收藏 210 篇论文 + 13 主题并行子智能体深度调研（157 个研究 idea）+ 每 idea 一份可照做的实验设计书。", "goal": "从 AAAI 2026 论文中提取可执行科研 idea 并产出投稿策略，形成系列投稿（规划 NeurIPS 2026 → CVPR/ICML 2027 三连）。", "plan": ["先读总览→选 2-3 个高优先 idea 做小规模可行性实验", "跨主题协同方向：可验证奖励强化主线、合成数据×LLM-as-judge 基础设施等 5 条"], "source": "AGENTS.md / _调研工作/00_README_研究规划.md / _实验设计书/00_README_索引.md", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [], "progress": [], "heat": {"2026-08-06": 20, "2026-08-07": 181}, "idle_days": 0, "last_change": "08-07 02:58", "ai_tokens": {"2026-08-06": 10083281, "2026-08-07": 55754233}}, "llm": {"display": "LLM/VLA 学习集", "category": "学习", "stage": "学习中", "intro": "学习类项目集：Transformer/注意力/自监督教学（learn_transformer）、LangChain 学习（learn_langchain）、VLA 端到端自动驾驶全栈学习大纲（vla_learn）、BEV 场景语言微调、每日简报。", "goal": "VLA 学习大纲明确「掌握 VLA 端到端自动驾驶全栈技术，具备跳槽到相关公司的能力」。", "plan": ["vla_learn 大纲分 17 章四阶段路线（基础夯实→多模态→感知→规划控制）", "每个项目须可运行可复现"], "source": "AGENTS.md / vla_learn/00_LEARNING_OUTLINE.md", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "llm/daily-briefings/2026-07-09.html", "ext": ".html", "mtime": "2026-07-09 21:15"}, {"file": "llm/daily-briefings/2026-07-08.html", "ext": ".html", "mtime": "2026-07-08 21:58"}, {"file": "llm/daily-briefings/2026-07-08.docx", "ext": ".docx", "mtime": "2026-07-08 19:21"}, {"file": "llm/vla_learn/VLA_Complete_Tutorial.pdf", "ext": ".pdf", "mtime": "2026-07-08 17:35"}], "progress": [], "heat": {"2026-07-08": 8, "2026-03-08": 1, "2025-12-05": 1, "2026-06-27": 1, "2026-03-21": 7, "2026-06-30": 62, "2026-07-22": 1, "2026-07-07": 79, "2026-03-15": 4, "2026-03-22": 1, "2026-07-09": 2, "2026-04-02": 4}, "idle_days": 16, "last_change": "07-22 00:29", "ai_tokens": {"2026-07-08": 9676003, "2026-07-09": 2466002, "2026-06-30": 38470782, "2026-07-07": 13162507, "2026-07-28": 754062, "2026-07-29": 46564249, "2026-07-30": 29387492}}, "llm_paper_gen": {"display": "AAAI26 论文翻译管线", "category": "工具", "stage": "完成", "intro": "AAAI 2026 论文数据收集/翻译/HTML 生成管线：批量并行爬取各 Track 论文，逐 Track 生成中文翻译脚本，产出 12MB+ 翻译文档。", "goal": "将 AAAI 2026 全部 Track 论文自动化收集、翻译并生成可视化 HTML。", "plan": ["翻译覆盖 40+ Track，持续扩充"], "source": "batch_collect.py / build_track*.py / aaai2026_translations.md", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [{"file": "llm_paper_gen/aaai2026_papers.html", "ext": ".html", "mtime": "2026-08-02 16:25"}, {"file": "llm_paper_gen/issue_732.html", "ext": ".html", "mtime": "2026-07-29 22:50"}, {"file": "llm_paper_gen/issue_729.html", "ext": ".html", "mtime": "2026-07-29 22:50"}, {"file": "llm_paper_gen/paper_2409.17167.pdf", "ext": ".pdf", "mtime": "2026-07-28 12:04"}], "progress": [], "heat": {"2026-07-30": 50, "2026-07-29": 59, "2026-08-02": 4, "2026-07-28": 2}, "idle_days": 4, "last_change": "08-02 16:26", "ai_tokens": {}}, "myblog": {"display": "Astro 个人博客", "category": "网页", "stage": "运营中", "intro": "基于 AstroPaper v6 的个人博客（域 jiajingnan.cn），Tailwind CSS + Pagefind 静态搜索，i18n 中英双语，动态 OG 图。", "goal": "高速、SEO 友好的个人博客站点（含 posts/pages/publications 内容集合）。", "plan": ["构建/搜索/部署管线已完备"], "source": "CLAUDE.md / README.md", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "myblog/public/tutorials/vla/chapter03_clip_contrastive.html", "ext": ".html", "mtime": "2026-07-22 00:37"}, {"file": "myblog/public/tutorials/vla/chapter02_vision_foundation.html", "ext": ".html", "mtime": "2026-07-22 00:37"}, {"file": "myblog/public/tutorials/vla/chapter04_multimodal_llm.html", "ext": ".html", "mtime": "2026-07-22 00:37"}, {"file": "myblog/public/tutorials/vla/chapter13_rl_planning.html", "ext": ".html", "mtime": "2026-07-22 00:37"}], "progress": [], "heat": {"2026-07-25": 90, "2026-07-20": 190, "2026-07-22": 31, "2026-07-24": 7}, "idle_days": 12, "last_change": "07-25 23:40", "ai_tokens": {"2026-07-22": 23954410}}, "outputs": {"display": "模型训练输出", "category": "其他", "stage": "存储", "intro": "模型训练输出目录：BLIP（blip_coco_caption）与 CLIP（clip_coco）在 COCO 上的微调权重（model.safetensors 等），另有空的 llava_13b_lora。", "goal": "存储 vlm 项目训练产物", "plan": [], "source": "目录结构 / config.json / model.safetensors", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [], "progress": [], "heat": {"2026-03-08": 18}, "idle_days": 152, "last_change": "03-08 01:52", "ai_tokens": {}}, "papar_factory": {"display": "压力感知 LLM 推理", "category": "实验", "stage": "框架搭建", "intro": "Stress-Aware LLM Reasoning（压力感知 LLM 推理）研究项目，按 5 个实验（机制/多轮/校准/多样性/弹性）组织，含压力提示语库。", "goal": "研究压力对 LLM 推理能力的影响机制与校准（L40 48GB 适配模型配置）。", "plan": ["experiments/exp1-exp5 目录已建，src 各模块已搭框架，进入实验执行阶段"], "source": "configs/experiment_config.py / data/prompts/stress_prompts.jsonl", "totals": {"calls": 100, "jsonl_lines": 100, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [], "progress": [], "heat": {"2026-07-27": 13}, "idle_days": 10, "last_change": "07-27 22:53", "ai_tokens": {}}, "papers": {"display": "论文草稿合集", "category": "论文写作", "stage": "草稿", "intro": "6 个论文草稿目录：VLM 监控原型、BEV 场景语言、开放词汇 VLM、LLM 数据策展 agent、VLM 训练部署 playground、黑盒审稿攻击。", "goal": "各 main.tex 独立成文（paper6 为《Can Reviewers Still Be Gamed?》商业黑盒 LLM 审稿攻击）。", "plan": ["paper1-5 仅有 main.tex，paper6 已有完整编译产物（PDF）"], "source": "paper1-6/main.tex", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [{"file": "papers/paper6_blackbox_reviewer_attack/main.pdf", "ext": ".pdf", "mtime": "2026-08-07 01:33"}, {"file": "papers/paper6_blackbox_reviewer_attack/main.tex", "ext": ".tex", "mtime": "2026-08-07 01:33"}, {"file": "papers/paper5_vlm_system_playground/main.tex", "ext": ".tex", "mtime": "2026-03-08 02:03"}, {"file": "papers/paper4_llm_data_agent/main.tex", "ext": ".tex", "mtime": "2026-03-08 02:02"}], "progress": [], "heat": {"2026-08-07": 4, "2026-08-06": 1, "2026-03-08": 5}, "idle_days": 0, "last_change": "08-07 01:33", "ai_tokens": {}}, "q": {"display": "TF-MoE 科普排版", "category": "网页", "stage": "完成", "intro": "TF-MoE 科普文章（与 Microsoft Research Asia 合作、INTERSPEECH 2026 录用的稀疏 MoE 语音框架）的公众号排版生成，产多种 HTML 主题模板。", "goal": "将 TF-MoE 论文通俗化为科普文并生成多风格排版 HTML（摸鱼票/绿/橄榄手记等 7 款）。", "plan": ["排版产物已完成"], "source": "副本0731 三稿.md / gen_all.py / output/", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [{"file": "q/output/index.html", "ext": ".html", "mtime": "2026-07-31 17:57"}, {"file": "q/output/TF-MoE_排版_摸鱼票据(moyu-ticket)_预览.html", "ext": ".html", "mtime": "2026-07-31 17:57"}, {"file": "q/output/TF-MoE_排版_留白禅意(zen-whitespace)_预览.html", "ext": ".html", "mtime": "2026-07-31 17:57"}, {"file": "q/output/TF-MoE_排版_橄榄手记(olive-journal)_预览.html", "ext": ".html", "mtime": "2026-07-31 17:57"}], "progress": [], "heat": {"2026-07-31": 94}, "idle_days": 6, "last_change": "07-31 17:58", "ai_tokens": {"2026-07-31": 6979182}}, "qy": {"display": "TF-MoE 科普排版(备)", "category": "网页", "stage": "完成", "intro": "与 q 内容相同的 TF-MoE 科普文章排版项目（相同 md 文件，文件名带「副本0731」前缀）。", "goal": "同 q（同一文章的另一种排版工程）。", "plan": [], "source": "副本0731 三稿.md / output/", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": true, "latest_outputs": [{"file": "qy/output/副本0731_排版_橄榄手记(olive-journal)_预览.html", "ext": ".html", "mtime": "2026-07-31 18:51"}, {"file": "qy/output/副本0731_排版_摸鱼票据风(moyu-ticket)_预览.html", "ext": ".html", "mtime": "2026-07-31 18:51"}, {"file": "qy/output/副本0731_排版_留白禅意风(zen-whitespace)_预览.html", "ext": ".html", "mtime": "2026-07-31 18:51"}, {"file": "qy/output/副本0731_排版_石墨极简风(graphite-minimal)_预览.html", "ext": ".html", "mtime": "2026-07-31 18:51"}], "progress": [], "heat": {"2026-07-31": 89}, "idle_days": 6, "last_change": "07-31 18:51", "ai_tokens": {"2026-07-31": 8948342}}, "research": {"display": "AI Agent 开发教程", "category": "学习", "stage": "运营中", "intro": "AI Agent 智能体开发系统教程：从零构建 AI Agent 的系统化实践教程（面向 PhD 研究者），覆盖 LLM Agent/RAG/Multi-Agent/CV Agent/自动化。", "goal": "通过 8 个模块（0-7）系统掌握基于 DeepSeek + LangChain/LangGraph/CrewAI 的 Agent 开发，含综合项目「科研自动化助手」。", "plan": ["模块化教程与在线页面（jiajingnan.cn/tutorials/Agent/）已就绪"], "source": "README.md", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "research/tutorials/VLA_Complete_Tutorial.html", "ext": ".html", "mtime": "2026-07-22 00:29"}, {"file": "research/tutorials/AI_Agent_教程.html", "ext": ".html", "mtime": "2026-07-18 21:46"}], "progress": [], "heat": {"2026-07-18": 59, "2026-07-22": 3}, "idle_days": 16, "last_change": "07-22 00:31", "ai_tokens": {"2026-07-16": 657113, "2026-07-17": 39437, "2026-07-18": 33293054, "2026-07-22": 8591355}}, "study": {"display": "AI Daily Brief", "category": "网页", "stage": "运行中", "intro": "AI Daily Brief——纯静态网页，展示每日 AI 新闻/论文/投融资，支持按类型与关键词筛选，可选 AI 总结。", "goal": "每日更新 AI 要闻的轻量静态页面（数据在 data/ai-daily.json，可脚本自动抓取）。", "plan": ["可扩展 category，可添加自动抓取脚本"], "source": "README.md", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "study/index.html", "ext": ".html", "mtime": "2026-01-03 16:07"}], "progress": [], "heat": {"2026-01-03": 6}, "idle_days": 215, "last_change": "01-03 16:24", "ai_tokens": {}}, "vlm": {"display": "VLM Playground", "category": "学习", "stage": "学习中", "intro": "多模态大模型实践项目（VLM Playground）：CLIP/BLIP/LLaVA/Qwen-VL 的 LoRA 微调、训练与部署 Demo。", "goal": "快速熟悉主流多模态架构、掌握 10B+ 模型训练微调套路，形成可讲的「项目经验」（面试复盘材料）。", "plan": ["面向 10B+ 模型提供完整脚本和配置模板，可在公司/云端多卡 GPU 放大执行"], "source": "README.md", "totals": {"calls": 12, "jsonl_lines": 12, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [], "progress": [], "heat": {"2026-03-08": 28}, "idle_days": 152, "last_change": "03-08 01:54", "ai_tokens": {}}, "华锐捷": {"display": "华锐捷公司资料", "category": "其他", "stage": "文档库", "intro": "华锐捷公司资料文档库：ADAS 系统零部件开发要求、经济效益/社会效益申报表、莱顿大学医学中心 LKEB 博士招生（医学图像处理，2026 CSC）说明。", "goal": "未明确（以公司项目申报文档为主）", "plan": [], "source": "ADAS系统零部件开发要求*.pdf / 副本六.经济指标-3.docx / lkeb.docx", "totals": {"calls": 0, "jsonl_lines": 0, "elapsed_s": 0.0, "has_token_field": false}, "week_new": 0, "week_mod": 0, "week_active": false, "latest_outputs": [{"file": "华锐捷/lkeb.docx", "ext": ".docx", "mtime": "2026-06-02 09:25"}, {"file": "华锐捷/ps后/ADAS系统零部件开发要求-最终版.pdf", "ext": ".pdf", "mtime": "2026-06-01 12:07"}, {"file": "华锐捷/副本六.经济指标-3.docx", "ext": ".docx", "mtime": "2026-05-31 11:02"}, {"file": "华锐捷/ADAS系统零部件开发要求3.pdf", "ext": ".pdf", "mtime": "2026-05-30 22:05"}], "progress": [], "heat": {"2026-06-01": 20, "2026-05-30": 20, "2026-06-02": 1, "2026-05-31": 1}, "idle_days": 66, "last_change": "06-02 09:25", "ai_tokens": {}}};
+function esc(s) { return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function bullets(t, fallback) {
+  const parts = esc(t || "").split(/[。；;\n]/).map(s => s.trim()).filter(s => s.length > 0);
+  if (!parts.length) return "<li>" + esc(fallback || "暂无") + "</li>";
+  return parts.map(s => "<li>" + s + "</li>").join("");
+}
+function fmtHours(sec) { sec = sec || 0; return sec >= 3600 ? (sec/3600).toFixed(1)+" h" : Math.round(sec/60)+" min"; }
+function renderHeatmap(el, heat) {
+  heat = heat || {};
+  const now = new Date(); now.setHours(0,0,0,0);
+  const dow = (now.getDay() + 6) % 7;
+  const weekStart = new Date(now); weekStart.setDate(now.getDate() - dow);
+  const weeks = 52;
+  const start = new Date(weekStart); start.setDate(weekStart.getDate() - (weeks-1)*7);
+  const months = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+  let svg = '<svg viewBox="0 0 ' + (weeks*12+46) + ' 132" width="100%" style="max-width:560px">';
+  let lastM = -1;
+  let maxV = 1;
+  for (const k in heat) maxV = Math.max(maxV, heat[k]);
+  for (let w = 0; w < weeks; w++) {
+    const ws = new Date(start); ws.setDate(start.getDate() + w*7);
+    const m = ws.getMonth();
+    if (m !== lastM) {
+      svg += '<text x="' + (w*12+4) + '" y="11" font-size="10" fill="#888780">' + months[m] + '</text>';
+      lastM = m;
+    }
+    for (let k = 0; k < 7; k++) {
+      const dt = new Date(ws); dt.setDate(ws.getDate() + k);
+      const key = dt.getFullYear() + "-" + String(dt.getMonth()+1).padStart(2,"0") + "-" + String(dt.getDate()).padStart(2,"0");
+      const v = heat[key] || 0;
+      const r = maxV > 4 ? v / maxV : v / 4;
+      const c = v === 0 ? "#F1EFE8" : r <= 0.25 ? "#B5D4F4" : r <= 0.5 ? "#85B7EB" : r <= 0.75 ? "#378ADD" : "#185FA5";
+      svg += '<rect x="' + (w*12+2) + '" y="' + (k*12+18) + '" width="10" height="10" rx="2" fill="' + c + '"><title>' + key + "：活动量 " + v + '</title></rect>';
+    }
+  }
+  svg += '</svg>';
+  el.innerHTML = svg;
+}
+function fmtBigT(n) {
+  n = n || 0;
+  const m = n / 1e6;
+  if (m >= 100) return Math.round(m) + "M";
+  if (m >= 1) return (Math.round(m * 10) / 10) + "M";
+  return String(Math.round(n));
+}
+function renderTokenBars(el, data) {
+  data = data || {};
+  const days = 60;
+  const now = new Date(); now.setHours(0,0,0,0);
+  const start = new Date(now); start.setDate(start.getDate() - (days-1));
+  const bw = 8, gap = 2, H = 120, axisW = 56;
+  let maxV = 1;
+  const vals = [];
+  for (let i = 0; i < days; i++) {
+    const dt = new Date(start); dt.setDate(start.getDate() + i);
+    const key = dt.getFullYear() + "-" + String(dt.getMonth()+1).padStart(2,"0") + "-" + String(dt.getDate()).padStart(2,"0");
+    const v = data[key] || 0;
+    vals.push({key: key, v: v});
+    if (v > maxV) maxV = v;
+  }
+  const plotW = days*(bw+gap);
+  let svg = '<svg viewBox="0 0 ' + (axisW + plotW + 10) + ' ' + (H+30) + '" width="100%" style="max-width:620px">';
+  const ticks = [0, 0.25, 0.5, 0.75, 1];
+  for (const t of ticks) {
+    const y = H + 22 - t * (H - 14);
+    svg += '<line x1="' + axisW + '" y1="' + y + '" x2="' + (axisW + plotW) + '" y2="' + y + '" stroke="#E3E1DA" stroke-width="0.5"/>';
+    svg += '<text x="' + (axisW - 6) + '" y="' + (y + 3) + '" text-anchor="end" font-size="10" fill="#888780">' + fmtBigT(maxV * t) + '</text>';
+  }
+  svg += '<line x1="' + axisW + '" y1="22" x2="' + axisW + '" y2="' + (H+22) + '" stroke="#B4B2A9" stroke-width="0.5"/>';
+  let lastM = -1;
+  for (let i = 0; i < days; i++) {
+    const dt = new Date(start); dt.setDate(start.getDate() + i);
+    const m = dt.getMonth();
+    if (m !== lastM) {
+      svg += '<text x="' + (axisW + i*(bw+gap) + 2) + '" y="14" font-size="10" fill="#888780">' + (m+1) + '月</text>';
+      lastM = m;
+    }
+    const v = vals[i].v;
+    const h = v === 0 ? 2 : Math.max(3, v / maxV * (H-14));
+    svg += '<rect x="' + (axisW + i*(bw+gap) + 2) + '" y="' + (H-h+22) + '" width="' + bw + '" height="' + h + '" rx="1" fill="' + (v === 0 ? "#F1EFE8" : "#BA7517") + '"><title>' + vals[i].key + "：" + (v||0) + " tokens</title></rect>";
+  }
+  svg += '<text x="' + (axisW + 2) + '" y="' + (H + 34) + '" font-size="10" fill="#888780">近 60 天每日 AI Token 消耗（纵轴为当日 token 量，悬停看数值）</text>';
+  svg += '</svg>';
+  el.innerHTML = svg;
+}
+function showProject(name) {
+  const p = PROJECTS[name]; if (!p) return;
+  const t = p.totals || {calls:0, elapsed_s:0, has_token_field:false};
+  const plan = (p.plan && p.plan.length) ? p.plan.map(x => "<li>" + esc(x) + "</li>").join("") : "<li>未发现明确计划</li>";
+  const prog = (p.progress && p.progress.length) ? p.progress.map(x =>
+    "<div style='margin-bottom:12px'><b>" + esc(x.date) + "</b>" +
+    (x.stage ? " · " + esc(x.stage) : "") +
+    "<ul style='margin-top:4px'>" + bullets(x.progress, "无详细描述") + "</ul></div>").join("")
+    : "<div style='color:#888780'>暂无进展记录（每日追踪运行后将自动累积）</div>";
+  const outs = (p.latest_outputs && p.latest_outputs.length) ? p.latest_outputs.map(o => "<li>" + esc(o.file) + " · " + esc(o.mtime) + "</li>").join("") : "<li>暂无产出</li>";
+  document.getElementById("modal").innerHTML =
+    '<button class="close" onclick="closeProject()">✕</button>' +
+    "<h3>" + esc(p.display) + "</h3>" +
+    "<div style='font-size:12px;color:#888780'>" + esc(name) + " · " + esc(p.category) + (p.stage ? " · " + esc(p.stage) : "") + "</div>" +
+    '<div class="stats">' +
+      '<div class="stat"><div class="n">' + t.calls + '</div><div class="l">实验调用累计(次)</div></div>' +
+      '<div class="stat"><div class="n">' + fmtHours(t.elapsed_s) + '</div><div class="l">API 耗时累计</div></div>' +
+      '<div class="stat"><div class="n">' + (p.week_new + p.week_mod) + '</div><div class="l">本周文件变化</div></div>' +
+    '</div>' +
+    '<div class="sec"><h4>简介</h4><ul>' + bullets(p.intro, "暂无") + '</ul></div>' +
+    '<div class="sec"><h4>最终目标</h4><ul>' + bullets(p.goal, "未明确") + '</ul></div>' +
+    '<div class="sec"><h4>计划</h4><ul>' + plan + '</ul></div>' +
+    '<div class="sec"><h4>最近进展</h4>' + prog + '</div>' +
+    '<div class="sec"><h4>关键产出</h4><ul>' + outs + '</ul></div>' +
+    '<div class="sec"><h4>每日进展热力图</h4><div class="heat" id="heat-' + name + '"></div>' +
+    '<div class="heat-legend">少<span class="cell" style="background:#B5D4F4"></span><span class="cell" style="background:#85B7EB"></span><span class="cell" style="background:#378ADD"></span><span class="cell" style="background:#185FA5"></span>多 · 活动量 = 当天修改文件数 + 实验轮次</div></div>' +
+    '<div class="sec"><h4>每日 Token 消耗</h4><div class="heat" id="tok-' + name + '"></div>' +
+    '<div class="note" style="margin-top:6px">来源：AI 工具会话（Claude Code / OpenCode / WorkBuddy）按项目归属；近 60 天柱状图，琥珀柱越高消耗越多，悬停看数值。</div></div>' +
+    (p.source ? '<div class="note">档案来源：' + esc(p.source) + '</div>' : '');
+  document.getElementById("mask").style.display = "block";
+  document.getElementById("modal").style.display = "block";
+  renderHeatmap(document.getElementById("heat-" + name), p.heat);
+  renderTokenBars(document.getElementById("tok-" + name), p.ai_tokens);
+}
+function closeProject() {
+  document.getElementById("mask").style.display = "none";
+  document.getElementById("modal").style.display = "none";
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeProject(); });
+</script>
+</body>
+</html>

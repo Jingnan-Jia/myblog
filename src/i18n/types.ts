@@ -10,6 +10,7 @@ export interface UIStrings {
     tutorials: string;
     dailyai: string;
     guestbook: string;
+    projects: string;
   };
   post: {
     publishedAt: string;

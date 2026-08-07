@@ -12,6 +12,7 @@ export default {
     tutorials: "Tutorials",
     dailyai: "Daily AI",
     guestbook: "Guestbook",
+    projects: "Projects",
   },
   post: {
     publishedAt: "Published at",
