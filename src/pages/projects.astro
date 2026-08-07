@@ -20,7 +20,7 @@ interface ProjectReport {
   source: string;
 }
 
-// 构建时通过 Vite 内联读取（仅期数/时间等元信息，不含报告内容）
+// 构建时通过 Vite 内联读取（仅期数/时间等元信息）
 let reports: ProjectReport[] = [];
 try {
   reports = JSON.parse(indexRaw);
@@ -40,7 +40,7 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
     pageDesc="受密码保护 · 输入密码后查看项目日报 / 周报"
   >
     <div class="flex flex-col items-center justify-center gap-6">
-      <!-- 密码门 -->
+      <!-- 密码门（前端简单校验） -->
       <div
         id="gate"
         class="border-border bg-card flex w-full max-w-sm flex-col items-center gap-4 rounded-xl border p-8 text-center"
@@ -78,9 +78,8 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
       <!-- 认证后的内容（默认隐藏） -->
       <div id="content" class="hidden w-full">
         <div class="grid gap-6 sm:grid-cols-2">
-          <button
-            type="button"
-            data-report-url={daily ? daily.url : ""}
+          <a
+            href={daily ? daily.url : "#"}
             class:list={[
               "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
               !daily && "pointer-events-none opacity-50",
@@ -95,13 +94,12 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
               {daily?.generatedAt ? ` · ${daily.generatedAt}` : ""}
             </span>
             <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
-              点击解密查看 →
+              点击打开 →
             </span>
-          </button>
+          </a>
 
-          <button
-            type="button"
-            data-report-url={weekly ? weekly.url : ""}
+          <a
+            href={weekly ? weekly.url : "#"}
             class:list={[
               "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
               !weekly && "pointer-events-none opacity-50",
@@ -116,9 +114,9 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
               {weekly?.generatedAt ? ` · ${weekly.generatedAt}` : ""}
             </span>
             <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
-              点击解密查看 →
+              点击打开 →
             </span>
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -127,34 +125,15 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
 </Layout>
 
 <script>
-  const GATE_OK = "PROJECTS_GATE_OK";
-  const STORAGE_KEY = "projects_auth_key";
+  // ===== 访问密码（改密码只需改这一处） =====
+  const PASSWORD = "090909";
+  const STORAGE_KEY = "projects_auth";
 
   const gate = document.querySelector<HTMLDivElement>("#gate");
   const gateForm = document.querySelector<HTMLFormElement>("#gate-form");
   const gateInput = document.querySelector<HTMLInputElement>("#gate-input");
   const gateError = document.querySelector<HTMLParagraphElement>("#gate-error");
   const content = document.querySelector<HTMLDivElement>("#content");
-  const reportButtons = document.querySelectorAll<HTMLButtonElement>("[data-report-url]");
-
-  async function deriveKey(pwd: string): Promise<Uint8Array> {
-    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pwd));
-    return new Uint8Array(digest);
-  }
-
-  function xorDecrypt(b64: string, key: Uint8Array): string {
-    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-    for (let i = 0; i < bytes.length; i++) bytes[i] ^= key[i % key.length];
-    return new TextDecoder().decode(bytes);
-  }
-
-  function keyToStorage(key: Uint8Array): string {
-    return btoa(String.fromCharCode(...key));
-  }
-
-  function keyFromStorage(s: string): Uint8Array {
-    return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-  }
 
   function showContent() {
     gate?.classList.add("hidden");
@@ -162,46 +141,20 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
   }
 
   // 会话内已认证过则直接进入
-  const savedKey = sessionStorage.getItem(STORAGE_KEY);
-  if (savedKey) {
+  if (sessionStorage.getItem(STORAGE_KEY)) {
     showContent();
   }
 
-  gateForm?.addEventListener("submit", async (e) => {
+  gateForm?.addEventListener("submit", (e) => {
     e.preventDefault();
     const pwd = gateInput?.value ?? "";
-    if (!pwd) return;
-
-    try {
-      const key = await deriveKey(pwd);
-      const check = await fetch("/projects/_check.enc").then((r) => r.text());
-      if (xorDecrypt(check, key) === GATE_OK) {
-        sessionStorage.setItem(STORAGE_KEY, keyToStorage(key));
-        gateError?.classList.add("hidden");
-        showContent();
-      } else {
-        gateError?.classList.remove("hidden");
-        gateInput?.focus();
-      }
-    } catch {
+    if (pwd === PASSWORD) {
+      sessionStorage.setItem(STORAGE_KEY, "1");
+      gateError?.classList.add("hidden");
+      showContent();
+    } else {
       gateError?.classList.remove("hidden");
+      gateInput?.focus();
     }
-  });
-
-  reportButtons.forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const url = btn.dataset.reportUrl;
-      const saved = sessionStorage.getItem(STORAGE_KEY);
-      if (!url || !saved) return;
-      try {
-        const key = keyFromStorage(saved);
-        const enc = await fetch(url).then((r) => r.text());
-        const html = xorDecrypt(enc, key);
-        const blob = new Blob([html], { type: "text/html" });
-        window.open(URL.createObjectURL(blob), "_blank");
-      } catch {
-        // 解密失败（如文件缺失），静默忽略
-      }
-    });
   });
 </script>

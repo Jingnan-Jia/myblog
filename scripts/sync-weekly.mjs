@@ -2,13 +2,11 @@
 /**
  * sync-weekly.mjs
  *
- * 将 tracking 项目生成的最新日报/周报 HTML 加密同步到博客 public/projects/：
- *   - tracking/daily/ 下最新 HTML   -> public/projects/daily.enc    （XOR+Base64 加密，直接替换）
- *   - tracking/weekly/ 下最新 HTML  -> public/projects/weekly.enc   （XOR+Base64 加密，直接替换）
- *   - 生成 _check.enc 校验文件（用于页面验证密码是否正确）
- * 并生成 _index.json 供"项目总揽"页面使用（期数/时间信息，不含内容）。
+ * 将 tracking 项目生成的最新日报/周报 HTML 同步到博客 public/projects/：
+ *   - tracking/daily/ 下最新 HTML   -> public/projects/daily.html   （固定文件名，直接替换）
+ *   - tracking/weekly/ 下最新 HTML  -> public/projects/weekly.html  （固定文件名，直接替换）
+ * 并生成 _index.json 供"项目总揽"页面使用（期数/时间信息）。
  *
- * 内容加密存储，密钥由密码派生（SHA-256），浏览器端输入密码后解密查看。
  * 设计为"单页替换"模式：每个类型只保留最新一份，不积累历史。
  * 可直接运行，也可作为模块被 update-daily-report.mjs 导入。
  *
@@ -34,41 +32,18 @@ const trackingRoot = "/Users/olivia/Desktop/jiajingnan/tracking";
 const targetDir = join(projectRoot, "public", "projects");
 const indexPath = join(targetDir, "_index.json");
 
-// ===== 访问密码配置 =====
-// 修改密码后需重新运行本脚本（或 update-daily-report.mjs）重新生成 .enc 文件，
-// 再构建推送即可生效。
-const PASSWORD = "090909";
-const GATE_CHECK = "PROJECTS_GATE_OK"; // 校验文件内固定内容
-
 // 日报与周报的源目录映射（tracking 的 gen_report.py 双周期输出）
 const SOURCES = [
-  { key: "daily", label: "日报", dir: "daily", targetFile: "daily.enc" },
-  { key: "weekly", label: "周报", dir: "weekly", targetFile: "weekly.enc" },
+  { key: "daily", label: "日报", dir: "daily", targetFile: "daily.html" },
+  { key: "weekly", label: "周报", dir: "weekly", targetFile: "weekly.html" },
 ];
-
-// 加密：SHA-256(密码) 派生密钥，逐字节 XOR 后 Base64
-function deriveKey(pwd) {
-  return createHash("sha256").update(pwd).digest();
-}
-
-function xorCrypt(text, key) {
-  const buf = Buffer.from(text, "utf8");
-  for (let i = 0; i < buf.length; i++) buf[i] ^= key[i % key.length];
-  return buf.toString("base64");
-}
-
-function xorDecrypt(b64, key) {
-  const buf = Buffer.from(b64, "base64");
-  for (let i = 0; i < buf.length; i++) buf[i] ^= key[i % key.length];
-  return buf.toString("utf8");
-}
 
 function fileHashStr(str) {
   return createHash("sha256").update(str).digest("hex").slice(0, 12);
 }
 
 /**
- * 同步最新日报/周报（加密）到 public/projects/。
+ * 同步最新日报/周报到 public/projects/。
  * @returns {{ changed: boolean, reports: object[], error: string|null }}
  */
 export function syncReports() {
@@ -78,7 +53,6 @@ export function syncReports() {
   }
 
   mkdirSync(targetDir, { recursive: true });
-  const key = deriveKey(PASSWORD);
   const reports = [];
   let changed = false;
 
@@ -126,26 +100,21 @@ export function syncReports() {
       source: newest,
     });
 
-    // 内容未变化时跳过（对比源文件与已存在密文的内容哈希）
+    // 内容未变化时跳过（避免空提交）
     const fileChanged =
       !existsSync(targetPath) ||
-      fileHashStr(xorDecrypt(readFileSync(targetPath, "utf8"), key)) !==
-        fileHashStr(html);
-
-    writeFileSync(targetPath, xorCrypt(html, key), "utf8"); // 加密覆盖 = 直接替换
+      fileHashStr(readFileSync(targetPath, "utf8")) !== fileHashStr(html);
+    writeFileSync(targetPath, html, "utf8"); // 固定文件名覆盖 = 直接替换
     changed = changed || fileChanged;
     console.log(
       fileChanged
-        ? `[sync-weekly] ${src.label}已替换(加密): ${newest} -> ${src.targetFile}`
+        ? `[sync-weekly] ${src.label}已替换: ${newest} -> ${src.targetFile}`
         : `[sync-weekly] ${src.label}内容无变化（${newest}）`
     );
   }
 
-  // 写入密码校验文件（固定内容，页面据此判断密码是否正确）
-  writeFileSync(join(targetDir, "_check.enc"), xorCrypt(GATE_CHECK, key), "utf8");
-
-  // 清理旧文件：只保留 .enc 文件与 _index.json
-  const keep = new Set(["daily.enc", "weekly.enc", "_check.enc", "_index.json"]);
+  // 清理旧文件：只保留 daily.html、weekly.html 与 _index.json
+  const keep = new Set(["daily.html", "weekly.html", "_index.json"]);
   for (const f of readdirSync(targetDir)) {
     if (!keep.has(f)) {
       rmSync(join(targetDir, f), { force: true });
