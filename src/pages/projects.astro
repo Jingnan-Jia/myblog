@@ -20,7 +20,7 @@ interface ProjectReport {
   source: string;
 }
 
-// 构建时通过 Vite 内联读取，避免运行时文件路径在构建环境中失效
+// 构建时通过 Vite 内联读取（仅期数/时间等元信息，不含报告内容）
 let reports: ProjectReport[] = [];
 try {
   reports = JSON.parse(indexRaw);
@@ -37,49 +37,171 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
   <Breadcrumb />
   <Main
     pageTitle="项目总揽"
-    pageDesc="选择查看项目日报或周报，点击后直接打开对应报告"
+    pageDesc="受密码保护 · 输入密码后查看项目日报 / 周报"
   >
-    <div class="grid gap-6 sm:grid-cols-2">
-      <a
-        href={daily ? daily.url : "#"}
-        class:list={[
-          "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
-          !daily && "pointer-events-none opacity-50",
-        ]}
+    <div class="flex flex-col items-center justify-center gap-6">
+      <!-- 密码门 -->
+      <div
+        id="gate"
+        class="border-border bg-card flex w-full max-w-sm flex-col items-center gap-4 rounded-xl border p-8 text-center"
       >
-        <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
-          日
-        </span>
-        <span class="text-2xl font-bold">日报</span>
-        <span class="text-muted-foreground text-sm">
-          {daily ? daily.period : "暂无数据"}
-          {daily?.generatedAt ? ` · ${daily.generatedAt}` : ""}
-        </span>
-        <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
-          点击打开 →
-        </span>
-      </a>
+        <div class="text-accent bg-accent/10 flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+          锁
+        </div>
+        <div>
+          <div class="text-lg font-bold">项目总揽已加密</div>
+          <div class="text-muted-foreground mt-1 text-sm">
+            请输入访问密码以查看日报与周报
+          </div>
+        </div>
+        <form id="gate-form" class="flex w-full flex-col gap-3">
+          <input
+            id="gate-input"
+            type="password"
+            inputmode="numeric"
+            placeholder="请输入密码"
+            autocomplete="off"
+            class="border-border bg-background focus:border-accent rounded-lg border px-4 py-2.5 text-center outline-none"
+          />
+          <button
+            type="submit"
+            class="bg-accent text-accent-foreground rounded-lg px-4 py-2.5 font-medium transition-opacity hover:opacity-90"
+          >
+            确认
+          </button>
+          <p id="gate-error" class="hidden text-sm text-red-500">
+            密码错误，请重试
+          </p>
+        </form>
+      </div>
 
-      <a
-        href={weekly ? weekly.url : "#"}
-        class:list={[
-          "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
-          !weekly && "pointer-events-none opacity-50",
-        ]}
-      >
-        <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
-          周
-        </span>
-        <span class="text-2xl font-bold">周报</span>
-        <span class="text-muted-foreground text-sm">
-          {weekly ? weekly.period : "暂无数据"}
-          {weekly?.generatedAt ? ` · ${weekly.generatedAt}` : ""}
-        </span>
-        <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
-          点击打开 →
-        </span>
-      </a>
+      <!-- 认证后的内容（默认隐藏） -->
+      <div id="content" class="hidden w-full">
+        <div class="grid gap-6 sm:grid-cols-2">
+          <button
+            type="button"
+            data-report-url={daily ? daily.url : ""}
+            class:list={[
+              "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
+              !daily && "pointer-events-none opacity-50",
+            ]}
+          >
+            <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+              日
+            </span>
+            <span class="text-2xl font-bold">日报</span>
+            <span class="text-muted-foreground text-sm">
+              {daily ? daily.period : "暂无数据"}
+              {daily?.generatedAt ? ` · ${daily.generatedAt}` : ""}
+            </span>
+            <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+              点击解密查看 →
+            </span>
+          </button>
+
+          <button
+            type="button"
+            data-report-url={weekly ? weekly.url : ""}
+            class:list={[
+              "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
+              !weekly && "pointer-events-none opacity-50",
+            ]}
+          >
+            <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+              周
+            </span>
+            <span class="text-2xl font-bold">周报</span>
+            <span class="text-muted-foreground text-sm">
+              {weekly ? weekly.period : "暂无数据"}
+              {weekly?.generatedAt ? ` · ${weekly.generatedAt}` : ""}
+            </span>
+            <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+              点击解密查看 →
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   </Main>
   <Footer />
 </Layout>
+
+<script>
+  const GATE_OK = "PROJECTS_GATE_OK";
+  const STORAGE_KEY = "projects_auth_key";
+
+  const gate = document.querySelector<HTMLDivElement>("#gate");
+  const gateForm = document.querySelector<HTMLFormElement>("#gate-form");
+  const gateInput = document.querySelector<HTMLInputElement>("#gate-input");
+  const gateError = document.querySelector<HTMLParagraphElement>("#gate-error");
+  const content = document.querySelector<HTMLDivElement>("#content");
+  const reportButtons = document.querySelectorAll<HTMLButtonElement>("[data-report-url]");
+
+  async function deriveKey(pwd: string): Promise<Uint8Array> {
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pwd));
+    return new Uint8Array(digest);
+  }
+
+  function xorDecrypt(b64: string, key: Uint8Array): string {
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    for (let i = 0; i < bytes.length; i++) bytes[i] ^= key[i % key.length];
+    return new TextDecoder().decode(bytes);
+  }
+
+  function keyToStorage(key: Uint8Array): string {
+    return btoa(String.fromCharCode(...key));
+  }
+
+  function keyFromStorage(s: string): Uint8Array {
+    return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  }
+
+  function showContent() {
+    gate?.classList.add("hidden");
+    content?.classList.remove("hidden");
+  }
+
+  // 会话内已认证过则直接进入
+  const savedKey = sessionStorage.getItem(STORAGE_KEY);
+  if (savedKey) {
+    showContent();
+  }
+
+  gateForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const pwd = gateInput?.value ?? "";
+    if (!pwd) return;
+
+    try {
+      const key = await deriveKey(pwd);
+      const check = await fetch("/projects/_check.enc").then((r) => r.text());
+      if (xorDecrypt(check, key) === GATE_OK) {
+        sessionStorage.setItem(STORAGE_KEY, keyToStorage(key));
+        gateError?.classList.add("hidden");
+        showContent();
+      } else {
+        gateError?.classList.remove("hidden");
+        gateInput?.focus();
+      }
+    } catch {
+      gateError?.classList.remove("hidden");
+    }
+  });
+
+  reportButtons.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const url = btn.dataset.reportUrl;
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (!url || !saved) return;
+      try {
+        const key = keyFromStorage(saved);
+        const enc = await fetch(url).then((r) => r.text());
+        const html = xorDecrypt(enc, key);
+        const blob = new Blob([html], { type: "text/html" });
+        window.open(URL.createObjectURL(blob), "_blank");
+      } catch {
+        // 解密失败（如文件缺失），静默忽略
+      }
+    });
+  });
+</script>
