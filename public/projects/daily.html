@@ -59,7 +59,7 @@
 <body>
 <div class="wrap">
   <h1>今日项目汇报（2026-08-07）</h1>
-  <div class="sub">生成时间：2026-08-07 17:12 · 点击任意项目节点/行查看详情 · 数据源：扫描快照 + projects-meta.json + PROGRESS.md + token-ledger.json</div>
+  <div class="sub">生成时间：2026-08-07 17:32 · 点击任意项目节点/行查看详情 · 数据源：扫描快照 + projects-meta.json + PROGRESS.md + token-ledger.json</div>
 
   <div class="cards">
     <div class="card"><div class="num">8 / 26</div><div class="lbl">今日活跃项目</div></div>
@@ -154,7 +154,7 @@
   
   <div class="panel">
     <h2>远端服务器进展（jiajingnan.cn 留言板）</h2>
-    <div class="remote-list"><details><summary title="d:\projects\auto_email">📁 auto_email · 2026-08-07 16:55</summary><pre>📁 项目: d:\projects\auto_email
+    <div class="remote-list"><details><summary title="d:\projects\auto_email">📁 auto_email · 2026-08-07 17:28</summary><pre>📁 项目: d:\projects\auto_email
 
 # 2026-08-07 工作日志
 
@@ -165,13 +165,11 @@
 - 操作: 将来自范自文且包含测试表格的邮件移动到&quot;范自文&quot;文件夹
 - 结果: 成功移动 78 封邮件
 - 识别逻辑: 通过多特征评分（测试关键词、数据路径、编号行、日期格式、严重程度标记、CH通道标记等）判断邮件是否包含测试表格
-- 脚本: manage_fanzwen_emails.py
 
 ### 任务2: DTS问题单邮件移动
 - 邮箱: jingnan.jia@hirige.com
 - 操作: 将所有来自 dh_dts@dahuatech.com 的邮件移动到&quot;问题单&quot;文件夹
 - 结果: 成功移动 37 封邮件
-- 脚本: move_dts_emails.py
 
 ### 任务3: 创建 fanzwen-email-manager Skill
 - 目的: 当用户说&quot;把范自文的邮件移动一下&quot;时自动执行邮件管理脚本
@@ -197,7 +195,12 @@
 ### 任务8: 网站留言板留言 + Skill 创建
 - 成功向 jiajingnan.cn 留言板提交今日工作日志
 - 创建 jiajingnan-guestbook Skill，支持自动触发留言
-- Skill 更新: 每次留言首行添加项目路径标识</pre></details></div>
+- Skill 更新: 每次留言首行添加项目路径标识
+
+### 任务9: 留言板加密方案
+- 加密方案: XOR + Base64（密钥 jjn_guestbook_2026，逐字节异或+Base64编码）
+- 端到端验证通过: PowerShell加密→Supabase提交→Python解密
+- 解密脚本: scripts/decrypt_guestbook.py（纯标准库，零依赖）</pre></details></div>
     <div class="note">今日 1 条远端进展，由远端 AI 助手上传留言板后自动同步，点击展开查看全文。</div>
   </div>
 
