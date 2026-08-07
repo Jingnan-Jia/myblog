@@ -15,6 +15,7 @@ interface WeeklyReport {
   generatedAt: string;
   size: number;
   updatedAt: number;
+  source: string;
 }
 
 // 构建时通过 Vite 内联读取，避免运行时文件路径在构建环境中失效
@@ -25,7 +26,7 @@ try {
   reports = [];
 }
 
-// 脚本已按文件名倒序排列，第一项为最新一期
+// 单页替换模式：只展示最新一份日报
 const latest = reports[0] ?? null;
 
 const formatDate = (timestamp: number) =>
@@ -39,54 +40,25 @@ const formatDate = (timestamp: number) =>
 <Layout title={`项目总揽 | ${config.site.title}`}>
   <Header />
   <Breadcrumb />
-  <Main
-    pageTitle="项目总揽"
-    pageDesc="tracking/weekly 项目周报汇总 · 点击下方期数切换预览，也可在新窗口打开"
-  >
+  <Main pageTitle="项目总揽" pageDesc="每日项目进展日报 · 每晚自动更新">
     {
       latest ? (
-        <div class="flex flex-col gap-6">
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div class="border-border bg-card rounded-lg border p-5">
-              <div class="text-accent text-2xl font-bold">{reports.length}</div>
-              <div class="text-muted-foreground mt-1 text-sm">周报期数</div>
-            </div>
-            <div class="border-border bg-card rounded-lg border p-5">
-              <div class="text-accent text-2xl font-bold">{latest.period}</div>
-              <div class="text-muted-foreground mt-1 text-sm">最新一期</div>
-            </div>
-            <div class="border-border bg-card rounded-lg border p-5">
-              <div class="text-accent text-2xl font-bold">
+        <div class="flex flex-col gap-4">
+          <div
+            class="border-border bg-card flex flex-wrap items-center justify-between gap-2 rounded-lg border p-4"
+          >
+            <div>
+              <div class="text-lg font-bold">{latest.title}</div>
+              <div class="text-muted-foreground mt-0.5 text-sm">
+                生成时间：
                 {latest.generatedAt || formatDate(latest.updatedAt)}
               </div>
-              <div class="text-muted-foreground mt-1 text-sm">生成时间</div>
             </div>
-          </div>
-
-          <div class="border-border bg-card flex flex-wrap items-center gap-2 rounded-lg border p-4">
-            <span class="text-muted-foreground text-sm">期数：</span>
-            {
-              reports.map((report) => (
-                <button
-                  type="button"
-                  data-report={report.url}
-                  data-period={report.period}
-                  class:list={[
-                    "border-border hover:border-accent rounded-full border px-4 py-1.5 text-sm transition-colors",
-                    report.period === latest.period &&
-                      "border-accent bg-muted text-accent",
-                  ]}
-                >
-                  {report.period}
-                </button>
-              ))
-            }
             <a
-              id="open-in-new-tab"
               href={latest.url}
               target="_blank"
               rel="noopener"
-              class="text-accent ms-auto text-sm hover:underline"
+              class="text-accent text-sm hover:underline"
             >
               在新窗口打开 ↗
             </a>
@@ -104,8 +76,10 @@ const formatDate = (timestamp: number) =>
         </div>
       ) : (
         <div class="border-border bg-card rounded-lg border p-8 text-center text-sm">
-          暂无周报数据。请先运行
-          <code class="bg-muted mx-1 rounded px-2 py-0.5">node scripts/sync-weekly.mjs</code>
+          暂无日报数据。请先运行
+          <code class="bg-muted mx-1 rounded px-2 py-0.5">
+            node scripts/sync-weekly.mjs
+          </code>
           同步 weekly 目录。
         </div>
       )
@@ -116,8 +90,6 @@ const formatDate = (timestamp: number) =>
 
 <script>
   const frame = document.querySelector<HTMLIFrameElement>("#report-frame");
-  const openNewTab = document.querySelector<HTMLAnchorElement>("#open-in-new-tab");
-  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-report]");
 
   function fitFrame() {
     if (!frame?.contentDocument) return;
@@ -128,17 +100,4 @@ const formatDate = (timestamp: number) =>
   // iframe 内容加载后按内容高度自适应（同源可直接读取）
   frame?.addEventListener("load", fitFrame);
   document.addEventListener("astro:page-load", fitFrame);
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (!frame) return;
-      const url = btn.dataset.report ?? "";
-      frame.src = url;
-      if (openNewTab) openNewTab.href = url;
-      buttons.forEach((b) => {
-        b.classList.remove("border-accent", "bg-muted", "text-accent");
-        if (b === btn) b.classList.add("border-accent", "bg-muted", "text-accent");
-      });
-    });
-  });
 </script>
