@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/Breadcrumb.astro";
 import Main from "@/components/Main.astro";
 import Footer from "@/components/Footer.astro";
 import config from "@/config";
-import fs from "node:fs";
+import indexRaw from "../../public/projects/_index.json?raw";
 
 interface WeeklyReport {
   file: string;
@@ -17,11 +17,10 @@ interface WeeklyReport {
   updatedAt: number;
 }
 
-const indexFile = new URL("../../public/projects/_index.json", import.meta.url);
-
+// 构建时通过 Vite 内联读取，避免运行时文件路径在构建环境中失效
 let reports: WeeklyReport[] = [];
 try {
-  reports = JSON.parse(fs.readFileSync(indexFile, "utf8"));
+  reports = JSON.parse(indexRaw);
 } catch {
   reports = [];
 }
