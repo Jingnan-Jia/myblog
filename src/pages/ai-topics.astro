@@ -1,0 +1,160 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import config from "@/config";
+import indexRaw from "../../public/ai-topics/_index.json?raw";
+
+interface AiTopicReport {
+  key: string;
+  label: string;
+  file: string;
+  url: string;
+  title: string;
+  period: string;
+  generatedAt: string;
+  size: number;
+  updatedAt: number;
+  source: string;
+}
+
+// 构建时通过 Vite 内联读取（仅期数/时间等元信息）
+let reports: AiTopicReport[] = [];
+try {
+  reports = JSON.parse(indexRaw);
+} catch {
+  reports = [];
+}
+
+const daily = reports.find((r) => r.key === "daily") ?? null;
+const weekly = reports.find((r) => r.key === "weekly") ?? null;
+---
+
+<Layout title={`AI副业选题 | ${config.site.title}`}>
+  <Header />
+  <Breadcrumb />
+  <Main
+    pageTitle="AI副业选题"
+    pageDesc="受密码保护 · 输入密码后查看每日选题与每周计划"
+  >
+    <div class="flex flex-col items-center justify-center gap-6">
+      <!-- 密码门（前端简单校验，防君子不防小人） -->
+      <div
+        id="gate"
+        class="border-border bg-card flex w-full max-w-sm flex-col items-center gap-4 rounded-xl border p-8 text-center"
+      >
+        <div class="text-accent bg-accent/10 flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+          锁
+        </div>
+        <div>
+          <div class="text-lg font-bold">AI副业选题已加密</div>
+          <div class="text-muted-foreground mt-1 text-sm">
+            请输入访问密码以查看每日选题与每周计划
+          </div>
+        </div>
+        <form id="gate-form" class="flex w-full flex-col gap-3">
+          <input
+            id="gate-input"
+            type="password"
+            inputmode="numeric"
+            placeholder="请输入密码"
+            autocomplete="off"
+            class="border-border bg-background focus:border-accent rounded-lg border px-4 py-2.5 text-center outline-none"
+          />
+          <button
+            type="submit"
+            class="bg-accent text-accent-foreground rounded-lg px-4 py-2.5 font-medium transition-opacity hover:opacity-90"
+          >
+            确认
+          </button>
+          <p id="gate-error" class="hidden text-sm text-red-500">
+            密码错误，请重试
+          </p>
+        </form>
+      </div>
+
+      <!-- 认证后的内容（默认隐藏） -->
+      <div id="content" class="hidden w-full">
+        <div class="grid gap-6 sm:grid-cols-2">
+          <a
+            href={daily ? daily.url : "#"}
+            class:list={[
+              "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
+              !daily && "pointer-events-none opacity-50",
+            ]}
+          >
+            <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+              日
+            </span>
+            <span class="text-2xl font-bold">每日选题</span>
+            <span class="text-muted-foreground text-sm">
+              {daily ? daily.period : "暂无数据"}
+              {daily?.generatedAt ? ` · ${daily.generatedAt}` : ""}
+            </span>
+            <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+              点击打开 →
+            </span>
+          </a>
+
+          <a
+            href={weekly ? weekly.url : "#"}
+            class:list={[
+              "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
+              !weekly && "pointer-events-none opacity-50",
+            ]}
+          >
+            <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+              周
+            </span>
+            <span class="text-2xl font-bold">每周计划</span>
+            <span class="text-muted-foreground text-sm">
+              {weekly ? weekly.period : "周日自动生成 · 敬请期待"}
+              {weekly?.generatedAt ? ` · ${weekly.generatedAt}` : ""}
+            </span>
+            <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+              点击打开 →
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </Main>
+  <Footer />
+</Layout>
+
+<script>
+  // ===== 访问密码（与「项目总揽」同密码，改密码只需改这一处） =====
+  const PASSWORD = "090909";
+  const STORAGE_KEY = "ai_topics_auth";
+
+  const gate = document.querySelector<HTMLDivElement>("#gate");
+  const gateForm = document.querySelector<HTMLFormElement>("#gate-form");
+  const gateInput = document.querySelector<HTMLInputElement>("#gate-input");
+  const gateError = document.querySelector<HTMLParagraphElement>("#gate-error");
+  const content = document.querySelector<HTMLDivElement>("#content");
+
+  function showContent() {
+    gate?.classList.add("hidden");
+    content?.classList.remove("hidden");
+  }
+
+  // 会话内已认证过则直接进入
+  if (sessionStorage.getItem(STORAGE_KEY)) {
+    showContent();
+  }
+
+  gateForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const pwd = gateInput?.value ?? "";
+    if (pwd === PASSWORD) {
+      sessionStorage.setItem(STORAGE_KEY, "1");
+      gateError?.classList.add("hidden");
+      showContent();
+    } else {
+      gateError?.classList.remove("hidden");
+      gateInput?.focus();
+    }
+  });
+</script>
