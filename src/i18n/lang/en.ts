@@ -11,6 +11,7 @@ export default {
     search: "Search",
     tutorials: "Tutorials",
     dailyai: "Daily AI",
+    aiselection: "AI Topics",
     guestbook: "Guestbook",
     projects: "Projects",
   },

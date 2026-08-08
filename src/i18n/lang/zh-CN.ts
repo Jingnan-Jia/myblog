@@ -11,6 +11,7 @@ export default {
     search: "搜索",
     tutorials: "教程",
     dailyai: "每日AI",
+    aiselection: "AI选题",
     guestbook: "留言板",
     projects: "项目总揽",
   },
