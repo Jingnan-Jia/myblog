@@ -1,5 +1,5 @@
 /**
- * 飞书 API 中转代理 — Vercel Serverless Function
+ * 飞书 API 中转代理 — Vercel Serverless Function (JavaScript)
  *
  * 将所有 /api/feishu/* 请求转发到 https://open.feishu.cn/open-apis/*
  *
@@ -8,11 +8,12 @@
  *       但 McAfee 不拦截发往 jiajingnan.cn 的同类请求。
  *       因此通过此中转函数绕过 McAfee 拦截。
  *
- * 部署：将此文件放到 Vercel 项目的 api/feishu/[...path].ts
+ * 部署：将此文件放到 Vercel 项目的 api/feishu/[...path].js
  *       Vercel 会自动识别为 Serverless Function
+ *
+ * 注意：使用 .js 而非 .ts，避免 Astro 项目的 TypeScript 类型检查报错
+ *       不依赖 @vercel/node，使用标准 fetch API（Node 18+ 内置）
  */
-
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const FEISHU_BASE = 'https://open.feishu.cn/open-apis';
 
@@ -20,10 +21,7 @@ const FEISHU_BASE = 'https://open.feishu.cn/open-apis';
 // 部署后在 Vercel 环境变量中设置 RELAY_SECRET
 const RELAY_SECRET = process.env.RELAY_SECRET || '';
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
+module.exports = async (req, res) => {
   // ── CORS ──
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -31,42 +29,47 @@ export default async function handler(
 
   // 处理 CORS 预检
   if (req.method === 'OPTIONS') {
-    return res.status(204).end();
+    res.status(204).end();
+    return;
   }
 
   // ── 鉴权 ──
   if (RELAY_SECRET) {
-    const provided = req.headers['x-relay-secret'] as string;
+    const provided = req.headers['x-relay-secret'];
     if (provided !== RELAY_SECRET) {
-      return res.status(401).json({ error: 'Unauthorized: invalid relay secret' });
+      res.status(401).json({ error: 'Unauthorized: invalid relay secret' });
+      return;
     }
   }
 
   // ── 构建目标 URL ──
   // req.query.path 是 catch-all 参数，可能是 string 或 string[]
-  const pathSegments = Array.isArray(req.query.path)
-    ? req.query.path
-    : [req.query.path];
+  const query = req.query || {};
+  const pathSegments = Array.isArray(query.path)
+    ? query.path
+    : query.path
+      ? [query.path]
+      : [];
   const pathStr = pathSegments.filter(Boolean).join('/');
   const targetUrl = `${FEISHU_BASE}/${pathStr}`;
 
   // 保留 query string
-  const queryString = req.url?.split('?')[1] || '';
+  const queryString = req.url ? req.url.split('?')[1] : '';
   const finalUrl = queryString ? `${targetUrl}?${queryString}` : targetUrl;
 
   // ── 构建转发 headers ──
-  const forwardHeaders: Record<string, string> = {};
+  const forwardHeaders = {};
   // 透传 Authorization 和 Content-Type
   if (req.headers['authorization']) {
-    forwardHeaders['Authorization'] = req.headers['authorization'] as string;
+    forwardHeaders['Authorization'] = req.headers['authorization'];
   }
   if (req.headers['content-type']) {
-    forwardHeaders['Content-Type'] = req.headers['content-type'] as string;
+    forwardHeaders['Content-Type'] = req.headers['content-type'];
   }
 
   // ── 发起请求到飞书 ──
   try {
-    const fetchOptions: RequestInit = {
+    const fetchOptions = {
       method: req.method,
       headers: forwardHeaders,
     };
@@ -92,12 +95,12 @@ export default async function handler(
     }
 
     const respBody = await feishuResp.text();
-    return res.status(feishuResp.status).send(respBody);
-  } catch (err: any) {
+    res.status(feishuResp.status).send(respBody);
+  } catch (err) {
     console.error('Feishu relay error:', err);
-    return res.status(502).json({
+    res.status(502).json({
       error: 'Bad Gateway',
-      message: err?.message || 'Failed to reach feishu API',
+      message: err && err.message ? err.message : 'Failed to reach feishu API',
     });
   }
-}
+};

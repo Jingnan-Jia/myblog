@@ -1,7 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "api/feishu/[...path].ts": {
+    "api/feishu/[...path].js": {
       "memory": 128,
       "maxDuration": 10
     }
