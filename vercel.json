@@ -1,7 +1,13 @@
 {
   "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/feishu/:path*",
+      "destination": "/api/feishu"
+    }
+  ],
   "functions": {
-    "api/feishu/[...path].js": {
+    "api/feishu/index.js": {
       "memory": 128,
       "maxDuration": 10
     }

@@ -8,12 +8,14 @@
  *       但 McAfee 不拦截发往 jiajingnan.cn 的同类请求。
  *       因此通过此中转函数绕过 McAfee 拦截。
  *
- * 部署：将此文件放到 Vercel 项目的 api/feishu/[...path].js
- *       Vercel 会自动识别为 Serverless Function
+ * 部署：将此文件放到 Vercel 项目的 api/feishu/index.js
+ *       在 vercel.json 中配置 rewrites 将 /api/feishu/* 路由到此函数
  *
  * 注意：使用 .js 而非 .ts，避免 Astro 项目的 TypeScript 类型检查报错
  *       使用 ES Module 语法 (export default)，兼容 "type": "module" 项目
  *       不依赖 @vercel/node，使用标准 fetch API（Node 18+ 内置）
+ *       不使用 [...path] catch-all（Astro 静态构建会干扰多层路径匹配）
+ *       改为从 req.url 中手动解析路径
  */
 
 const FEISHU_BASE = 'https://open.feishu.cn/open-apis';
@@ -43,24 +45,36 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── 构建目标 URL ──
-  // req.query.path 是 catch-all 参数，可能是 string 或 string[]
-  const query = req.query || {};
-  const pathSegments = Array.isArray(query.path)
-    ? query.path
-    : query.path
-      ? [query.path]
-      : [];
-  const pathStr = pathSegments.filter(Boolean).join('/');
-  const targetUrl = `${FEISHU_BASE}/${pathStr}`;
+  // ── 从 req.url 中解析飞书 API 路径 ──
+  // req.url 格式: /api/feishu/auth/v3/tenant_access_token/internal?xxx=yyy
+  // 需要提取: auth/v3/tenant_access_token/internal
+  const rawUrl = req.url || '';
+  // 去掉开头的 /api/feishu 前缀
+  let pathPart = rawUrl;
+  const prefix = '/api/feishu';
+  if (pathPart.startsWith(prefix)) {
+    pathPart = pathPart.slice(prefix.length);
+  }
+  // 去掉开头的 /
+  if (pathPart.startsWith('/')) {
+    pathPart = pathPart.slice(1);
+  }
 
-  // 保留 query string
-  const queryString = req.url ? req.url.split('?')[1] : '';
-  const finalUrl = queryString ? `${targetUrl}?${queryString}` : targetUrl;
+  // 分离 query string
+  const qIdx = pathPart.indexOf('?');
+  let pathStr = pathPart;
+  let queryString = '';
+  if (qIdx >= 0) {
+    pathStr = pathPart.slice(0, qIdx);
+    queryString = pathPart.slice(qIdx + 1);
+  }
+
+  const targetUrl = queryString
+    ? `${FEISHU_BASE}/${pathStr}?${queryString}`
+    : `${FEISHU_BASE}/${pathStr}`;
 
   // ── 构建转发 headers ──
   const forwardHeaders = {};
-  // 透传 Authorization 和 Content-Type
   if (req.headers['authorization']) {
     forwardHeaders['Authorization'] = req.headers['authorization'];
   }
@@ -77,7 +91,6 @@ export default async function handler(req, res) {
 
     // GET 请求不带 body
     if (req.method !== 'GET' && req.method !== 'HEAD') {
-      // 直接透传原始 body
       if (req.body) {
         if (typeof req.body === 'string') {
           fetchOptions.body = req.body;
@@ -87,7 +100,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const feishuResp = await fetch(finalUrl, fetchOptions);
+    const feishuResp = await fetch(targetUrl, fetchOptions);
 
     // ── 透传响应 ──
     const respContentType = feishuResp.headers.get('content-type');
