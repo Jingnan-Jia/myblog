@@ -12,6 +12,7 @@
  *       Vercel 会自动识别为 Serverless Function
  *
  * 注意：使用 .js 而非 .ts，避免 Astro 项目的 TypeScript 类型检查报错
+ *       使用 ES Module 语法 (export default)，兼容 "type": "module" 项目
  *       不依赖 @vercel/node，使用标准 fetch API（Node 18+ 内置）
  */
 
@@ -21,7 +22,7 @@ const FEISHU_BASE = 'https://open.feishu.cn/open-apis';
 // 部署后在 Vercel 环境变量中设置 RELAY_SECRET
 const RELAY_SECRET = process.env.RELAY_SECRET || '';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // ── CORS ──
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -103,4 +104,4 @@ module.exports = async (req, res) => {
       message: err && err.message ? err.message : 'Failed to reach feishu API',
     });
   }
-};
+}
