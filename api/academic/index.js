@@ -121,7 +121,7 @@ export default async function handler(req, res) {
     : `${backend.baseUrl}/${apiPath}`;
 
   // ── 构建转发 headers ──
-  const forwardHeaders = {};
+  let forwardHeaders = {};
   if (req.headers['content-type']) {
     forwardHeaders['Content-Type'] = req.headers['content-type'];
   }
