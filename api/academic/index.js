@@ -92,6 +92,14 @@ export default async function handler(req, res) {
     queryString = pathPart.slice(qIdx + 1);
   }
 
+  // Vercel rewrite (:path*) 会把捕获的路径作为 path= 查询参数注入
+  // 需要过滤掉这个多余的参数，否则目标 API 会收到非法参数
+  if (queryString) {
+    const cleanParams = queryString
+      .split('&')
+      .filter(kv => !kv.startsWith('path=') && !kv.startsWith('path%3D'));
+    queryString = cleanParams.join('&');
+  }
   // 第一段是服务名，剩下的是 API 路径
   const segments = pathStr.split('/').filter(Boolean);
   if (segments.length === 0) {
@@ -102,6 +110,7 @@ export default async function handler(req, res) {
     });
     return;
   }
+
   const serviceName = segments[0].toLowerCase();
   const apiPath = segments.slice(1).join('/');
 
