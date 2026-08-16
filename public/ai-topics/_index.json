@@ -4,12 +4,12 @@
     "label": "每日选题",
     "file": "daily.html",
     "url": "/ai-topics/daily.html",
-    "title": "每日选题 · 2026-08-12（周三）",
-    "period": "2026-08-12",
-    "generatedAt": "2026/8/12 08:52:05",
-    "size": 13400,
-    "updatedAt": 1786495923481.062,
-    "source": "2026-08-12.md"
+    "title": "每日选题 · 2026-08-16",
+    "period": "2026-08-16",
+    "generatedAt": "2026/8/16 08:52:25",
+    "size": 17201,
+    "updatedAt": 1786841543683.5974,
+    "source": "2026-08-16.md"
   },
   {
     "key": "weekly",
@@ -18,7 +18,7 @@
     "url": "/ai-topics/weekly.html",
     "title": "下周内容日历 · 2026-W33（8月10日—8月16日）",
     "period": "2026-W33",
-    "generatedAt": "2026/8/12 08:52:05",
+    "generatedAt": "2026/8/16 08:52:25",
     "size": 10242,
     "updatedAt": 1786278217410.4097,
     "source": "2026-W33.md"
