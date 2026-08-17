@@ -143,15 +143,25 @@ async function main() {
   }
 
   let lastHeartbeat = 0;
+  let shuttingDown = false;
 
-  // 兜底：上传器异常退出时把 agent 置为 idle
-  const markIdle = () => {
-    upsertAgent(agent, runId, "", "idle").catch(() => {});
+  // 兜底：上传器退出时把 agent 置为 idle（等待请求完成再退出）
+  const shutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    try {
+      const lastLine = buffer.length ? buffer[buffer.length - 1].content : "";
+      await upsertAgent(agent, runId, lastLine, "idle");
+    } catch {
+      // 忽略
+    }
+    process.exit(0);
   };
-  process.on("SIGINT", () => { markIdle(); process.exit(0); });
-  process.on("SIGTERM", () => { markIdle(); process.exit(0); });
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 
   console.log("[uploader] 开始监听日志增量 (Ctrl+C 退出)...");
+  let lastFlush = Date.now();
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
@@ -171,10 +181,18 @@ async function main() {
             agent_id: agent,
             run_id: runId,
             ts: new Date().toISOString(),
-            ...row,
+            level: row.level,
+            content: row.content,
+            tool_name: row.tool_name ?? null, // 统一字段，PostgREST 批量 insert 要求各字段一致
+            args: row.args ?? null,
           });
         }
-        if (buffer.length >= flushLines) await flush();
+      }
+
+      // 批量上传：攒够 flushLines 行，或距上次上传超过 5s 且有数据（兜底，防止低吞吐卡缓冲）
+      if (buffer.length && (buffer.length >= flushLines || Date.now() - lastFlush >= 5000)) {
+        await flush();
+        lastFlush = Date.now();
       }
 
       // 空闲心跳：无新行也定期刷新 last_ts（仪表盘据此判断运行中）
