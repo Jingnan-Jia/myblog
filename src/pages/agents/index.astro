@@ -4,7 +4,6 @@ import Header from "@/components/Header.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import Main from "@/components/Main.astro";
 import Footer from "@/components/Footer.astro";
-import PasswordGate from "@/components/PasswordGate.astro";
 import config from "@/config";
 ---
 
@@ -12,8 +11,7 @@ import config from "@/config";
   <Header />
   <Breadcrumb />
   <Main pageTitle="Agents" pageDesc="服务器智能体实时状态与日志监控">
-    <PasswordGate title="Agents 监控已加密" desc="请输入访问密码以查看智能体状态">
-      <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
         <!-- 统计 -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div class="border-border bg-card rounded-lg border p-5">
@@ -41,7 +39,7 @@ import config from "@/config";
           数据来自 Supabase · 每 5 秒自动刷新 · 运行中 = 60 秒内有心跳
         </p>
       </div>
-    </PasswordGate>
+    </div>
   </Main>
   <Footer />
 </Layout>
