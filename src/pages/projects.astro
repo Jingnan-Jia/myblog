@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/Breadcrumb.astro";
 import Main from "@/components/Main.astro";
 import Footer from "@/components/Footer.astro";
 import config from "@/config";
+import { SITE_PASSWORD } from "@/utils/password";
 import indexRaw from "../../public/projects/_index.json?raw";
 
 interface ProjectReport {
@@ -77,11 +78,11 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
 
       <!-- 认证后的内容（默认隐藏） -->
       <div id="content" class="hidden w-full">
-        <div class="grid gap-6 sm:grid-cols-2">
+        <div class="grid gap-6 sm:grid-cols-3">
           <a
             href={daily ? daily.url : "#"}
             class:list={[
-              "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
+              "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-8 text-center transition-colors",
               !daily && "pointer-events-none opacity-50",
             ]}
           >
@@ -101,7 +102,7 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
           <a
             href={weekly ? weekly.url : "#"}
             class:list={[
-              "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors",
+              "group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-8 text-center transition-colors",
               !weekly && "pointer-events-none opacity-50",
             ]}
           >
@@ -117,6 +118,22 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
               点击打开 →
             </span>
           </a>
+
+          <a
+            href="/agents/"
+            class="group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-8 text-center transition-colors"
+          >
+            <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+              AI
+            </span>
+            <span class="text-2xl font-bold">Agent 监控</span>
+            <span class="text-muted-foreground text-sm">
+              智能体实时日志
+            </span>
+            <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+              点击进入 →
+            </span>
+          </a>
         </div>
       </div>
     </div>
@@ -125,8 +142,9 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
 </Layout>
 
 <script>
-  // ===== 访问密码（改密码只需改这一处） =====
-  const PASSWORD = "090909";
+  import { SITE_PASSWORD } from "@/utils/password";
+
+  // ===== 访问密码（统一在 src/utils/password.ts 修改） =====
   const STORAGE_KEY = "projects_auth";
 
   const gate = document.querySelector<HTMLDivElement>("#gate");
@@ -148,7 +166,7 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
   gateForm?.addEventListener("submit", (e) => {
     e.preventDefault();
     const pwd = gateInput?.value ?? "";
-    if (pwd === PASSWORD) {
+    if (pwd === SITE_PASSWORD) {
       sessionStorage.setItem(STORAGE_KEY, "1");
       gateError?.classList.add("hidden");
       showContent();

@@ -29,3 +29,13 @@
 - 阶段：网页开发
 - 进展：「AI 副业选题」页面例行更新——08:52 重新生成 2026-08-12 每日选题与 2026-W33 每周内容日历并刷新 _index.json；projects 日报/周报页面更新至 08-11 版本。无实质代码改动，仅例行页面重生成。
 - 关键文件：public/ai-topics/daily.html、public/ai-topics/weekly.html、public/ai-topics/_index.json、public/projects/daily.html
+
+## 2026-08-15
+- 阶段：网页开发
+- 进展：08-14 23:11 例行部署检查——update-daily-report.mjs 执行成功，日报（tracking 源最新仍为 08-12）与周报（W32）内容均无变化，跳过 git commit/push；public/projects 下 _index.json/daily.html/weekly.html 仅时间戳刷新。无实质代码改动。
+- 关键文件：public/projects/_index.json、public/projects/daily.html、public/projects/weekly.html
+
+## 2026-08-16
+- 阶段：网页开发
+- 进展：「AI 副业选题」页面例行更新——20:31 重新生成每日选题与每周内容日历 HTML 并刷新 _index.json。无实质代码改动，仅例行页面重生成。
+- 关键文件：public/ai-topics/daily.html、public/ai-topics/weekly.html、public/ai-topics/_index.json

@@ -54,6 +54,15 @@ import config from "@/config";
   const statActive = document.querySelector<HTMLDivElement>("#stat-active");
   const statIdle = document.querySelector<HTMLDivElement>("#stat-idle");
 
+  function esc(s: unknown): string {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function statusOf(lastTs: string): "active" | "idle" | "finished" {
     const diff = Date.now() - new Date(lastTs).getTime();
     if (diff < 60_000) return "active";
@@ -108,14 +117,14 @@ import config from "@/config";
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 <span class="relative flex size-2.5"><span class="absolute inline-flex size-full animate-ping rounded-full ${meta.cls} opacity-60"></span><span class="relative inline-flex size-2.5 rounded-full ${meta.cls}"></span></span>
-                <span class="font-bold">${a.agent_id}</span>
+                <span class="font-bold">${esc(a.agent_id)}</span>
               </div>
               <span class="text-muted-foreground text-xs">${meta.label} · ${relTime(a.last_ts)}</span>
             </div>
-            <div class="text-muted-foreground mt-2 truncate text-sm" title="${(a.last_line ?? "").replace(/"/g, "&quot;")}">
-              ${a.last_line || "（暂无内容）"}
+            <div class="text-muted-foreground mt-2 truncate text-sm" title="${esc(a.last_line)}">
+              ${esc(a.last_line) || "（暂无内容）"}
             </div>
-            <div class="text-muted-foreground mt-2 font-mono text-xs">run: ${a.run_id || "default"}</div>
+            <div class="text-muted-foreground mt-2 font-mono text-xs">run: ${esc(a.run_id) || "default"}</div>
           </a>`;
         })
         .join("");

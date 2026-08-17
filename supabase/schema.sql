@@ -41,5 +41,14 @@ create policy "agent_logs_anon_select" on public.agent_logs
 
 alter table public.agents enable row level security;
 drop policy if exists "agents_anon_all" on public.agents;
-create policy "agents_anon_all" on public.agents
-  for all to anon using (true) with check (true);
+drop policy if exists "agents_anon_read" on public.agents;
+create policy "agents_anon_read" on public.agents
+  for select to anon using (true);
+drop policy if exists "agents_anon_insert" on public.agents;
+create policy "agents_anon_insert" on public.agents
+  for insert to anon with check (true);
+drop policy if exists "agents_anon_update" on public.agents;
+create policy "agents_anon_update" on public.agents
+  for update to anon using (true) with check (true);
+-- 注意：上传器写 agents 走 upsert（insert + 冲突时 update），
+-- 故需要 insert 与 update 权限；不开放 delete，防止 anon 删表。

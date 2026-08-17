@@ -85,11 +85,16 @@ export function getStaticPaths() {
 
   if (agentNameEl) agentNameEl.textContent = agentId || "(未指定 agent)";
 
-  let lastTs = ""; // 增量轮询游标
+  let lastId = 0; // 增量轮询游标（用自增 id，避免同 ts 批量插入漏行）
   let loaded = 0; // 已加载条数（用于"加载更早"）
 
-  function esc(s: string): string {
-    return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function esc(s: unknown): string {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   function fmtTime(ts: string): string {
@@ -155,7 +160,7 @@ export function getStaticPaths() {
         ? rows.map(rowHtml).join("")
         : `<div class="text-muted-foreground p-4 text-center">暂无日志（等待 agent 上传）</div>`;
       if (rows.length) {
-        lastTs = rows[rows.length - 1].ts;
+        lastId = Math.max(...rows.map((r: any) => r.id));
         timeline.scrollTop = timeline.scrollHeight;
       }
     } catch (e) {
@@ -166,24 +171,33 @@ export function getStaticPaths() {
   }
 
   async function fetchNew() {
-    if (!timeline || !lastTs) return;
+    if (!timeline) return;
     try {
-      let query = supabase
-        .from("agent_logs")
-        .select("*")
-        .eq("agent_id", agentId)
-        .gt("ts", lastTs)
-        .order("ts", { ascending: true })
-        .limit(200);
       const run = runSelect?.value;
-      if (run) query = query.eq("run_id", run);
-      const { data } = await query;
-      if (data && data.length) {
+      let acc: any[] = [];
+      let cursor = lastId;
+      // 循环分页，避免单次 limit 200 不够造成遗漏
+      for (;;) {
+        let q = supabase
+          .from("agent_logs")
+          .select("*")
+          .eq("agent_id", agentId)
+          .gt("id", cursor)
+          .order("id", { ascending: true })
+          .limit(200);
+        if (run) q = q.eq("run_id", run);
+        const { data } = await q;
+        if (!data || data.length === 0) break;
+        acc.push(...data);
+        cursor = data[data.length - 1].id;
+        if (data.length < 200) break;
+      }
+      if (acc.length) {
         const wasAtBottom =
           timeline.scrollHeight - timeline.scrollTop - timeline.clientHeight < 60;
-        appendRows(data);
-        lastTs = data[data.length - 1].ts;
-        loaded += data.length;
+        appendRows(acc);
+        lastId = cursor;
+        loaded += acc.length;
         if (wasAtBottom) timeline.scrollTop = timeline.scrollHeight;
       }
     } catch {
@@ -231,7 +245,7 @@ export function getStaticPaths() {
 
   runSelect?.addEventListener("change", () => {
     loaded = 0;
-    lastTs = "";
+    lastId = 0;
     loadInitial();
   });
 

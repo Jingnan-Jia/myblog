@@ -29,6 +29,9 @@ public/pagefind
 # pnpm
 .pnpm-store
 
+# local agent data
+.codebuddy/
+
 # docker compose
 compose.override.yaml
 
