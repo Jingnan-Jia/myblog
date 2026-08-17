@@ -8,6 +8,10 @@
     {
       "source": "/api/academic/:path*",
       "destination": "/api/academic"
+    },
+    {
+      "source": "/agents/:path*",
+      "destination": "/agents/demo/index.html"
     }
   ],
   "functions": {

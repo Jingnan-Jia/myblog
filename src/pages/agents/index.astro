@@ -1,0 +1,130 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import PasswordGate from "@/components/PasswordGate.astro";
+import config from "@/config";
+---
+
+<Layout title={`Agents 监控 | ${config.site.title}`}>
+  <Header />
+  <Breadcrumb />
+  <Main pageTitle="Agents" pageDesc="服务器智能体实时状态与日志监控">
+    <PasswordGate title="Agents 监控已加密" desc="请输入访问密码以查看智能体状态">
+      <div class="flex flex-col gap-6">
+        <!-- 统计 -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div class="border-border bg-card rounded-lg border p-5">
+            <div id="stat-total" class="text-accent text-2xl font-bold">-</div>
+            <div class="text-muted-foreground mt-1 text-sm">全部 Agent</div>
+          </div>
+          <div class="border-border bg-card rounded-lg border p-5">
+            <div id="stat-active" class="text-green-600 text-2xl font-bold">-</div>
+            <div class="text-muted-foreground mt-1 text-sm">运行中</div>
+          </div>
+          <div class="border-border bg-card rounded-lg border p-5">
+            <div id="stat-idle" class="text-amber-600 text-2xl font-bold">-</div>
+            <div class="text-muted-foreground mt-1 text-sm">空闲 / 可能已结束</div>
+          </div>
+        </div>
+
+        <!-- Agent 列表 -->
+        <div id="agent-list" class="grid gap-4 md:grid-cols-2">
+          <div class="border-border bg-card rounded-lg border p-8 text-center text-sm">
+            加载中...
+          </div>
+        </div>
+
+        <p class="text-muted-foreground text-xs">
+          数据来自 Supabase · 每 5 秒自动刷新 · 运行中 = 60 秒内有心跳
+        </p>
+      </div>
+    </PasswordGate>
+  </Main>
+  <Footer />
+</Layout>
+
+<script>
+  import { supabase } from "@/utils/supabase";
+
+  const list = document.querySelector<HTMLDivElement>("#agent-list");
+  const statTotal = document.querySelector<HTMLDivElement>("#stat-total");
+  const statActive = document.querySelector<HTMLDivElement>("#stat-active");
+  const statIdle = document.querySelector<HTMLDivElement>("#stat-idle");
+
+  function statusOf(lastTs: string): "active" | "idle" | "finished" {
+    const diff = Date.now() - new Date(lastTs).getTime();
+    if (diff < 60_000) return "active";
+    if (diff < 10 * 60_000) return "idle";
+    return "finished";
+  }
+
+  const statusMeta = {
+    active: { label: "运行中", cls: "bg-green-500", text: "text-green-600" },
+    idle: { label: "空闲", cls: "bg-amber-500", text: "text-amber-600" },
+    finished: { label: "可能已结束", cls: "bg-gray-400", text: "text-gray-500" },
+  };
+
+  function relTime(ts: string): string {
+    const diff = Date.now() - new Date(ts).getTime();
+    if (diff < 60_000) return "刚刚";
+    if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} 分钟前`;
+    return `${Math.floor(diff / 3_600_000)} 小时前`;
+  }
+
+  async function refresh() {
+    if (!list) return;
+    try {
+      const { data, error } = await supabase
+        .from("agents")
+        .select("*")
+        .order("last_ts", { ascending: false });
+      if (error) throw error;
+      const agents = data ?? [];
+      let active = 0;
+      let idle = 0;
+      for (const a of agents) {
+        const s = statusOf(a.last_ts);
+        if (s === "active") active++;
+        else idle++;
+      }
+      if (statTotal) statTotal.textContent = String(agents.length);
+      if (statActive) statActive.textContent = String(active);
+      if (statIdle) statIdle.textContent = String(idle);
+
+      if (agents.length === 0) {
+        list.innerHTML = `<div class="border-border bg-card rounded-lg border p-10 text-center text-sm md:col-span-2">
+          暂无 Agent 数据。<br/>请先在服务器上运行日志上传器，并在 Supabase 执行 schema.sql 建表。</div>`;
+        return;
+      }
+
+      list.innerHTML = agents
+        .map((a) => {
+          const s = statusOf(a.last_ts);
+          const meta = statusMeta[s];
+          return `<a href="/agents/${encodeURIComponent(a.agent_id)}" class="border-border bg-card hover:border-accent rounded-lg border p-5 transition-colors">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="relative flex size-2.5"><span class="absolute inline-flex size-full animate-ping rounded-full ${meta.cls} opacity-60"></span><span class="relative inline-flex size-2.5 rounded-full ${meta.cls}"></span></span>
+                <span class="font-bold">${a.agent_id}</span>
+              </div>
+              <span class="text-muted-foreground text-xs">${meta.label} · ${relTime(a.last_ts)}</span>
+            </div>
+            <div class="text-muted-foreground mt-2 truncate text-sm" title="${(a.last_line ?? "").replace(/"/g, "&quot;")}">
+              ${a.last_line || "（暂无内容）"}
+            </div>
+            <div class="text-muted-foreground mt-2 font-mono text-xs">run: ${a.run_id || "default"}</div>
+          </a>`;
+        })
+        .join("");
+    } catch (e) {
+      list.innerHTML = `<div class="border-border bg-card rounded-lg border p-8 text-center text-sm text-red-500 md:col-span-2">
+        加载失败：${e instanceof Error ? e.message : String(e)}</div>`;
+    }
+  }
+
+  refresh();
+  setInterval(refresh, 5000);
+</script>
