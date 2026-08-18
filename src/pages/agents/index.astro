@@ -47,71 +47,80 @@ import config from "@/config";
 <script>
   import { supabase } from "@/utils/supabase";
 
-  const list = document.querySelector<HTMLDivElement>("#agent-list");
-  const statTotal = document.querySelector<HTMLDivElement>("#stat-total");
-  const statActive = document.querySelector<HTMLDivElement>("#stat-active");
-  const statIdle = document.querySelector<HTMLDivElement>("#stat-idle");
+  // 站点启用了 View Transitions（ClientRouter），页面脚本在 SPA 导航后
+  // 不会自动重新执行，必须把初始化逻辑挂在 astro:page-load 事件上，
+  // 才能在每次导航后重新获取 DOM 并启动轮询。
+  let refreshTimer: ReturnType<typeof setInterval> | undefined;
 
-  function esc(s: unknown): string {
-    return String(s ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
+  function initAgents() {
+    const list = document.querySelector<HTMLDivElement>("#agent-list");
+    const statTotal = document.querySelector<HTMLDivElement>("#stat-total");
+    const statActive = document.querySelector<HTMLDivElement>("#stat-active");
+    const statIdle = document.querySelector<HTMLDivElement>("#stat-idle");
 
-  function statusOf(lastTs: string): "active" | "idle" | "finished" {
-    const diff = Date.now() - new Date(lastTs).getTime();
-    if (diff < 60_000) return "active";
-    if (diff < 10 * 60_000) return "idle";
-    return "finished";
-  }
+    // 清理上一次导航遗留的轮询，避免定时器叠加
+    if (refreshTimer) clearInterval(refreshTimer);
 
-  const statusMeta = {
-    active: { label: "运行中", cls: "bg-green-500", text: "text-green-600" },
-    idle: { label: "空闲", cls: "bg-amber-500", text: "text-amber-600" },
-    finished: { label: "可能已结束", cls: "bg-gray-400", text: "text-gray-500" },
-  };
+    function esc(s: unknown): string {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
 
-  function relTime(ts: string): string {
-    const diff = Date.now() - new Date(ts).getTime();
-    if (diff < 60_000) return "刚刚";
-    if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} 分钟前`;
-    return `${Math.floor(diff / 3_600_000)} 小时前`;
-  }
+    function statusOf(lastTs: string): "active" | "idle" | "finished" {
+      const diff = Date.now() - new Date(lastTs).getTime();
+      if (diff < 60_000) return "active";
+      if (diff < 10 * 60_000) return "idle";
+      return "finished";
+    }
 
-  async function refresh() {
-    if (!list) return;
-    try {
-      const { data, error } = await supabase
-        .from("agents")
-        .select("*")
-        .order("last_ts", { ascending: false });
-      if (error) throw error;
-      const agents = data ?? [];
-      let active = 0;
-      let idle = 0;
-      for (const a of agents) {
-        const s = statusOf(a.last_ts);
-        if (s === "active") active++;
-        else idle++;
-      }
-      if (statTotal) statTotal.textContent = String(agents.length);
-      if (statActive) statActive.textContent = String(active);
-      if (statIdle) statIdle.textContent = String(idle);
+    const statusMeta = {
+      active: { label: "运行中", cls: "bg-green-500", text: "text-green-600" },
+      idle: { label: "空闲", cls: "bg-amber-500", text: "text-amber-600" },
+      finished: { label: "可能已结束", cls: "bg-gray-400", text: "text-gray-500" },
+    };
 
-      if (agents.length === 0) {
-        list.innerHTML = `<div class="border-border bg-card rounded-lg border p-10 text-center text-sm md:col-span-2">
-          暂无 Agent 数据。<br/>请先在服务器上运行日志上传器，并在 Supabase 执行 schema.sql 建表。</div>`;
-        return;
-      }
+    function relTime(ts: string): string {
+      const diff = Date.now() - new Date(ts).getTime();
+      if (diff < 60_000) return "刚刚";
+      if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} 分钟前`;
+      return `${Math.floor(diff / 3_600_000)} 小时前`;
+    }
 
-      list.innerHTML = agents
-        .map((a) => {
+    async function refresh() {
+      if (!list) return;
+      try {
+        const { data, error } = await supabase
+          .from("agents")
+          .select("*")
+          .order("last_ts", { ascending: false });
+        if (error) throw error;
+        const agents = data ?? [];
+        let active = 0;
+        let idle = 0;
+        for (const a of agents) {
           const s = statusOf(a.last_ts);
-          const meta = statusMeta[s];
-          return `<a href="/agents/${encodeURIComponent(a.agent_id)}" class="border-border bg-card hover:border-accent rounded-lg border p-5 transition-colors">
+          if (s === "active") active++;
+          else idle++;
+        }
+        if (statTotal) statTotal.textContent = String(agents.length);
+        if (statActive) statActive.textContent = String(active);
+        if (statIdle) statIdle.textContent = String(idle);
+
+        if (agents.length === 0) {
+          list.innerHTML = `<div class="border-border bg-card rounded-lg border p-10 text-center text-sm md:col-span-2">
+          暂无 Agent 数据。<br/>请先在服务器上运行日志上传器，并在 Supabase 执行 schema.sql 建表。</div>`;
+          return;
+        }
+
+        list.innerHTML = agents
+          .map((a) => {
+            const s = statusOf(a.last_ts);
+            const meta = statusMeta[s];
+            return `<a href="/agents/${encodeURIComponent(a.agent_id)}" class="border-border bg-card hover:border-accent rounded-lg border p-5 transition-colors">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 <span class="relative flex size-2.5"><span class="absolute inline-flex size-full animate-ping rounded-full ${meta.cls} opacity-60"></span><span class="relative inline-flex size-2.5 rounded-full ${meta.cls}"></span></span>
@@ -124,14 +133,17 @@ import config from "@/config";
             </div>
             <div class="text-muted-foreground mt-2 font-mono text-xs">run: ${esc(a.run_id) || "default"}</div>
           </a>`;
-        })
-        .join("");
-    } catch (e) {
-      list.innerHTML = `<div class="border-border bg-card rounded-lg border p-8 text-center text-sm text-red-500 md:col-span-2">
+          })
+          .join("");
+      } catch (e) {
+        list.innerHTML = `<div class="border-border bg-card rounded-lg border p-8 text-center text-sm text-red-500 md:col-span-2">
         加载失败：${e instanceof Error ? e.message : String(e)}</div>`;
+      }
     }
+
+    refresh();
+    refreshTimer = setInterval(refresh, 5000);
   }
 
-  refresh();
-  setInterval(refresh, 5000);
+  document.addEventListener("astro:page-load", initAgents);
 </script>

@@ -123,6 +123,9 @@ const t = useTranslations(locale);
   import { supabase, type Message } from "@/utils/supabase";
   import emailjs from "@emailjs/browser";
 
+  // 站点启用了 View Transitions（ClientRouter），页面脚本在 SPA 导航后
+  // 不会自动重新执行，必须把初始化逻辑挂在 astro:page-load 事件上，
+  // 才能在每次导航（包括从主页点进来）后重新获取 DOM 并绑定事件。
   emailjs.init(import.meta.env.PUBLIC_EMAILJS_PUBLIC_KEY);
 
   const ADMIN_HASH = import.meta.env.PUBLIC_ADMIN_PASSWORD_HASH;
@@ -136,266 +139,270 @@ const t = useTranslations(locale);
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
-  // --- State ---
-  let isAdmin = false;
-  let replyingTo: string | null = null;
+  function initGuestbook() {
+    // --- State ---
+    let isAdmin = false;
+    let replyingTo: string | null = null;
 
-  const container = document.getElementById("messages-container")!;
-  const adminToggle = document.getElementById("admin-toggle")!;
-  const adminPanel = document.getElementById("admin-panel")!;
-  const adminPassword = document.getElementById("admin-password") as HTMLInputElement;
-  const adminLogin = document.getElementById("admin-login")!;
-  const adminLogout = document.getElementById("admin-logout")!;
-  const messageForm = document.getElementById("message-form") as HTMLFormElement;
-  const msgNickname = document.getElementById("msg-nickname") as HTMLInputElement;
-  const msgContent = document.getElementById("msg-content") as HTMLTextAreaElement;
-  const msgSubmit = document.getElementById("msg-submit") as HTMLButtonElement;
-  const msgStatus = document.getElementById("msg-status")!;
-  const replyForm = document.getElementById("reply-form")!;
-  const replyContent = document.getElementById("reply-content") as HTMLTextAreaElement;
-  const replySubmit = document.getElementById("reply-submit") as HTMLButtonElement;
-  const replyCancel = document.getElementById("reply-cancel")!;
-  const replyTarget = document.getElementById("reply-target")!;
+    const container = document.getElementById("messages-container")!;
+    const adminToggle = document.getElementById("admin-toggle")!;
+    const adminPanel = document.getElementById("admin-panel")!;
+    const adminPassword = document.getElementById("admin-password") as HTMLInputElement;
+    const adminLogin = document.getElementById("admin-login")!;
+    const adminLogout = document.getElementById("admin-logout")!;
+    const messageForm = document.getElementById("message-form") as HTMLFormElement;
+    const msgNickname = document.getElementById("msg-nickname") as HTMLInputElement;
+    const msgContent = document.getElementById("msg-content") as HTMLTextAreaElement;
+    const msgSubmit = document.getElementById("msg-submit") as HTMLButtonElement;
+    const msgStatus = document.getElementById("msg-status")!;
+    const replyForm = document.getElementById("reply-form")!;
+    const replyContent = document.getElementById("reply-content") as HTMLTextAreaElement;
+    const replySubmit = document.getElementById("reply-submit") as HTMLButtonElement;
+    const replyCancel = document.getElementById("reply-cancel")!;
+    const replyTarget = document.getElementById("reply-target")!;
 
-  // --- Load messages ---
-  function formatDate(iso: string): string {
-    const d = new Date(iso);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
+    // --- Load messages ---
+    function formatDate(iso: string): string {
+      const d = new Date(iso);
+      const pad = (n: number) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
 
-  function escapeHtml(s: string): string {
-    return s
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
+    function escapeHtml(s: string): string {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
 
-  function buildMessages(messages: Message[]): string {
-    const parents = messages.filter((m) => !m.parent_id);
-    const replies = messages.filter((m) => m.parent_id);
+    function buildMessages(messages: Message[]): string {
+      const parents = messages.filter((m) => !m.parent_id);
+      const replies = messages.filter((m) => m.parent_id);
 
-    function renderMessage(m: Message, isReply = false): string {
-      const replyList = replies
-        .filter((r) => r.parent_id === m.id)
-        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      function renderMessage(m: Message, isReply = false): string {
+        const replyList = replies
+          .filter((r) => r.parent_id === m.id)
+          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
-      const adminBadge = m.is_admin
-        ? '<span class="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300">博主</span>'
-        : "";
-
-      const replyBtn =
-        isAdmin && !isReply
-          ? `<button class="reply-btn text-muted-foreground hover:text-accent ml-2 text-xs underline" data-id="${m.id}">回复</button>`
+        const adminBadge = m.is_admin
+          ? '<span class="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300">博主</span>'
           : "";
 
-      const indentClass = isReply ? "ml-8 border-l-2 border-gray-200 dark:border-gray-700 pl-4" : "";
+        const replyBtn =
+          isAdmin && !isReply
+            ? `<button class="reply-btn text-muted-foreground hover:text-accent ml-2 text-xs underline" data-id="${m.id}">回复</button>`
+            : "";
 
-      const deleteBtn =
-        isAdmin
-          ? `<button class="delete-btn text-muted-foreground hover:text-red-500 ml-2 text-xs underline" data-id="${m.id}">删除</button>`
-          : "";
+        const indentClass = isReply ? "ml-8 border-l-2 border-gray-200 dark:border-gray-700 pl-4" : "";
 
-      let html = `
-        <div class="${indentClass} mb-4" id="msg-${m.id}">
-          <div class="flex items-baseline gap-2">
-            <span class="font-semibold text-sm">${escapeHtml(m.nickname)}</span>
-            ${adminBadge}
-            <span class="text-muted-foreground text-xs">${formatDate(m.created_at)}</span>
-            ${replyBtn}
-            ${deleteBtn}
-          </div>
-          <p class="mt-1 text-sm whitespace-pre-wrap">${escapeHtml(m.content)}</p>`;
+        const deleteBtn =
+          isAdmin
+            ? `<button class="delete-btn text-muted-foreground hover:text-red-500 ml-2 text-xs underline" data-id="${m.id}">删除</button>`
+            : "";
 
-      if (replyList.length > 0) {
-        html += `<div class="mt-2">`;
-        for (const r of replyList) {
-          html += renderMessage(r, true);
+        let html = `
+          <div class="${indentClass} mb-4" id="msg-${m.id}">
+            <div class="flex items-baseline gap-2">
+              <span class="font-semibold text-sm">${escapeHtml(m.nickname)}</span>
+              ${adminBadge}
+              <span class="text-muted-foreground text-xs">${formatDate(m.created_at)}</span>
+              ${replyBtn}
+              ${deleteBtn}
+            </div>
+            <p class="mt-1 text-sm whitespace-pre-wrap">${escapeHtml(m.content)}</p>`;
+
+        if (replyList.length > 0) {
+          html += `<div class="mt-2">`;
+          for (const r of replyList) {
+            html += renderMessage(r, true);
+          }
+          html += `</div>`;
         }
+
         html += `</div>`;
+        return html;
       }
 
-      html += `</div>`;
-      return html;
+      return parents
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .map((m) => renderMessage(m))
+        .join("");
     }
 
-    return parents
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .map((m) => renderMessage(m))
-      .join("");
-  }
-
-  async function loadMessages() {
-    try {
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-
-      const messages = data as Message[];
-      container.innerHTML = messages.length
-        ? buildMessages(messages)
-        : '<p class="text-muted-foreground text-center">暂无留言，来做第一个留言的人吧！</p>';
-
-      bindReplyButtons();
-      bindDeleteButtons();
-    } catch {
-      container.innerHTML = '<p class="text-red-500 text-center">加载留言失败，请刷新重试</p>';
-    }
-  }
-
-  // --- Submit message ---
-  messageForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const nickname = msgNickname.value.trim();
-    const content = msgContent.value.trim();
-    if (!nickname || !content) return;
-
-    msgSubmit.disabled = true;
-    msgStatus.textContent = "提交中...";
-
-    try {
-      const { error } = await supabase.from("messages").insert({
-        nickname,
-        content,
-        parent_id: null,
-        is_admin: false,
-      });
-      if (error) throw error;
-
-      msgNickname.value = "";
-      msgContent.value = "";
-      msgStatus.textContent = "留言成功！";
-      setTimeout(() => (msgStatus.textContent = ""), 3000);
-
-      // 邮件通知博主
-      emailjs
-        .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          name: nickname,
-          title: `新留言: ${content.slice(0, 100)}...`,
-          email: "guestbook@jiajingnan.cn",
-          message: content,
-        })
-        .catch((err) => console.error("EmailJS 发送失败:", err));
-
-      await loadMessages();
-    } catch {
-      msgStatus.textContent = "提交失败，请重试";
-    } finally {
-      msgSubmit.disabled = false;
-    }
-  });
-
-  // --- Admin ---
-  adminToggle.addEventListener("click", () => {
-    if (isAdmin) {
-      adminLogout.click();
-      return;
-    }
-    adminPanel.classList.toggle("hidden");
-  });
-
-  adminLogin.addEventListener("click", async () => {
-    const pwd = adminPassword.value;
-    const hash = await sha256(pwd);
-    if (hash === ADMIN_HASH) {
-      isAdmin = true;
-      adminPanel.classList.add("hidden");
-      adminLogout.classList.remove("hidden");
-      adminToggle.textContent = "管理 (已登录)";
-      adminToggle.classList.add("text-accent");
-      adminPassword.value = "";
-      await loadMessages();
-    } else {
-      adminPassword.classList.add("ring-2", "ring-red-400");
-      setTimeout(() => adminPassword.classList.remove("ring-2", "ring-red-400"), 1500);
-    }
-  });
-
-  adminLogout.addEventListener("click", () => {
-    isAdmin = false;
-    adminLogout.classList.add("hidden");
-    adminPanel.classList.add("hidden");
-    adminToggle.textContent = "管理";
-    adminToggle.classList.remove("text-accent");
-    adminPassword.value = "";
-    replyingTo = null;
-    replyForm.classList.add("hidden");
-    loadMessages();
-  });
-
-  // --- Reply ---
-  function bindReplyButtons() {
-    container.querySelectorAll(".reply-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const msgId = (btn as HTMLElement).dataset.id!;
-        replyingTo = msgId;
-        const msgEl = document.getElementById(`msg-${msgId}`)!;
-        const nickname = msgEl.querySelector(".font-semibold")?.textContent ?? "";
-        replyTarget.textContent = nickname;
-        replyForm.classList.remove("hidden");
-        msgEl.after(replyForm);
-        replyContent.focus();
-      });
-    });
-  }
-
-  // --- Delete ---
-  function bindDeleteButtons() {
-    container.querySelectorAll(".delete-btn").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const msgId = (btn as HTMLElement).dataset.id!;
-        if (!confirm("确定要删除这条留言吗？")) return;
-
-        // Also delete replies
-        const { data: replies } = await supabase
+    async function loadMessages() {
+      try {
+        const { data, error } = await supabase
           .from("messages")
-          .select("id")
-          .eq("parent_id", msgId);
+          .select("*")
+          .order("created_at", { ascending: true });
 
-        if (replies && replies.length > 0) {
-          await supabase.from("messages").delete().eq("parent_id", msgId);
-        }
-        await supabase.from("messages").delete().eq("id", msgId);
+        if (error) throw error;
+
+        const messages = data as Message[];
+        container.innerHTML = messages.length
+          ? buildMessages(messages)
+          : '<p class="text-muted-foreground text-center">暂无留言，来做第一个留言的人吧！</p>';
+
+        bindReplyButtons();
+        bindDeleteButtons();
+      } catch {
+        container.innerHTML = '<p class="text-red-500 text-center">加载留言失败，请刷新重试</p>';
+      }
+    }
+
+    // --- Submit message ---
+    messageForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nickname = msgNickname.value.trim();
+      const content = msgContent.value.trim();
+      if (!nickname || !content) return;
+
+      msgSubmit.disabled = true;
+      msgStatus.textContent = "提交中...";
+
+      try {
+        const { error } = await supabase.from("messages").insert({
+          nickname,
+          content,
+          parent_id: null,
+          is_admin: false,
+        });
+        if (error) throw error;
+
+        msgNickname.value = "";
+        msgContent.value = "";
+        msgStatus.textContent = "留言成功！";
+        setTimeout(() => (msgStatus.textContent = ""), 3000);
+
+        // 邮件通知博主
+        emailjs
+          .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            name: nickname,
+            title: `新留言: ${content.slice(0, 100)}...`,
+            email: "guestbook@jiajingnan.cn",
+            message: content,
+          })
+          .catch((err) => console.error("EmailJS 发送失败:", err));
+
         await loadMessages();
-      });
+      } catch {
+        msgStatus.textContent = "提交失败，请重试";
+      } finally {
+        msgSubmit.disabled = false;
+      }
     });
-  }
 
-  replySubmit.addEventListener("click", async () => {
-    if (!replyingTo) return;
-    const content = replyContent.value.trim();
-    if (!content) return;
+    // --- Admin ---
+    adminToggle.addEventListener("click", () => {
+      if (isAdmin) {
+        adminLogout.click();
+        return;
+      }
+      adminPanel.classList.toggle("hidden");
+    });
 
-    replySubmit.disabled = true;
-    try {
-      const { error } = await supabase.from("messages").insert({
-        nickname: "博主",
-        content,
-        parent_id: replyingTo,
-        is_admin: true,
-      });
-      if (error) throw error;
+    adminLogin.addEventListener("click", async () => {
+      const pwd = adminPassword.value;
+      const hash = await sha256(pwd);
+      if (hash === ADMIN_HASH) {
+        isAdmin = true;
+        adminPanel.classList.add("hidden");
+        adminLogout.classList.remove("hidden");
+        adminToggle.textContent = "管理 (已登录)";
+        adminToggle.classList.add("text-accent");
+        adminPassword.value = "";
+        await loadMessages();
+      } else {
+        adminPassword.classList.add("ring-2", "ring-red-400");
+        setTimeout(() => adminPassword.classList.remove("ring-2", "ring-red-400"), 1500);
+      }
+    });
 
-      replyContent.value = "";
+    adminLogout.addEventListener("click", () => {
+      isAdmin = false;
+      adminLogout.classList.add("hidden");
+      adminPanel.classList.add("hidden");
+      adminToggle.textContent = "管理";
+      adminToggle.classList.remove("text-accent");
+      adminPassword.value = "";
       replyingTo = null;
       replyForm.classList.add("hidden");
-      await loadMessages();
-    } catch {
-      alert("回复失败，请重试");
-    } finally {
-      replySubmit.disabled = false;
+      loadMessages();
+    });
+
+    // --- Reply ---
+    function bindReplyButtons() {
+      container.querySelectorAll(".reply-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const msgId = (btn as HTMLElement).dataset.id!;
+          replyingTo = msgId;
+          const msgEl = document.getElementById(`msg-${msgId}`)!;
+          const nickname = msgEl.querySelector(".font-semibold")?.textContent ?? "";
+          replyTarget.textContent = nickname;
+          replyForm.classList.remove("hidden");
+          msgEl.after(replyForm);
+          replyContent.focus();
+        });
+      });
     }
-  });
 
-  replyCancel.addEventListener("click", () => {
-    replyingTo = null;
-    replyForm.classList.add("hidden");
-  });
+    // --- Delete ---
+    function bindDeleteButtons() {
+      container.querySelectorAll(".delete-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const msgId = (btn as HTMLElement).dataset.id!;
+          if (!confirm("确定要删除这条留言吗？")) return;
 
-  // --- Init ---
-  loadMessages();
+          // Also delete replies
+          const { data: replies } = await supabase
+            .from("messages")
+            .select("id")
+            .eq("parent_id", msgId);
+
+          if (replies && replies.length > 0) {
+            await supabase.from("messages").delete().eq("parent_id", msgId);
+          }
+          await supabase.from("messages").delete().eq("id", msgId);
+          await loadMessages();
+        });
+      });
+    }
+
+    replySubmit.addEventListener("click", async () => {
+      if (!replyingTo) return;
+      const content = replyContent.value.trim();
+      if (!content) return;
+
+      replySubmit.disabled = true;
+      try {
+        const { error } = await supabase.from("messages").insert({
+          nickname: "博主",
+          content,
+          parent_id: replyingTo,
+          is_admin: true,
+        });
+        if (error) throw error;
+
+        replyContent.value = "";
+        replyingTo = null;
+        replyForm.classList.add("hidden");
+        await loadMessages();
+      } catch {
+        alert("回复失败，请重试");
+      } finally {
+        replySubmit.disabled = false;
+      }
+    });
+
+    replyCancel.addEventListener("click", () => {
+      replyingTo = null;
+      replyForm.classList.add("hidden");
+    });
+
+    // --- Init ---
+    loadMessages();
+  }
+
+  document.addEventListener("astro:page-load", initGuestbook);
 </script>

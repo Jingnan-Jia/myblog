@@ -69,207 +69,221 @@ export function getStaticPaths() {
 <script>
   import { supabase } from "@/utils/supabase";
 
-  const timeline = document.querySelector<HTMLDivElement>("#timeline");
-  const agentNameEl = document.querySelector<HTMLDivElement>("#agent-name");
-  const statusEl = document.querySelector<HTMLSpanElement>("#agent-status");
-  const runLabelEl = document.querySelector<HTMLSpanElement>("#agent-run-label");
-  const runSelect = document.querySelector<HTMLSelectElement>("#run-select");
-  const loadEarlierBtn = document.querySelector<HTMLButtonElement>("#load-earlier");
+  // 站点启用了 View Transitions（ClientRouter），页面脚本在 SPA 导航后
+  // 不会自动重新执行，必须把初始化逻辑挂在 astro:page-load 事件上，
+  // 才能在每次导航后按当前 URL 重新解析 agent 名并启动轮询。
+  let fetchTimer: ReturnType<typeof setInterval> | undefined;
+  let statusTimer: ReturnType<typeof setInterval> | undefined;
 
-  // 从 URL 解析 agent 名：/agents/<name>
-  const agentId = decodeURIComponent(
-    (window.location.pathname.match(/\/agents\/([^/]+)/) ?? [])[1] ?? ""
-  );
+  function initAgentLogs() {
+    const timeline = document.querySelector<HTMLDivElement>("#timeline");
+    const agentNameEl = document.querySelector<HTMLDivElement>("#agent-name");
+    const statusEl = document.querySelector<HTMLSpanElement>("#agent-status");
+    const runLabelEl = document.querySelector<HTMLSpanElement>("#agent-run-label");
+    const runSelect = document.querySelector<HTMLSelectElement>("#run-select");
+    const loadEarlierBtn = document.querySelector<HTMLButtonElement>("#load-earlier");
 
-  if (agentNameEl) agentNameEl.textContent = agentId || "(未指定 agent)";
+    // 清理上一次导航遗留的轮询，避免定时器叠加
+    if (fetchTimer) clearInterval(fetchTimer);
+    if (statusTimer) clearInterval(statusTimer);
 
-  let lastId = 0; // 增量轮询游标（用自增 id，避免同 ts 批量插入漏行）
-  let loaded = 0; // 已加载条数（用于"加载更早"）
+    // 从 URL 解析 agent 名：/agents/<name>
+    const agentId = decodeURIComponent(
+      (window.location.pathname.match(/\/agents\/([^/]+)/) ?? [])[1] ?? ""
+    );
 
-  function esc(s: unknown): string {
-    return String(s ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
+    if (agentNameEl) agentNameEl.textContent = agentId || "(未指定 agent)";
 
-  function fmtTime(ts: string): string {
-    const d = new Date(ts);
-    return d.toTimeString().slice(0, 8);
-  }
+    let lastId = 0; // 增量轮询游标（用自增 id，避免同 ts 批量插入漏行）
+    let loaded = 0; // 已加载条数（用于"加载更早"）
 
-  function rowHtml(r: any): string {
-    const time = fmtTime(r.ts);
-    if (r.level === "tool") {
-      const args = typeof r.args === "string" ? r.args : JSON.stringify(r.args ?? "");
-      return `<div class="flex gap-2 border-border border-b py-1.5">
+    function esc(s: unknown): string {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function fmtTime(ts: string): string {
+      const d = new Date(ts);
+      return d.toTimeString().slice(0, 8);
+    }
+
+    function rowHtml(r: any): string {
+      const time = fmtTime(r.ts);
+      if (r.level === "tool") {
+        const args = typeof r.args === "string" ? r.args : JSON.stringify(r.args ?? "");
+        return `<div class="flex gap-2 border-border border-b py-1.5">
         <span class="text-muted-foreground shrink-0">${time}</span>
         <span class="bg-accent/10 text-accent mt-0.5 h-fit shrink-0 rounded px-1.5 text-[11px] font-medium">TOOL</span>
         <span class="font-medium shrink-0">${esc(r.tool_name)}</span>
         <details class="min-w-0 flex-1"><summary class="text-muted-foreground cursor-pointer text-xs">参数</summary>
         <pre class="bg-muted mt-1 overflow-x-auto rounded p-2 text-xs">${esc(args)}</pre></details>
       </div>`;
-    }
-    const levelTag =
-      r.level === "error"
-        ? `<span class="mt-0.5 h-fit shrink-0 rounded bg-red-100 px-1.5 text-[11px] font-medium text-red-600">ERR</span>`
-        : r.level === "warn"
-          ? `<span class="mt-0.5 h-fit shrink-0 rounded bg-amber-100 px-1.5 text-[11px] font-medium text-amber-700">WARN</span>`
-          : "";
-    return `<div class="flex gap-2 border-border border-b py-1.5">
+      }
+      const levelTag =
+        r.level === "error"
+          ? `<span class="mt-0.5 h-fit shrink-0 rounded bg-red-100 px-1.5 text-[11px] font-medium text-red-600">ERR</span>`
+          : r.level === "warn"
+            ? `<span class="mt-0.5 h-fit shrink-0 rounded bg-amber-100 px-1.5 text-[11px] font-medium text-amber-700">WARN</span>`
+            : "";
+      return `<div class="flex gap-2 border-border border-b py-1.5">
       <span class="text-muted-foreground shrink-0">${time}</span>
       ${levelTag}
       <span class="min-w-0 flex-1 whitespace-pre-wrap break-words">${esc(r.content)}</span>
     </div>`;
-  }
-
-  function appendRows(rows: any[], prepend = false) {
-    if (!timeline) return;
-    const html = rows.map(rowHtml).join("");
-    if (prepend) {
-      timeline.insertAdjacentHTML("afterbegin", html);
-    } else {
-      timeline.insertAdjacentHTML("beforeend", html);
     }
-  }
 
-  async function fetchPage(offset: number, limit = 300) {
-    let query = supabase
-      .from("agent_logs")
-      .select("*")
-      .eq("agent_id", agentId)
-      .order("ts", { ascending: false })
-      .range(offset, offset + limit - 1);
-    const run = runSelect?.value;
-    if (run) query = query.eq("run_id", run);
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data ?? []).reverse();
-  }
-
-  async function loadInitial() {
-    if (!timeline) return;
-    try {
-      const rows = await fetchPage(0);
-      loaded = rows.length;
-      timeline.innerHTML = rows.length
-        ? rows.map(rowHtml).join("")
-        : `<div class="text-muted-foreground p-4 text-center">暂无日志（等待 agent 上传）</div>`;
-      if (rows.length) {
-        lastId = Math.max(...rows.map((r: any) => r.id));
-        timeline.scrollTop = timeline.scrollHeight;
+    function appendRows(rows: any[], prepend = false) {
+      if (!timeline) return;
+      const html = rows.map(rowHtml).join("");
+      if (prepend) {
+        timeline.insertAdjacentHTML("afterbegin", html);
+      } else {
+        timeline.insertAdjacentHTML("beforeend", html);
       }
-    } catch (e) {
-      timeline.innerHTML = `<div class="p-4 text-center text-red-500">加载失败：${
-        e instanceof Error ? e.message : String(e)
-      }</div>`;
     }
-  }
 
-  async function fetchNew() {
-    if (!timeline) return;
-    try {
-      const run = runSelect?.value;
-      let acc: any[] = [];
-      let cursor = lastId;
-      // 循环分页，避免单次 limit 200 不够造成遗漏
-      for (;;) {
-        let q = supabase
-          .from("agent_logs")
-          .select("*")
-          .eq("agent_id", agentId)
-          .gt("id", cursor)
-          .order("id", { ascending: true })
-          .limit(200);
-        if (run) q = q.eq("run_id", run);
-        const { data } = await q;
-        if (!data || data.length === 0) break;
-        acc.push(...data);
-        cursor = data[data.length - 1].id;
-        if (data.length < 200) break;
-      }
-      if (acc.length) {
-        const wasAtBottom =
-          timeline.scrollHeight - timeline.scrollTop - timeline.clientHeight < 60;
-        appendRows(acc);
-        lastId = cursor;
-        loaded += acc.length;
-        if (wasAtBottom) timeline.scrollTop = timeline.scrollHeight;
-      }
-    } catch {
-      // 轮询失败静默，下次再试
-    }
-  }
-
-  async function refreshStatus() {
-    if (!statusEl || !runLabelEl) return;
-    try {
-      const { data } = await supabase
-        .from("agents")
+    async function fetchPage(offset: number, limit = 300) {
+      let query = supabase
+        .from("agent_logs")
         .select("*")
         .eq("agent_id", agentId)
-        .maybeSingle();
-      if (data) {
-        const diff = Date.now() - new Date(data.last_ts).getTime();
-        const label = diff < 60_000 ? "运行中" : diff < 600_000 ? "空闲" : "可能已结束";
-        const color = diff < 60_000 ? "text-green-600" : diff < 600_000 ? "text-amber-600" : "text-gray-500";
-        statusEl.innerHTML = `状态：<span class="${color}">${label}</span>`;
-        runLabelEl.textContent = `run：${data.run_id || "default"}`;
-      } else {
-        statusEl.textContent = "状态：暂无记录（表已建？上传器在跑？）";
+        .order("ts", { ascending: false })
+        .range(offset, offset + limit - 1);
+      const run = runSelect?.value;
+      if (run) query = query.eq("run_id", run);
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []).reverse();
+    }
+
+    async function loadInitial() {
+      if (!timeline) return;
+      try {
+        const rows = await fetchPage(0);
+        loaded = rows.length;
+        timeline.innerHTML = rows.length
+          ? rows.map(rowHtml).join("")
+          : `<div class="text-muted-foreground p-4 text-center">暂无日志（等待 agent 上传）</div>`;
+        if (rows.length) {
+          lastId = Math.max(...rows.map((r: any) => r.id));
+          timeline.scrollTop = timeline.scrollHeight;
+        }
+      } catch (e) {
+        timeline.innerHTML = `<div class="p-4 text-center text-red-500">加载失败：${
+          e instanceof Error ? e.message : String(e)
+        }</div>`;
       }
-    } catch {
-      // 忽略
     }
-  }
 
-  async function loadRuns() {
-    if (!runSelect) return;
-    try {
-      const { data } = await supabase
-        .from("agent_logs")
-        .select("run_id")
-        .eq("agent_id", agentId);
-      const runs = [...new Set((data ?? []).map((d: any) => d.run_id))].sort().reverse();
-      runSelect.innerHTML =
-        `<option value="">全部 run</option>` +
-        runs.map((r) => `<option value="${esc(r)}">${esc(r)}</option>`).join("");
-    } catch {
-      // 忽略
-    }
-  }
-
-  runSelect?.addEventListener("change", () => {
-    loaded = 0;
-    lastId = 0;
-    loadInitial();
-  });
-
-  loadEarlierBtn?.addEventListener("click", async () => {
-    try {
-      const rows = await fetchPage(loaded);
-      if (rows.length) {
-        appendRows(rows, true);
-        loaded += rows.length;
-        if (rows.length < 300) loadEarlierBtn.textContent = "没有更早的日志";
-      } else {
-        loadEarlierBtn.textContent = "没有更早的日志";
+    async function fetchNew() {
+      if (!timeline) return;
+      try {
+        const run = runSelect?.value;
+        let acc: any[] = [];
+        let cursor = lastId;
+        // 循环分页，避免单次 limit 200 不够造成遗漏
+        for (;;) {
+          let q = supabase
+            .from("agent_logs")
+            .select("*")
+            .eq("agent_id", agentId)
+            .gt("id", cursor)
+            .order("id", { ascending: true })
+            .limit(200);
+          if (run) q = q.eq("run_id", run);
+          const { data } = await q;
+          if (!data || data.length === 0) break;
+          acc.push(...data);
+          cursor = data[data.length - 1].id;
+          if (data.length < 200) break;
+        }
+        if (acc.length) {
+          const wasAtBottom =
+            timeline.scrollHeight - timeline.scrollTop - timeline.clientHeight < 60;
+          appendRows(acc);
+          lastId = cursor;
+          loaded += acc.length;
+          if (wasAtBottom) timeline.scrollTop = timeline.scrollHeight;
+        }
+      } catch {
+        // 轮询失败静默，下次再试
       }
-    } catch {
-      // 忽略
     }
-  });
 
-  if (!agentId) {
-    if (timeline)
-      timeline.innerHTML = `<div class="p-4 text-center text-red-500">URL 缺少 agent 名称，例如 /agents/agent-a</div>`;
-  } else {
-    loadInitial();
-    loadRuns();
-    refreshStatus();
-    setInterval(fetchNew, 3000);
-    setInterval(refreshStatus, 10_000);
+    async function refreshStatus() {
+      if (!statusEl || !runLabelEl) return;
+      try {
+        const { data } = await supabase
+          .from("agents")
+          .select("*")
+          .eq("agent_id", agentId)
+          .maybeSingle();
+        if (data) {
+          const diff = Date.now() - new Date(data.last_ts).getTime();
+          const label = diff < 60_000 ? "运行中" : diff < 600_000 ? "空闲" : "可能已结束";
+          const color = diff < 60_000 ? "text-green-600" : diff < 600_000 ? "text-amber-600" : "text-gray-500";
+          statusEl.innerHTML = `状态：<span class="${color}">${label}</span>`;
+          runLabelEl.textContent = `run：${data.run_id || "default"}`;
+        } else {
+          statusEl.textContent = "状态：暂无记录（表已建？上传器在跑？）";
+        }
+      } catch {
+        // 忽略
+      }
+    }
+
+    async function loadRuns() {
+      if (!runSelect) return;
+      try {
+        const { data } = await supabase
+          .from("agent_logs")
+          .select("run_id")
+          .eq("agent_id", agentId);
+        const runs = [...new Set((data ?? []).map((d: any) => d.run_id))].sort().reverse();
+        runSelect.innerHTML =
+          `<option value="">全部 run</option>` +
+          runs.map((r) => `<option value="${esc(r)}">${esc(r)}</option>`).join("");
+      } catch {
+        // 忽略
+      }
+    }
+
+    runSelect?.addEventListener("change", () => {
+      loaded = 0;
+      lastId = 0;
+      loadInitial();
+    });
+
+    loadEarlierBtn?.addEventListener("click", async () => {
+      try {
+        const rows = await fetchPage(loaded);
+        if (rows.length) {
+          appendRows(rows, true);
+          loaded += rows.length;
+          if (rows.length < 300) loadEarlierBtn.textContent = "没有更早的日志";
+        } else {
+          loadEarlierBtn.textContent = "没有更早的日志";
+        }
+      } catch {
+        // 忽略
+      }
+    });
+
+    if (!agentId) {
+      if (timeline)
+        timeline.innerHTML = `<div class="p-4 text-center text-red-500">URL 缺少 agent 名称，例如 /agents/agent-a</div>`;
+    } else {
+      loadInitial();
+      loadRuns();
+      refreshStatus();
+      fetchTimer = setInterval(fetchNew, 3000);
+      statusTimer = setInterval(refreshStatus, 10_000);
+    }
   }
+
+  document.addEventListener("astro:page-load", initAgentLogs);
 </script>
