@@ -5,7 +5,6 @@ import Breadcrumb from "@/components/Breadcrumb.astro";
 import Main from "@/components/Main.astro";
 import Footer from "@/components/Footer.astro";
 import config from "@/config";
-import { SITE_PASSWORD } from "@/utils/password";
 import indexRaw from "../../public/projects/_index.json?raw";
 
 interface ProjectReport {
@@ -147,32 +146,43 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
   // ===== 访问密码（统一在 src/utils/password.ts 修改） =====
   const STORAGE_KEY = "projects_auth";
 
-  const gate = document.querySelector<HTMLDivElement>("#gate");
-  const gateForm = document.querySelector<HTMLFormElement>("#gate-form");
-  const gateInput = document.querySelector<HTMLInputElement>("#gate-input");
-  const gateError = document.querySelector<HTMLParagraphElement>("#gate-error");
-  const content = document.querySelector<HTMLDivElement>("#content");
+  // 站点启用了 View Transitions（ClientRouter），页面脚本在 SPA 导航后
+  // 不会自动重新执行，必须把初始化逻辑挂在 astro:page-load 事件上，
+  // 才能在每次导航（包括从主页点进来）后重新校验并绑定提交监听。
+  function initGate() {
+    const gate = document.querySelector<HTMLDivElement>("#gate");
+    const gateForm = document.querySelector<HTMLFormElement>("#gate-form");
+    const gateInput = document.querySelector<HTMLInputElement>("#gate-input");
+    const gateError = document.querySelector<HTMLParagraphElement>("#gate-error");
+    const content = document.querySelector<HTMLDivElement>("#content");
+    if (!gate || !gateForm || !gateInput || !gateError || !content) return;
 
-  function showContent() {
-    gate?.classList.add("hidden");
-    content?.classList.remove("hidden");
-  }
+    // 每次导航后重置为初始状态，避免旧状态残留
+    gate.classList.remove("hidden");
+    content.classList.add("hidden");
+    gateError.classList.add("hidden");
 
-  // 会话内已认证过则直接进入
-  if (sessionStorage.getItem(STORAGE_KEY)) {
-    showContent();
-  }
-
-  gateForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const pwd = gateInput?.value ?? "";
-    if (pwd === SITE_PASSWORD) {
-      sessionStorage.setItem(STORAGE_KEY, "1");
-      gateError?.classList.add("hidden");
-      showContent();
-    } else {
-      gateError?.classList.remove("hidden");
-      gateInput?.focus();
+    // 会话内已认证过则直接进入
+    if (sessionStorage.getItem(STORAGE_KEY)) {
+      gate.classList.add("hidden");
+      content.classList.remove("hidden");
+      return;
     }
-  });
+
+    gateForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const pwd = gateInput.value ?? "";
+      if (pwd === SITE_PASSWORD) {
+        sessionStorage.setItem(STORAGE_KEY, "1");
+        gateError.classList.add("hidden");
+        gate.classList.add("hidden");
+        content.classList.remove("hidden");
+      } else {
+        gateError.classList.remove("hidden");
+        gateInput.focus();
+      }
+    });
+  }
+
+  document.addEventListener("astro:page-load", initGate);
 </script>
