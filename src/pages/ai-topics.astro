@@ -37,46 +37,10 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
   <Breadcrumb />
   <Main
     pageTitle="AI副业选题"
-    pageDesc="受密码保护 · 输入密码后查看每日选题与每周计划"
+    pageDesc="每日自动更新的选题报告 · 每周计划 · AI 热点新闻"
   >
     <div class="flex flex-col items-center justify-center gap-6">
-      <!-- 密码门（前端简单校验，防君子不防小人） -->
-      <div
-        id="gate"
-        class="border-border bg-card flex w-full max-w-sm flex-col items-center gap-4 rounded-xl border p-8 text-center"
-      >
-        <div class="text-accent bg-accent/10 flex size-14 items-center justify-center rounded-full text-2xl font-bold">
-          锁
-        </div>
-        <div>
-          <div class="text-lg font-bold">AI副业选题已加密</div>
-          <div class="text-muted-foreground mt-1 text-sm">
-            请输入访问密码以查看每日选题与每周计划
-          </div>
-        </div>
-        <form id="gate-form" class="flex w-full flex-col gap-3">
-          <input
-            id="gate-input"
-            type="password"
-            inputmode="numeric"
-            placeholder="请输入密码"
-            autocomplete="off"
-            class="border-border bg-background focus:border-accent rounded-lg border px-4 py-2.5 text-center outline-none"
-          />
-          <button
-            type="submit"
-            class="bg-accent text-accent-foreground rounded-lg px-4 py-2.5 font-medium transition-opacity hover:opacity-90"
-          >
-            确认
-          </button>
-          <p id="gate-error" class="hidden text-sm text-red-500">
-            密码错误，请重试
-          </p>
-        </form>
-      </div>
-
-      <!-- 认证后的内容（默认隐藏） -->
-      <div id="content" class="hidden w-full">
+      <div id="content" class="w-full">
         <div class="grid gap-6 sm:grid-cols-2">
           <a
             href={daily ? daily.url : "#"}
@@ -118,55 +82,27 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
             </span>
           </a>
         </div>
+
+        <!-- AI 热点新闻（外部网站入口） -->
+        <a
+          href="https://ai2-d6ge8qoxj6157b724-1256053800.tcloudbaseapp.com"
+          target="_blank"
+          rel="noopener"
+          class="group border-border bg-card hover:border-accent mt-6 flex w-full flex-col items-center justify-center gap-3 rounded-xl border p-8 text-center transition-colors"
+        >
+          <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+            热
+          </span>
+          <span class="text-2xl font-bold">AI 热点新闻</span>
+          <span class="text-muted-foreground text-sm">
+            每日自动抓取 · AI 生成热点选题与口播脚本
+          </span>
+          <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+            打开网站 →
+          </span>
+        </a>
       </div>
     </div>
   </Main>
   <Footer />
 </Layout>
-
-<script>
-  import { SITE_PASSWORD } from "@/utils/password";
-
-  // ===== 访问密码（统一在 src/utils/password.ts 修改） =====
-  const STORAGE_KEY = "ai_topics_auth";
-
-  // 站点启用了 View Transitions（ClientRouter），页面脚本在 SPA 导航后
-  // 不会自动重新执行，必须把初始化逻辑挂在 astro:page-load 事件上，
-  // 才能在每次导航（包括从主页点进来）后重新校验并绑定提交监听。
-  function initGate() {
-    const gate = document.querySelector<HTMLDivElement>("#gate");
-    const gateForm = document.querySelector<HTMLFormElement>("#gate-form");
-    const gateInput = document.querySelector<HTMLInputElement>("#gate-input");
-    const gateError = document.querySelector<HTMLParagraphElement>("#gate-error");
-    const content = document.querySelector<HTMLDivElement>("#content");
-    if (!gate || !gateForm || !gateInput || !gateError || !content) return;
-
-    // 每次导航后重置为初始状态，避免旧状态残留
-    gate.classList.remove("hidden");
-    content.classList.add("hidden");
-    gateError.classList.add("hidden");
-
-    // 会话内已认证过则直接进入
-    if (sessionStorage.getItem(STORAGE_KEY)) {
-      gate.classList.add("hidden");
-      content.classList.remove("hidden");
-      return;
-    }
-
-    gateForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const pwd = gateInput.value ?? "";
-      if (pwd === SITE_PASSWORD) {
-        sessionStorage.setItem(STORAGE_KEY, "1");
-        gateError.classList.add("hidden");
-        gate.classList.add("hidden");
-        content.classList.remove("hidden");
-      } else {
-        gateError.classList.remove("hidden");
-        gateInput.focus();
-      }
-    });
-  }
-
-  document.addEventListener("astro:page-load", initGate);
-</script>

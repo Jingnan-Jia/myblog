@@ -39,3 +39,18 @@
 - 阶段：网页开发
 - 进展：「AI 副业选题」页面例行更新——20:31 重新生成每日选题与每周内容日历 HTML 并刷新 _index.json。无实质代码改动，仅例行页面重生成。
 - 关键文件：public/ai-topics/daily.html、public/ai-topics/weekly.html、public/ai-topics/_index.json
+
+## 2026-08-19（补记 08-17~08-18 积累变化）
+- 阶段：网页开发
+- 进展：新增「Agents 监控」功能——服务器智能体实时状态与日志监控页（agents/index.astro + [...slug].astro，Supabase 数据源，每 5 秒刷新，运行中=60 秒内有心跳）；配套零依赖 agent-log-uploader.mjs 日志增量上传器（tail 服务器 log → 批量写 Supabase agent_logs 表 + 心跳）+ supabase/schema.sql（agent_logs/agents 表 + RLS）与 api/supabase/index.js；新增 PasswordGate 密码门组件（密码 090909）保护页面。文件修改时间 08-17 19:34~08-18 12:48，因 8-17/8-18 追踪未执行而积累补记。
+- 关键文件：src/pages/agents/index.astro、src/pages/agents/[...slug].astro、scripts/agent-log-uploader.mjs、supabase/schema.sql、src/components/PasswordGate.astro
+
+## 2026-08-20（补记 08-19 23:14 例行部署）
+- 阶段：网页开发
+- 进展：无实质进展（例行页面重生成）——08-19 23:14 projects 日报/周报页面（daily.html / weekly.html / _index.json）由部署自动化例行重生成并刷新索引，23:15 项目内自动化部署记录 memory.md 更新；今日扫描补记，无代码改动。
+- 关键文件：public/projects/daily.html、public/projects/weekly.html、public/projects/_index.json
+
+## 2026-08-24
+- 阶段：网页开发
+- 进展：「AI 副业选题」页面例行更新——09:22 重新生成每日选题（2026-08-17）与下周内容日历 2026-W35（8月24日—30日）HTML 并刷新 _index.json。无实质代码改动，仅例行页面重生成。
+- 关键文件：public/ai-topics/daily.html、public/ai-topics/weekly.html、public/ai-topics/_index.json
