@@ -41,14 +41,29 @@ return;
 }
 
 // ── 解析路径 ──
-const rawUrl = req.url || '';
-let pathPart = rawUrl;
+// Vercel rewrite /api/supabase/:path* → /api/supabase 会丢失路径段
+// :path* 会作为 req.query.path 传入
+const parsedUrl = new URL(req.url || '', 'http://localhost');
+let pathPart = parsedUrl.pathname;
 const prefix = '/api/supabase';
 if (pathPart.startsWith(prefix)) {
 pathPart = pathPart.slice(prefix.length);
 }
 
-const targetUrl = `${SUPABASE_URL}${pathPart}`;
+// Vercel rewrite 丢失了路径段，从 req.query.path 恢复
+if (!pathPart || pathPart === '' || pathPart === '/') {
+const queryPath = req.query && req.query.path;
+if (queryPath) {
+const pathStr = Array.isArray(queryPath) ? queryPath.join('/') : queryPath;
+pathPart = '/' + pathStr;
+}
+}
+
+// 重建 query string（去掉 Vercel 注入的 path 参数）
+const searchParams = new URLSearchParams(parsedUrl.searchParams);
+searchParams.delete('path');
+const queryString = searchParams.toString();
+const targetUrl = `${SUPABASE_URL}${pathPart}${queryString ? '?' + queryString : ''}`;
 
 // ── 构建转发 headers ──
 const forwardHeaders = {};
