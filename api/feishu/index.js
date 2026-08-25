@@ -46,32 +46,37 @@ export default async function handler(req, res) {
   }
 
   // ── 从 req.url 中解析飞书 API 路径 ──
-  // req.url 格式: /api/feishu/auth/v3/tenant_access_token/internal?xxx=yyy
-  // 需要提取: auth/v3/tenant_access_token/internal
-  const rawUrl = req.url || '';
-  // 去掉开头的 /api/feishu 前缀
-  let pathPart = rawUrl;
+  // Vercel rewrite /api/feishu/:path* → /api/feishu 会丢失路径段
+  // :path* 会作为 req.query.path 传入
+  const parsedUrl = new URL(req.url || '', 'http://localhost');
+  let pathPart = parsedUrl.pathname;
   const prefix = '/api/feishu';
   if (pathPart.startsWith(prefix)) {
     pathPart = pathPart.slice(prefix.length);
   }
+
+  // Vercel rewrite 丢失了路径段，从 req.query.path 恢复
+  if (!pathPart || pathPart === '' || pathPart === '/') {
+    const queryPath = req.query && req.query.path;
+    if (queryPath) {
+      const pathStr = Array.isArray(queryPath) ? queryPath.join('/') : queryPath;
+      pathPart = '/' + pathStr;
+    }
+  }
+
   // 去掉开头的 /
   if (pathPart.startsWith('/')) {
     pathPart = pathPart.slice(1);
   }
 
-  // 分离 query string
-  const qIdx = pathPart.indexOf('?');
-  let pathStr = pathPart;
-  let queryString = '';
-  if (qIdx >= 0) {
-    pathStr = pathPart.slice(0, qIdx);
-    queryString = pathPart.slice(qIdx + 1);
-  }
+  // 重建 query string（去掉 Vercel 注入的 path 参数）
+  const searchParams = new URLSearchParams(parsedUrl.searchParams);
+  searchParams.delete('path');
+  const queryString = searchParams.toString();
 
   const targetUrl = queryString
-    ? `${FEISHU_BASE}/${pathStr}?${queryString}`
-    : `${FEISHU_BASE}/${pathStr}`;
+    ? `${FEISHU_BASE}/${pathPart}?${queryString}`
+    : `${FEISHU_BASE}/${pathPart}`;
 
   // ── 构建转发 headers ──
   const forwardHeaders = {};
