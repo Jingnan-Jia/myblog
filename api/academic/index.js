@@ -131,8 +131,9 @@ export default async function handler(req, res) {
 
   // ── 构建转发 headers ──
   let forwardHeaders = {};
-  if (req.headers['content-type']) {
-    forwardHeaders['Content-Type'] = req.headers['content-type'];
+  // 客户端统一用 text/plain 绕过 McAfee，转发到后端 API 时强制覆盖为 application/json
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    forwardHeaders['Content-Type'] = 'application/json';
   }
   // 不透传原始 Authorization（用各服务自己的 key 注入）
 

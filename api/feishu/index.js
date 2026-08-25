@@ -3,10 +3,9 @@
  *
  * 将所有 /api/feishu/* 请求转发到 https://open.feishu.cn/open-apis/*
  *
- * 用途：公司 McAfee Web Gateway 会拦截发往 open.feishu.cn 的
- *       Content-Type: application/json 的 POST 请求（返回 403 Blocked）。
- *       但 McAfee 不拦截发往 jiajingnan.cn 的同类请求。
- *       因此通过此中转函数绕过 McAfee 拦截。
+ * 用途：公司 McAfee Web Gateway 会拦截 POST application/json 请求（返回 403 Blocked）。
+ *       客户端统一使用 Content-Type: text/plain 绕过 McAfee。
+ *       此中转函数转发到飞书 API 时强制覆盖 Content-Type 为 application/json。
  *
  * 部署：将此文件放到 Vercel 项目的 api/feishu/index.js
  *       在 vercel.json 中配置 rewrites 将 /api/feishu/* 路由到此函数
@@ -83,8 +82,9 @@ export default async function handler(req, res) {
   if (req.headers['authorization']) {
     forwardHeaders['Authorization'] = req.headers['authorization'];
   }
-  if (req.headers['content-type']) {
-    forwardHeaders['Content-Type'] = req.headers['content-type'];
+  // 客户端统一用 text/plain 绕过 McAfee，转发到飞书 API 时强制覆盖为 application/json
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    forwardHeaders['Content-Type'] = 'application/json';
   }
 
   // ── 发起请求到飞书 ──

@@ -68,7 +68,6 @@ const targetUrl = `${SUPABASE_URL}${pathPart}${queryString ? '?' + queryString :
 // ── 构建转发 headers ──
 const forwardHeaders = {};
 const allowHeaders = [
-'content-type',
 'authorization',
 'apikey',
 'prefer',
@@ -79,6 +78,10 @@ for (const h of allowHeaders) {
 if (req.headers[h]) {
 forwardHeaders[h] = req.headers[h];
 }
+}
+// 客户端统一用 text/plain 绕过 McAfee，转发到 Supabase 时强制覆盖为 application/json
+if (req.method !== 'GET' && req.method !== 'HEAD') {
+forwardHeaders['content-type'] = 'application/json';
 }
 
 // ── 发起请求 ──
