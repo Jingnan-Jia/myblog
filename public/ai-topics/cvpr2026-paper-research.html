@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CVPR2026 收藏论文 · 12 方向深度调研与 72 个 Idea</title>
+<style>
+:root { --bg:#f7f8fa; --card:#ffffff; --border:#e4e7ec; --text:#1f2329; --sub:#646a73;
+  --accent:#3d6df6; --low:#12a378; --mid:#e6a23c; --high:#f5514b; --new:#8f5bf6; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; padding:32px 20px 60px; }
+.wrap { max-width:1080px; margin:0 auto; }
+h1 { font-size:26px; margin-bottom:8px; }
+.sub { color:var(--sub); font-size:14px; margin-bottom:24px; line-height:1.7; }
+.stats { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:28px; }
+.stat { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 22px; min-width:130px; text-align:center; }
+.stat b { display:block; font-size:26px; color:var(--accent); }
+.stat span { font-size:12px; color:var(--sub); }
+.controls { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
+.controls button { padding:7px 16px; border-radius:20px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:13px; color:var(--text); }
+.controls button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+.controls .sep { color:var(--sub); font-size:12px; margin:0 4px; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:14px; margin-bottom:14px; overflow:hidden; }
+.card-head { padding:16px 20px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+.card-head:hover { background:#f0f3fa; }
+.card-title { font-size:16px; font-weight:600; display:flex; align-items:center; gap:10px; }
+.dir-badge { background:var(--accent); color:#fff; border-radius:6px; padding:2px 8px; font-size:12px; }
+.card-meta { color:var(--sub); font-size:13px; }
+.arrow { display:inline-block; transition:transform .2s; }
+.card.open .arrow { transform:rotate(180deg); }
+.card-body { display:none; padding:0 20px 18px; }
+.card.open .card-body { display:block; }
+.overview { color:var(--sub); font-size:13px; line-height:1.8; background:#f5f7fb; border-radius:10px; padding:12px 16px; margin-bottom:14px; }
+.idea { display:flex; align-items:center; gap:12px; padding:10px 6px; border-bottom:1px dashed var(--border); font-size:14px; }
+.idea:last-child { border-bottom:none; }
+.idea-num { width:22px; height:22px; border-radius:50%; background:#eef1f8; color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex-shrink:0; }
+.idea-txt { flex:1; }
+.tag { font-size:11px; padding:2px 10px; border-radius:12px; white-space:nowrap; flex-shrink:0; }
+.tag.low { background:#e6f7f0; color:var(--low); }
+.tag.mid { background:#fdf3e2; color:var(--mid); }
+.tag.high { background:#fdeceb; color:var(--high); }
+.tag.new { background:#f1eafd; color:var(--new); }
+.card-link { margin-top:14px; text-align:right; }
+.card-link a { color:var(--accent); font-size:13px; text-decoration:none; }
+.card-link a:hover { text-decoration:underline; }
+table { width:100%; border-collapse:collapse; background:#fff; border-radius:14px; overflow:hidden; border:1px solid var(--border); }
+th,td { padding:10px 14px; text-align:left; font-size:13px; border-bottom:1px solid var(--border); }
+th { background:#f2f4f9; font-weight:600; color:var(--sub); }
+tr:hover { background:#f7f9ff; }
+td.dir { font-weight:700; color:var(--accent); white-space:nowrap; width:48px; }
+td.iname { line-height:1.5; }
+.section-title { font-size:18px; font-weight:700; margin:34px 0 14px; }
+.note { background:#fffbe8; border:1px solid #f5e6a8; border-radius:10px; padding:12px 16px; font-size:13px; color:#7a6a1a; line-height:1.7; margin-top:28px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>CVPR2026 收藏论文 · 12 方向深度调研与 72 个可执行 Idea</h1>
+  <div class="sub">175 篇收藏论文 → 12 个研究方向 → 逐篇批判性评析 → 方向级深度调研（200+ 外部文献）→ 每方向 6 个 Idea（共 72 个，全部含 8×L40 算力核算）。硬件约束：8×NVIDIA L40。</div>
+  <div class="stats">
+    <div class="stat"><b>175</b><span>收藏论文</span></div>
+    <div class="stat"><b>12</b><span>研究方向</span></div>
+    <div class="stat"><b>72</b><span>可执行 Idea</span></div>
+    <div class="stat"><b>200+</b><span>外部调研文献</span></div>
+    <div class="stat"><b>24 万</b><span>中文字符</span></div>
+  </div>
+
+  <div class="controls">
+    <button class="on" onclick="filterDir('all',this)">全部方向</button>
+    <button onclick="filterDir('M1',this)">M1</button><button onclick="filterDir('M2',this)">M2</button>
+    <button onclick="filterDir('M3',this)">M3</button><button onclick="filterDir('M4',this)">M4</button>
+    <button onclick="filterDir('M5',this)">M5</button><button onclick="filterDir('M6',this)">M6</button>
+    <button onclick="filterDir('M7',this)">M7</button><button onclick="filterDir('M8',this)">M8</button>
+    <button onclick="filterDir('M9',this)">M9</button><button onclick="filterDir('M10',this)">M10</button>
+    <button onclick="filterDir('M11',this)">M11</button><button onclick="filterDir('M12',this)">M12</button>
+    <span class="sep">|</span>
+    <button onclick="filterRisk('all',this)">全部风险</button>
+    <button onclick="filterRisk('low',this)">低风险</button>
+    <button onclick="filterRisk('mid',this)">中风险</button>
+    <button onclick="filterRisk('high',this)">高回报</button>
+    <button onclick="filterRisk('new',this)">新问题</button>
+  </div>
+
+  <div class="section-title">一、12 个方向总览（点击展开查看 6 个 Idea）</div>
+  <div class="card" data-dir="M1">
+  <div class="card-head" onclick="toggle('M1')">
+    <div class="card-title"><span class="dir-badge">M1</span>MLLM 感知-推理机制、强化学习与评测</div>
+    <div class="card-meta">17 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M1">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">PerceptDiag —— 感知-推理归因（PRA）任务与可诊断化协议</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">PerceiveRL —— 把感知能力作为 RL 的显式优化目标</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">PerceiveScale —— 感知-推理解耦的 Scaling Law 与数据配方</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">DiffuV-Reason —— 扩散式 MLLM 的双向视觉推理（高回报）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">VisPRM —— 多模态过程奖励模型与视觉信用分配（高回报/Oral 候选）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">ToolPerceive —— 诊断驱动的感知修复工具智能体（高回报）</span>
+  <span class="tag high">高回报</span>
+</div>
+    <div class="card-link"><a href="M1.md" target="_blank">查看完整报告 M1.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M2">
+  <div class="card-head" onclick="toggle('M2')">
+    <div class="card-title"><span class="dir-badge">M2</span>长视频与流式视频理解</div>
+    <div class="card-meta">19 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M2">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">OrderPax —— 时序保真的视频 Token 压缩</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">BudgetVid —— 任意时间帧预算调度</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">LeanVid Audit —— 长视频评测漏洞审计与校正</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">ChronoNet —— 解耦时空的双流时序通道</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">SpeakNow —— 何时回答/沉默/打断的形式化与 anytime 时序感知评测</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">TokenRL-Agent —— 预算感知的 agentic 长视频推理</span>
+  <span class="tag mid">中风险</span>
+</div>
+    <div class="card-link"><a href="M2.md" target="_blank">查看完整报告 M2.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M3">
+  <div class="card-head" onclick="toggle('M3')">
+    <div class="card-title"><span class="dir-badge">M3</span>多模态模型高效化：视觉 Token 压缩 / KV Cache / 量化 / 小模型 / 高效训练</div>
+    <div class="card-meta">11 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M3">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="low">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">BlindFold —— 语言先验去污协议 + 信息保持率（IR）指标（低风险/评测立标准）</span>
+  <span class="tag low">低风险</span>
+</div><div class="idea" data-risk="low">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">GradCover —— 梯度覆盖度驱动的 MLLM SFT 数据调度与早停（低风险/训练侧冷门）</span>
+  <span class="tag low">低风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">FP8-Align —— Ada 上&quot;真延迟&quot;导向的剪枝 × FP8 协同设计（中风险/系统级）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">ReVTok —— 可逆视觉 token 压缩（学习型残差码本 + 查询触发再膨胀）（高风险/机制级）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">BudgetNet —— 可微连续 token 预算分配（延迟感知的资源分配头）（高风险/机制级）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">MSVT —— 最小充分视觉 token：新任务、新指标、新数据集（新问题定义/中风险）</span>
+  <span class="tag mid">中风险</span>
+</div>
+    <div class="card-link"><a href="M3.md" target="_blank">查看完整报告 M3.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M4">
+  <div class="card-head" onclick="toggle('M4')">
+    <div class="card-title"><span class="dir-badge">M4</span>视觉生成与编辑：物理一致性、长叙事、定制化与加速</div>
+    <div class="card-meta">20 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M4">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">MemSlot——把&quot;首帧记忆缓冲区&quot;泛化为可定位、可调度的通用外部记忆槽</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">SpecDecay——长视频自回归漂移的谱能量机制解释与 training-free 方差锚定采样</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">PhysReg——可微物理先验作为少步视频生成的轻量约束注入（覆盖非刚体/流体）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">TC-DMD——1.3–5B 视频 DiT 的少步蒸馏与时序一致性系统性研究</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">ShotGraph——跨镜头物理/叙事一致性评测与新范式 Mixture-of-Memory</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">PhysDPP——物理多样性感知的 T2V 策略优化</span>
+  <span class="tag mid">中风险</span>
+</div>
+    <div class="card-link"><a href="M4.md" target="_blank">查看完整报告 M4.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M5">
+  <div class="card-head" onclick="toggle('M5')">
+    <div class="card-title"><span class="dir-badge">M5</span>端到端自动驾驶：规划、驾驶 VLA 与因果/强化学习</div>
+    <div class="card-meta">21 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M5">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">CF-Eval——仿真因果干预验证协议（Causal/反事实，要求3）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">AdaptCoT——CoT 有无用的受控证伪与自适应决策器（要求2，解决学术争论）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">LongTailLoop——长尾获取/生成/评测闭环（要求4）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">CausalLatent——潜空间因果去混淆的世界模型推理（高风险高回报，Oral 候选）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">SimCausal-RL——因果正则的闭环 RL 后训练（高风险高回报，Oral 候选）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="new">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">ESLI——Ego-Status Leakage Index 与新开环评测任务（新问题/新任务定义，要求1）</span>
+  <span class="tag new">新问题</span>
+</div>
+    <div class="card-link"><a href="M5.md" target="_blank">查看完整报告 M5.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M6">
+  <div class="card-head" onclick="toggle('M6')">
+    <div class="card-title"><span class="dir-badge">M6</span>世界模型、4D/3D 场景重建与驾驶仿真</div>
+    <div class="card-meta">14 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M6">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">REP-4WM — 驾驶世界模型&quot;表征空间&quot;头对头与机制解释</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">OccWM-Lite — 轻量轨迹条件占用世界模型 + 闭环规划头</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">EMERGE-Obj — 无监督物体性与动力学定律涌现（可证伪评测）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">EvalDrive — 反事实闭环仿真协议，实证 FVD 与有用性脱节</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">FF-4DSim — 前馈式动态高斯世界模型（VGGT/π3 全参微调）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="new">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">LongTail-Sim — 长尾真实资产 + 任意传感器泛化分割（新问题定义）</span>
+  <span class="tag new">新问题</span>
+</div>
+    <div class="card-link"><a href="M6.md" target="_blank">查看完整报告 M6.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M7">
+  <div class="card-head" onclick="toggle('M7')">
+    <div class="card-title"><span class="dir-badge">M7</span>交互式与具身智能体：GUI/Web/机器人操作与导航</div>
+    <div class="card-meta">16 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M7">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">SCoRe —— 自我一致性 Rollout 代理指标：不执行环境也能预测 Online 成功率</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">ANDAS —— 注意力-新颖性联合检测的弹窗/注入防御闸门</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">VidMine —— 旁白对齐 + 信息量排序的视频挖掘课程</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">GWM —— 可预测状态摘要器：GUI 世界模型同时干三件事</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">GoalVA —— 视觉目标想象作为长时程操作 VLA 的 CoT</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">PAUSE —— 主动辅助策略：何时接管、何时提问、何时放手</span>
+  <span class="tag mid">中风险</span>
+</div>
+    <div class="card-link"><a href="M7.md" target="_blank">查看完整报告 M7.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M8">
+  <div class="card-head" onclick="toggle('M8')">
+    <div class="card-title"><span class="dir-badge">M8</span>多模态安全：对抗攻击、后门、越狱、防御与 AIGC 取证</div>
+    <div class="card-meta">18 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M8">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="high">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">SubspaceTransfer——给&quot;可迁移对抗攻击&quot;做解剖：迁移发生在哪一层、如何预测、如何利用（机制理解，高回报）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">DIA——抗漂移的生成模型指纹图集：把&quot;判别真假&quot;升级为&quot;跨架构可归因&quot;（低-中风险，高回报）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">AgentGuard——面向 GUI/embodied agent 的&quot;目标-动作语义一致性&quot;后门实时审计（agent 安全，高回报）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="low">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">StylePurity——训练无关的&quot;风格抖动一致性&quot;MLLM 越狱防御（低风险，稳定中稿）</span>
+  <span class="tag low">低风险</span>
+</div><div class="idea" data-risk="low">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">AdapterScope——面向 T2I LoRA 分享生态的供应链后门&quot;发布前体检&quot;（低风险，稳定）</span>
+  <span class="tag low">低风险</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">PromptProof——提示词级水印：给&quot;prompt 窃取&quot;装上可验证取证（新问题定义，高回报）</span>
+  <span class="tag high">高回报</span>
+</div>
+    <div class="card-link"><a href="M8.md" target="_blank">查看完整报告 M8.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M9">
+  <div class="card-head" onclick="toggle('M9')">
+    <div class="card-title"><span class="dir-badge">M9</span>参数高效微调、模型合并、持续学习与测试时自适应</div>
+    <div class="card-meta">7 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M9">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">JBS（Joint-Basin Surrogate）——用 Fisher 加权闭式解把 LoRA 合并、持续学习、TTA 统一为&quot;参数流形上的多目标最小二乘&quot;</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">Adapter-OS——面向个人研究者的 LoRA 资产管理协议（检索/组合决策/去重/压缩）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">TVAC——Test-time Answer-Consistency Adaptation（VLM 的 VQA/长尾/视频测试时自适应）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">TRAS——Token-Routed Adapter Swarm：以&quot;路由稳定性&quot;为统一目标连接合并、持续学习与 TTA</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="new">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">Mergeability Prediction——定义&quot;可合并性&quot;为适配器的可预测属性（新问题定义）</span>
+  <span class="tag new">新问题</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">TTCVE——Test-Time Continual Vocabulary Expansion（VLM 的测试时持续词表扩展）</span>
+  <span class="tag mid">中风险</span>
+</div>
+    <div class="card-link"><a href="M9.md" target="_blank">查看完整报告 M9.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M10">
+  <div class="card-head" onclick="toggle('M10')">
+    <div class="card-title"><span class="dir-badge">M10</span>鲁棒视觉感知：检测/跟踪/分割/复原（UAV、事件相机、域自适应）</div>
+    <div class="card-meta">14 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M10">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="low">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">TempVerify——时序一致性验证的 VLM 辅助 UAV 半监督检测与边缘蒸馏（低风险，VLM×感知交叉）</span>
+  <span class="tag low">低风险</span>
+</div><div class="idea" data-risk="low">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">TTDA-UAV——面向 UAV 部署域偏移的测试时域适应检测（低风险）</span>
+  <span class="tag low">低风险</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">TempoAlign——事件-帧异步时序对齐与曝光建模的鲁棒多模态检测（高风险，事件相机时间一致性）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="high">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">TrustPercept——&quot;何时在瞎猜&quot;：分布偏移下带统计保证的检测失败预警（高风险，不确定性/可靠性）</span>
+  <span class="tag high">高回报</span>
+</div><div class="idea" data-risk="new">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">POR-Net——感知导向的图像复原：以下游检测回报为目标的复原范式与评测协议（新任务定义）</span>
+  <span class="tag new">新问题</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">GoUAV——可信开放的 UAV 边缘开放词汇感知（中风险，VLM×感知落地）</span>
+  <span class="tag mid">中风险</span>
+</div>
+    <div class="card-link"><a href="M10.md" target="_blank">查看完整报告 M10.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M11">
+  <div class="card-head" onclick="toggle('M11')">
+    <div class="card-title"><span class="dir-badge">M11</span>跨模态检索与多模态 RAG</div>
+    <div class="card-meta">7 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M11">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">When Does Retrieval Hurt? — Diagnosing Failure Modes of Multi-Modal RAG（MM-RAG 失败模式诊断）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">Verify-then-Retrieve-Retrieve: Evidence-Gated Iterative Retrieval for Reasoning-Intensive Retrieval（证据门控的迭代检索）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">TimeRAG: Spatio-Temporal Segment Retrieval for Temporal Reasoning over Long Video（时空片段级检索增强的视频时序推理）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">Memory-as-RAG: Auditable Long-Horizon Egocentric Memory Retrieval with Shared Agent Memories（记忆即检索）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">MM-Attest: Evidence Conflict Resolution and Attribution for Multi-Source Multi-Modal RAG（多源多模态 RAG 的证据冲突消解与可信归因）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">Compose-by-Decompose: Attribute-Level Decomposition and Verification for Composed Image Retrieval（分解-组合-验证的 CIR）</span>
+  <span class="tag mid">中风险</span>
+</div>
+    <div class="card-link"><a href="M11.md" target="_blank">查看完整报告 M11.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div><div class="card" data-dir="M12">
+  <div class="card-head" onclick="toggle('M12')">
+    <div class="card-title"><span class="dir-badge">M12</span>医学与科学多模态、科研自动化</div>
+    <div class="card-meta">11 篇论文 · 6 个 Idea <span class="arrow">▾</span></div>
+  </div>
+  <div class="card-body" id="body-M12">
+    <div class="overview">…</div>
+    <div class="idea" data-risk="mid">
+  <span class="idea-num">1</span>
+  <span class="idea-txt">EchoGround——面向超声视频的时序区域级医学 VLM 与可控报告生成</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">2</span>
+  <span class="idea-txt">ReproAgent——预算感知的论文实验复现代理（Budget-Aware Paper-to-Code）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">3</span>
+  <span class="idea-txt">TrustMed-Bench——医生在环的医学 VLM 可信落地评测协议与新基准</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">4</span>
+  <span class="idea-txt">Attrib-RAG——引用级证据归因的医学多模态 RAG（Claim-Level Attribution）</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">5</span>
+  <span class="idea-txt">US-WORLD——超声自由扫查的预测性容积世界模型</span>
+  <span class="tag mid">中风险</span>
+</div><div class="idea" data-risk="mid">
+  <span class="idea-num">6</span>
+  <span class="idea-txt">Ground-Verify——医学 VLM 的 mask 级 grounding 与&quot;生成-定位-重读&quot;自验证闭环</span>
+  <span class="tag mid">中风险</span>
+</div>
+    <div class="card-link"><a href="M12.md" target="_blank">查看完整报告 M12.md（含逐篇评析 / 外部文献 / 8 字段 Idea 方案）→</a></div>
+  </div>
+</div>
+
+  <div class="section-title">二、72 个 Idea 总表（可按方向/风险筛选）</div>
+  <table id="idea-table">
+    <thead><tr><th>方向</th><th>Idea</th><th>类型</th></tr></thead>
+    <tbody><tr data-dir="M1" data-risk="mid">
+  <td class="dir">M1</td>
+  <td class="iname">PerceptDiag —— 感知-推理归因（PRA）任务与可诊断化协议</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M1" data-risk="mid">
+  <td class="dir">M1</td>
+  <td class="iname">PerceiveRL —— 把感知能力作为 RL 的显式优化目标</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M1" data-risk="mid">
+  <td class="dir">M1</td>
+  <td class="iname">PerceiveScale —— 感知-推理解耦的 Scaling Law 与数据配方</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M1" data-risk="high">
+  <td class="dir">M1</td>
+  <td class="iname">DiffuV-Reason —— 扩散式 MLLM 的双向视觉推理（高回报）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M1" data-risk="high">
+  <td class="dir">M1</td>
+  <td class="iname">VisPRM —— 多模态过程奖励模型与视觉信用分配（高回报/Oral 候选）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M1" data-risk="high">
+  <td class="dir">M1</td>
+  <td class="iname">ToolPerceive —— 诊断驱动的感知修复工具智能体（高回报）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M2" data-risk="mid">
+  <td class="dir">M2</td>
+  <td class="iname">OrderPax —— 时序保真的视频 Token 压缩</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M2" data-risk="mid">
+  <td class="dir">M2</td>
+  <td class="iname">BudgetVid —— 任意时间帧预算调度</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M2" data-risk="mid">
+  <td class="dir">M2</td>
+  <td class="iname">LeanVid Audit —— 长视频评测漏洞审计与校正</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M2" data-risk="mid">
+  <td class="dir">M2</td>
+  <td class="iname">ChronoNet —— 解耦时空的双流时序通道</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M2" data-risk="mid">
+  <td class="dir">M2</td>
+  <td class="iname">SpeakNow —— 何时回答/沉默/打断的形式化与 anytime 时序感知评测</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M2" data-risk="mid">
+  <td class="dir">M2</td>
+  <td class="iname">TokenRL-Agent —— 预算感知的 agentic 长视频推理</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M3" data-risk="low">
+  <td class="dir">M3</td>
+  <td class="iname">BlindFold —— 语言先验去污协议 + 信息保持率（IR）指标（低风险/评测立标准）</td>
+  <td><span class="tag low">低风险</span></td>
+</tr><tr data-dir="M3" data-risk="low">
+  <td class="dir">M3</td>
+  <td class="iname">GradCover —— 梯度覆盖度驱动的 MLLM SFT 数据调度与早停（低风险/训练侧冷门）</td>
+  <td><span class="tag low">低风险</span></td>
+</tr><tr data-dir="M3" data-risk="mid">
+  <td class="dir">M3</td>
+  <td class="iname">FP8-Align —— Ada 上&quot;真延迟&quot;导向的剪枝 × FP8 协同设计（中风险/系统级）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M3" data-risk="high">
+  <td class="dir">M3</td>
+  <td class="iname">ReVTok —— 可逆视觉 token 压缩（学习型残差码本 + 查询触发再膨胀）（高风险/机制级）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M3" data-risk="high">
+  <td class="dir">M3</td>
+  <td class="iname">BudgetNet —— 可微连续 token 预算分配（延迟感知的资源分配头）（高风险/机制级）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M3" data-risk="mid">
+  <td class="dir">M3</td>
+  <td class="iname">MSVT —— 最小充分视觉 token：新任务、新指标、新数据集（新问题定义/中风险）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M4" data-risk="mid">
+  <td class="dir">M4</td>
+  <td class="iname">MemSlot——把&quot;首帧记忆缓冲区&quot;泛化为可定位、可调度的通用外部记忆槽</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M4" data-risk="mid">
+  <td class="dir">M4</td>
+  <td class="iname">SpecDecay——长视频自回归漂移的谱能量机制解释与 training-free 方差锚定采样</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M4" data-risk="mid">
+  <td class="dir">M4</td>
+  <td class="iname">PhysReg——可微物理先验作为少步视频生成的轻量约束注入（覆盖非刚体/流体）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M4" data-risk="mid">
+  <td class="dir">M4</td>
+  <td class="iname">TC-DMD——1.3–5B 视频 DiT 的少步蒸馏与时序一致性系统性研究</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M4" data-risk="mid">
+  <td class="dir">M4</td>
+  <td class="iname">ShotGraph——跨镜头物理/叙事一致性评测与新范式 Mixture-of-Memory</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M4" data-risk="mid">
+  <td class="dir">M4</td>
+  <td class="iname">PhysDPP——物理多样性感知的 T2V 策略优化</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M5" data-risk="mid">
+  <td class="dir">M5</td>
+  <td class="iname">CF-Eval——仿真因果干预验证协议（Causal/反事实，要求3）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M5" data-risk="mid">
+  <td class="dir">M5</td>
+  <td class="iname">AdaptCoT——CoT 有无用的受控证伪与自适应决策器（要求2，解决学术争论）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M5" data-risk="mid">
+  <td class="dir">M5</td>
+  <td class="iname">LongTailLoop——长尾获取/生成/评测闭环（要求4）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M5" data-risk="high">
+  <td class="dir">M5</td>
+  <td class="iname">CausalLatent——潜空间因果去混淆的世界模型推理（高风险高回报，Oral 候选）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M5" data-risk="high">
+  <td class="dir">M5</td>
+  <td class="iname">SimCausal-RL——因果正则的闭环 RL 后训练（高风险高回报，Oral 候选）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M5" data-risk="new">
+  <td class="dir">M5</td>
+  <td class="iname">ESLI——Ego-Status Leakage Index 与新开环评测任务（新问题/新任务定义，要求1）</td>
+  <td><span class="tag new">新问题</span></td>
+</tr><tr data-dir="M6" data-risk="mid">
+  <td class="dir">M6</td>
+  <td class="iname">REP-4WM — 驾驶世界模型&quot;表征空间&quot;头对头与机制解释</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M6" data-risk="mid">
+  <td class="dir">M6</td>
+  <td class="iname">OccWM-Lite — 轻量轨迹条件占用世界模型 + 闭环规划头</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M6" data-risk="mid">
+  <td class="dir">M6</td>
+  <td class="iname">EMERGE-Obj — 无监督物体性与动力学定律涌现（可证伪评测）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M6" data-risk="mid">
+  <td class="dir">M6</td>
+  <td class="iname">EvalDrive — 反事实闭环仿真协议，实证 FVD 与有用性脱节</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M6" data-risk="mid">
+  <td class="dir">M6</td>
+  <td class="iname">FF-4DSim — 前馈式动态高斯世界模型（VGGT/π3 全参微调）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M6" data-risk="new">
+  <td class="dir">M6</td>
+  <td class="iname">LongTail-Sim — 长尾真实资产 + 任意传感器泛化分割（新问题定义）</td>
+  <td><span class="tag new">新问题</span></td>
+</tr><tr data-dir="M7" data-risk="mid">
+  <td class="dir">M7</td>
+  <td class="iname">SCoRe —— 自我一致性 Rollout 代理指标：不执行环境也能预测 Online 成功率</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M7" data-risk="mid">
+  <td class="dir">M7</td>
+  <td class="iname">ANDAS —— 注意力-新颖性联合检测的弹窗/注入防御闸门</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M7" data-risk="mid">
+  <td class="dir">M7</td>
+  <td class="iname">VidMine —— 旁白对齐 + 信息量排序的视频挖掘课程</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M7" data-risk="mid">
+  <td class="dir">M7</td>
+  <td class="iname">GWM —— 可预测状态摘要器：GUI 世界模型同时干三件事</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M7" data-risk="mid">
+  <td class="dir">M7</td>
+  <td class="iname">GoalVA —— 视觉目标想象作为长时程操作 VLA 的 CoT</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M7" data-risk="mid">
+  <td class="dir">M7</td>
+  <td class="iname">PAUSE —— 主动辅助策略：何时接管、何时提问、何时放手</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M8" data-risk="high">
+  <td class="dir">M8</td>
+  <td class="iname">SubspaceTransfer——给&quot;可迁移对抗攻击&quot;做解剖：迁移发生在哪一层、如何预测、如何利用（机制理解，高回报）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M8" data-risk="mid">
+  <td class="dir">M8</td>
+  <td class="iname">DIA——抗漂移的生成模型指纹图集：把&quot;判别真假&quot;升级为&quot;跨架构可归因&quot;（低-中风险，高回报）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M8" data-risk="high">
+  <td class="dir">M8</td>
+  <td class="iname">AgentGuard——面向 GUI/embodied agent 的&quot;目标-动作语义一致性&quot;后门实时审计（agent 安全，高回报）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M8" data-risk="low">
+  <td class="dir">M8</td>
+  <td class="iname">StylePurity——训练无关的&quot;风格抖动一致性&quot;MLLM 越狱防御（低风险，稳定中稿）</td>
+  <td><span class="tag low">低风险</span></td>
+</tr><tr data-dir="M8" data-risk="low">
+  <td class="dir">M8</td>
+  <td class="iname">AdapterScope——面向 T2I LoRA 分享生态的供应链后门&quot;发布前体检&quot;（低风险，稳定）</td>
+  <td><span class="tag low">低风险</span></td>
+</tr><tr data-dir="M8" data-risk="high">
+  <td class="dir">M8</td>
+  <td class="iname">PromptProof——提示词级水印：给&quot;prompt 窃取&quot;装上可验证取证（新问题定义，高回报）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M9" data-risk="mid">
+  <td class="dir">M9</td>
+  <td class="iname">JBS（Joint-Basin Surrogate）——用 Fisher 加权闭式解把 LoRA 合并、持续学习、TTA 统一为&quot;参数流形上的多目标最小二乘&quot;</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M9" data-risk="mid">
+  <td class="dir">M9</td>
+  <td class="iname">Adapter-OS——面向个人研究者的 LoRA 资产管理协议（检索/组合决策/去重/压缩）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M9" data-risk="mid">
+  <td class="dir">M9</td>
+  <td class="iname">TVAC——Test-time Answer-Consistency Adaptation（VLM 的 VQA/长尾/视频测试时自适应）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M9" data-risk="mid">
+  <td class="dir">M9</td>
+  <td class="iname">TRAS——Token-Routed Adapter Swarm：以&quot;路由稳定性&quot;为统一目标连接合并、持续学习与 TTA</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M9" data-risk="new">
+  <td class="dir">M9</td>
+  <td class="iname">Mergeability Prediction——定义&quot;可合并性&quot;为适配器的可预测属性（新问题定义）</td>
+  <td><span class="tag new">新问题</span></td>
+</tr><tr data-dir="M9" data-risk="mid">
+  <td class="dir">M9</td>
+  <td class="iname">TTCVE——Test-Time Continual Vocabulary Expansion（VLM 的测试时持续词表扩展）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M10" data-risk="low">
+  <td class="dir">M10</td>
+  <td class="iname">TempVerify——时序一致性验证的 VLM 辅助 UAV 半监督检测与边缘蒸馏（低风险，VLM×感知交叉）</td>
+  <td><span class="tag low">低风险</span></td>
+</tr><tr data-dir="M10" data-risk="low">
+  <td class="dir">M10</td>
+  <td class="iname">TTDA-UAV——面向 UAV 部署域偏移的测试时域适应检测（低风险）</td>
+  <td><span class="tag low">低风险</span></td>
+</tr><tr data-dir="M10" data-risk="high">
+  <td class="dir">M10</td>
+  <td class="iname">TempoAlign——事件-帧异步时序对齐与曝光建模的鲁棒多模态检测（高风险，事件相机时间一致性）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M10" data-risk="high">
+  <td class="dir">M10</td>
+  <td class="iname">TrustPercept——&quot;何时在瞎猜&quot;：分布偏移下带统计保证的检测失败预警（高风险，不确定性/可靠性）</td>
+  <td><span class="tag high">高回报</span></td>
+</tr><tr data-dir="M10" data-risk="new">
+  <td class="dir">M10</td>
+  <td class="iname">POR-Net——感知导向的图像复原：以下游检测回报为目标的复原范式与评测协议（新任务定义）</td>
+  <td><span class="tag new">新问题</span></td>
+</tr><tr data-dir="M10" data-risk="mid">
+  <td class="dir">M10</td>
+  <td class="iname">GoUAV——可信开放的 UAV 边缘开放词汇感知（中风险，VLM×感知落地）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M11" data-risk="mid">
+  <td class="dir">M11</td>
+  <td class="iname">When Does Retrieval Hurt? — Diagnosing Failure Modes of Multi-Modal RAG（MM-RAG 失败模式诊断）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M11" data-risk="mid">
+  <td class="dir">M11</td>
+  <td class="iname">Verify-then-Retrieve-Retrieve: Evidence-Gated Iterative Retrieval for Reasoning-Intensive Retrieval（证据门控的迭代检索）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M11" data-risk="mid">
+  <td class="dir">M11</td>
+  <td class="iname">TimeRAG: Spatio-Temporal Segment Retrieval for Temporal Reasoning over Long Video（时空片段级检索增强的视频时序推理）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M11" data-risk="mid">
+  <td class="dir">M11</td>
+  <td class="iname">Memory-as-RAG: Auditable Long-Horizon Egocentric Memory Retrieval with Shared Agent Memories（记忆即检索）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M11" data-risk="mid">
+  <td class="dir">M11</td>
+  <td class="iname">MM-Attest: Evidence Conflict Resolution and Attribution for Multi-Source Multi-Modal RAG（多源多模态 RAG 的证据冲突消解与可信归因）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M11" data-risk="mid">
+  <td class="dir">M11</td>
+  <td class="iname">Compose-by-Decompose: Attribute-Level Decomposition and Verification for Composed Image Retrieval（分解-组合-验证的 CIR）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M12" data-risk="mid">
+  <td class="dir">M12</td>
+  <td class="iname">EchoGround——面向超声视频的时序区域级医学 VLM 与可控报告生成</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M12" data-risk="mid">
+  <td class="dir">M12</td>
+  <td class="iname">ReproAgent——预算感知的论文实验复现代理（Budget-Aware Paper-to-Code）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M12" data-risk="mid">
+  <td class="dir">M12</td>
+  <td class="iname">TrustMed-Bench——医生在环的医学 VLM 可信落地评测协议与新基准</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M12" data-risk="mid">
+  <td class="dir">M12</td>
+  <td class="iname">Attrib-RAG——引用级证据归因的医学多模态 RAG（Claim-Level Attribution）</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M12" data-risk="mid">
+  <td class="dir">M12</td>
+  <td class="iname">US-WORLD——超声自由扫查的预测性容积世界模型</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr><tr data-dir="M12" data-risk="mid">
+  <td class="dir">M12</td>
+  <td class="iname">Ground-Verify——医学 VLM 的 mask 级 grounding 与&quot;生成-定位-重读&quot;自验证闭环</td>
+  <td><span class="tag mid">中风险</span></td>
+</tr></tbody>
+  </table>
+
+  <div class="note"><b>建议阅读顺序：</b>先看上方 12 个方向卡片了解全局 → 打开与你最相关的方向（M5 自动驾驶 / M12 医学与你的双重背景最契合）→ 用底部表格按"低风险"筛选出第一批 3 个月可出稿的选题 → 每方向完整 8 字段方案见对应 M*.md 文件。</div>
+</div>
+<script>
+function toggle(k) {
+  var el = document.getElementById('body-' + k);
+  var card = el.closest('.card');
+  card.classList.toggle('open');
+}
+var curDir = 'all', curRisk = 'all';
+function filterDir(d, btn) {
+  curDir = d;
+  document.querySelectorAll('.controls button').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.controls button').forEach(b => {
+    if (b.textContent.trim() === (d === 'all' ? '全部方向' : d)) b.classList.add('on');
+  });
+  apply();
+}
+function filterRisk(r, btn) {
+  curRisk = r;
+  document.querySelectorAll('.controls button').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.controls button').forEach(b => {
+    var t = b.textContent.trim();
+    var m = {low:'低风险',mid:'中风险',high:'高回报',new:'新问题'};
+    if ((r === 'all' && t === '全部风险') || (r !== 'all' && t === m[r])) b.classList.add('on');
+  });
+  apply();
+}
+function apply() {
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.display = (curDir === 'all' || c.dataset.dir === curDir) ? '' : 'none';
+  });
+  document.querySelectorAll('#idea-table tbody tr').forEach(tr => {
+    var okDir = curDir === 'all' || tr.dataset.dir === curDir;
+    var okRisk = curRisk === 'all' || tr.dataset.risk === curRisk;
+    tr.style.display = (okDir && okRisk) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
