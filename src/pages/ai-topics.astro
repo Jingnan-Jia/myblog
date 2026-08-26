@@ -41,7 +41,7 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
   >
     <div class="flex flex-col items-center justify-center gap-6">
       <div id="content" class="w-full">
-        <div class="grid gap-6 sm:grid-cols-2">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <a
             href={daily ? daily.url : "#"}
             class:list={[
@@ -76,6 +76,22 @@ const weekly = reports.find((r) => r.key === "weekly") ?? null;
             <span class="text-muted-foreground text-sm">
               {weekly ? weekly.period : "周日自动生成 · 敬请期待"}
               {weekly?.generatedAt ? ` · ${weekly.generatedAt}` : ""}
+            </span>
+            <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
+              点击打开 →
+            </span>
+          </a>
+
+          <a
+            href="/ai-topics/cvpr2026-paper-research.html"
+            class="group border-border bg-card hover:border-accent flex flex-col items-center justify-center gap-3 rounded-xl border p-10 text-center transition-colors"
+          >
+            <span class="bg-accent/10 text-accent flex size-14 items-center justify-center rounded-full text-2xl font-bold">
+              研
+            </span>
+            <span class="text-2xl font-bold">CVPR2026 论文调研</span>
+            <span class="text-muted-foreground text-sm">
+              175 篇论文 · 12 方向 · 72 个 Idea
             </span>
             <span class="text-accent text-sm opacity-0 transition-opacity group-hover:opacity-100">
               点击打开 →
