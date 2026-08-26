@@ -54,3 +54,8 @@
 - 阶段：网页开发
 - 进展：「AI 副业选题」页面例行更新——09:22 重新生成每日选题（2026-08-17）与下周内容日历 2026-W35（8月24日—30日）HTML 并刷新 _index.json。无实质代码改动，仅例行页面重生成。
 - 关键文件：public/ai-topics/daily.html、public/ai-topics/weekly.html、public/ai-topics/_index.json
+
+## 2026-08-25
+- 阶段：网页开发
+- 进展：① AI 选题页面（src/pages/ai-topics.astro）移除密码保护——删除 #gate 密码门与密码校验脚本，每日选题/每周计划/AI 热点新闻 3 个子入口均免密（projects/agents 等页面保留密码门），并在两个卡片下方新增通栏卡片「AI 热点新闻」链接到 CloudBase 托管的 ai_select 站点（https://ai2-d6ge8qoxj6157b724-1256053800.tcloudbaseapp.com），commit c6b9bb9 已推送触发 Vercel 部署；② 修复 api/supabase/index.js 与 api/feishu/index.js 在 Vercel rewrite 下丢失路径段问题（:path* 改从 req.query.path 恢复），commit 286c328 / fa303f1；③ 三个代理（feishu/supabase/academic）统一转发时强制覆盖 Content-Type 为 application/json，绕过公司 McAfee 拦截，commit 3665c15；④ ai-topics 每日/每周选题页 09:19 例行重生成。
+- 关键文件：src/pages/ai-topics.astro、api/supabase/index.js、api/feishu/index.js、api/academic/index.js、public/ai-topics/daily.html

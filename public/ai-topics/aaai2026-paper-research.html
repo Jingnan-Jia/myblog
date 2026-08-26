@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAAI 2026 主题调研 · 研究规划总览</title>
+<meta name="description" content="AAAI 2026 收藏论文（210 篇）主题调研与研究规划：13 个主题、157 个研究 idea、157 本实验设计书，全部以 Markdown 原始文件超链接组织，便于智能体直接读取。">
+<style>
+  :root{--bg:#0b0e17;--card:#131a2b;--card2:#0f1524;--line:#22304a;--txt:#e8ecf5;--sub:#9aa7c4;--acc:#4f8cff;--acc2:#39d2c0;--hi:#ffb454;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.6;padding-bottom:60px}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  header{padding:34px 0 16px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .tagline{color:var(--acc2);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+  h1{font-size:27px;font-weight:700;letter-spacing:.5px}
+  .sub{color:var(--sub);font-size:14px;margin-top:8px;max-width:960px}
+  .sub a{color:var(--acc)}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 16px;text-align:center}
+  .stat b{display:block;font-size:21px;color:var(--acc)}
+  .stat span{font-size:12px;color:var(--sub)}
+  .quicklinks{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+  .quicklinks a{display:inline-block;background:var(--card);border:1px solid var(--line);color:var(--txt);text-decoration:none;padding:8px 14px;border-radius:8px;font-size:13px;transition:.2s}
+  .quicklinks a:hover{border-color:var(--acc);color:var(--acc);transform:translateY(-1px)}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 20px}
+  .controls input{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:9px 14px;border-radius:8px;font-size:14px;width:300px;outline:none}
+  .controls input:focus{border-color:var(--acc)}
+  .chip{background:var(--card2);border:1px solid var(--line);color:var(--sub);padding:7px 14px;border-radius:20px;font-size:13px;cursor:pointer;user-select:none;transition:.15s}
+  .chip:hover{border-color:var(--acc);color:var(--txt)}
+  .chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  .chip.hi.on{background:var(--hi);border-color:var(--hi);color:#1a1204}
+  h2.section{font-size:19px;margin:30px 0 14px;padding-left:10px;border-left:4px solid var(--acc)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+  .topic{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px 14px;transition:.2s}
+  .topic:hover{border-color:var(--acc)}
+  .topic h3{font-size:15.5px;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .topic h3 .code{background:var(--acc);color:#fff;font-size:11px;padding:2px 8px;border-radius:5px}
+  .topic .meta{font-size:12px;color:var(--sub);margin-bottom:8px}
+  .topic .gap{font-size:12.5px;color:var(--sub);background:var(--card2);border:1px dashed var(--line);border-radius:8px;padding:8px 10px;margin-bottom:10px}
+  .topic .gap b{color:var(--acc2);font-weight:600}
+  ul.ideas{list-style:none}
+  ul.ideas li{padding:5px 0 5px 4px;border-bottom:1px solid #1a2440;font-size:13px}
+  ul.ideas li:last-child{border-bottom:none}
+  ul.ideas a{color:var(--txt);text-decoration:none;transition:.15s}
+  ul.ideas a:hover{color:var(--acc)}
+  ul.ideas .num{color:var(--sub);font-size:11px;margin-right:6px;font-family:ui-monospace,monospace}
+  .badge-hi{background:var(--hi);color:#1a1204;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px}
+  .topic-foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:12.5px}
+  .topic-foot a{color:var(--acc);text-decoration:none}
+  .topic-foot a:hover{text-decoration:underline}
+  .sync{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:13px}
+  .sync b{color:var(--acc2)}
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--sub);font-size:12.5px}
+  footer a{color:var(--acc);text-decoration:none}
+  .empty{color:var(--sub);text-align:center;padding:40px 0;display:none}
+  @media(max-width:640px){.controls input{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="tagline">AAAI 2026 · Topic Research &amp; Planning</div>
+  <h1>AAAI 2026 收藏论文 · 主题调研与研究规划总览</h1>
+  <p class="sub">
+    本页是 <a href="aaai2026/AAAI2026_收藏论文.md">210 篇 AAAI 2026 收藏论文</a> 深度调研的<b>目录入口</b>。
+    所有正文均以 <b>Markdown 原始文件</b> 组织（便于智能体/Agent 直接读取），本页仅提供索引与导航。
+    产出：13 份主题调研报告 · 157 个研究 idea · 157 本实验设计书。
+  </p>
+  <div class="stats">
+    <div class="stat"><b>210</b><span>收藏论文</span></div>
+    <div class="stat"><b>13</b><span>主题方向</span></div>
+    <div class="stat"><b>157</b><span>研究 Idea</span></div>
+    <div class="stat"><b>157</b><span>实验设计书</span></div>
+    <div class="stat"><b>4×L40</b><span>硬件约束 192GB</span></div>
+  </div>
+  <div class="quicklinks">
+    <a href="aaai2026/AAAI2026_收藏论文.md">📄 全部论文 · AAAI2026_收藏论文.md</a>
+    <a href="aaai2026/00_主题分类总览.md">🗂 论文主题归属 · 00_主题分类总览.md</a>
+    <a href="aaai2026/00_README_研究规划.md">📋 研究规划 README</a>
+  </div>
+</header>
+
+<div class="controls">
+  <input id="q" type="text" placeholder="🔍 搜索 idea / 主题关键词…">
+  <span class="chip hi" id="chipHi">仅看高优先</span>
+  <span class="chip" id="chipAll" data-t="all">全部主题</span>
+</div>
+
+<div id="topicGrid" class="grid"></div>
+<div class="empty" id="empty">没有匹配项，换一个关键词试试。</div>
+
+<h2 class="section">跨主题协同机会（README 重点推荐）</h2>
+<div id="synGrid" class="grid"></div>
+
+<footer>
+  数据来源：<a href="aaai2026/00_README_研究规划.md">00_README_研究规划.md</a> ·
+  <a href="aaai2026/00_主题分类总览.md">00_主题分类总览.md</a> ·
+  <a href="aaai2026/AAAI2026_收藏论文.md">AAAI2026_收藏论文.md</a> ·
+  13 份调研报告 <a href="aaai2026/T01.md">T01</a>~<a href="aaai2026/T12.md">T12</a> ·
+  157 本实验设计书位于 <a href="aaai2026/designs/">aaai2026/designs/</a>
+</footer>
+</div>
+<script src="aaai2026-data.js"></script>
+<script>
+const SYNS=[
+ ["可验证奖励强化（RLVR/GRPO）主线","贯穿 T01/T02/T05/T06/T07B/T09/T12：验证信号稀缺、过程奖励不足是共同缺口。以\"通用可验证奖励引擎 + 复用于 N 个领域\"为主线，可形成 NeurIPS 2026 → CVPR/ICML 2027 系列投稿。"],
+ ["合成数据 × LLM-as-judge 基础设施","T05/T08/T09/T10/T11：DeepSeek V4 + Kimi K2.6 支撑合成数据与评测闭环。T05·Idea11、T09·Idea12、T11·Idea4、T10·Idea2 可打包为\"数据策展+评测协议\"方法论论文。"],
+ ["推理模型（DeepSeek V4 系）作对象与工具","对象：T07B（CoT 阶段防御）、T05（思考预算/CoT 压缩）、T10（推理链提取）；工具：T02/T09/T10 用作 CoT 蒸馏 teacher。可出\"效率×安全×可信\"三视角各一篇。"],
+ ["多模态感知 × LLM 决策闭环","T01/T02/T06/T12：自动驾驶、视频理解、GUI agent、机器人共享\"感知→推理→行动→验证\"范式。T01·Idea3、T06·Idea8、T12·Idea1/2 可共用强化框架代码库。"],
+ ["\"只测不训\"基准升维为\"评测+训练闭环\"","T02/T03/T10/T12：CrossVid/MME-SCI/JRDB-Reasoning/ChildBench/PFP 等基准只做评测，把\"基准驱动课程式训练\"做成方法论有清晰差异点。"]];
+let filterHi=false, q="";
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){
+  const grid=document.getElementById("topicGrid");
+  const rows=[];
+  for(const t of TOPICS){
+    const ideas=t.ideas.filter(i=>!filterHi||i[2]==="高");
+    const qs=q.toLowerCase();
+    const textOk=!qs||t.name.toLowerCase().includes(qs)||t.code.toLowerCase().includes(qs)||ideas.some(i=>i[1].toLowerCase().includes(qs));
+    if(!textOk||ideas.length===0)continue;
+    rows.push(`<div class="topic"><h3><span class="code">${t.code}</span>${esc(t.name)}</h3>
+<div class="meta">📚 收藏论文 <b style="color:var(--acc)">${t.papers}</b> 篇 · 💡 ${t.ideas.length} 个 idea</div>
+<div class="gap"><b>主要空白</b>：${esc(t.gap)}</div>
+<ul class="ideas">${ideas.map(i=>`<li><span class="num">${i[0]}</span><a href="aaai2026/designs/${t.code}/${i[3]}">${esc(i[1])}</a>${i[2]==="高"?'<span class="badge-hi">高优</span>':""}</li>`).join("")}</ul>
+<div class="topic-foot"><a href="aaai2026/${t.code}.md">📄 完整调研报告 ${t.code}.md</a></div></div>`);
+  }
+  grid.innerHTML=rows.join("")||"";
+  document.getElementById("empty").style.display=rows.length?"none":"block";
+}
+document.getElementById("synGrid").innerHTML=SYNS.map(s=>`<div class="sync"><b>${esc(s[0])}</b><div style="margin-top:6px;color:var(--sub)">${esc(s[1])}</div></div>`).join("");
+document.getElementById("chipHi").onclick=e=>{filterHi=!filterHi;e.target.classList.toggle("on",filterHi);render();};
+document.getElementById("chipAll").onclick=e=>{filterHi=false;q="";document.getElementById("q").value="";document.getElementById("chipHi").classList.remove("on");render();};
+document.getElementById("q").oninput=e=>{q=e.target.value;render();};
+render();
+</script>
+</body>
+</html>
