@@ -4,23 +4,23 @@
     "label": "日报",
     "file": "daily.html",
     "url": "/projects/daily.html",
-    "title": "今日项目汇报（2026-09-05）",
-    "period": "2026-09-05",
-    "generatedAt": "2026-09-05 22:30",
-    "size": 538542,
-    "updatedAt": 1788618616436.1936,
-    "source": "2026-09-05.html"
+    "title": "今日项目汇报（2026-09-06）",
+    "period": "2026-09-06",
+    "generatedAt": "2026-09-06 21:56",
+    "size": 538544,
+    "updatedAt": 1788702976806.1052,
+    "source": "2026-09-06.html"
   },
   {
     "key": "weekly",
     "label": "周报",
     "file": "weekly.html",
     "url": "/projects/weekly.html",
-    "title": "本周项目总览（2026-W35）",
-    "period": "2026-W35",
-    "generatedAt": "2026-08-30 10:18",
-    "size": 540653,
-    "updatedAt": 1788056745887.9128,
-    "source": "2026-W35.html"
+    "title": "本周项目总览（2026-W36）",
+    "period": "2026-W36",
+    "generatedAt": "2026-09-06 10:25",
+    "size": 541618,
+    "updatedAt": 1788661757604.2378,
+    "source": "2026-W36.html"
   }
 ]
