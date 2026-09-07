@@ -30,6 +30,14 @@
     "api/supabase/index.js": {
       "memory": 128,
       "maxDuration": 10
+    },
+    "api/export/upload.js": {
+      "memory": 128,
+      "maxDuration": 15
+    },
+    "api/export/finalize.js": {
+      "memory": 512,
+      "maxDuration": 60
     }
   }
 }

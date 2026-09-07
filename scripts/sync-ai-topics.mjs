@@ -181,7 +181,8 @@ export function syncAiTopics() {
 
   const keep = new Set(["daily.html", "weekly.html", "_index.json"]);
   for (const f of readdirSync(targetDir)) {
-    if (!keep.has(f)) {
+    // 只清理本脚本历史遗留的 .md 源文件；目录与用户手动放置的其他文件（如论文研究资料）一律跳过，避免误删
+    if (!keep.has(f) && f.endsWith(".md")) {
       rmSync(join(targetDir, f), { force: true });
       console.log(`[sync-ai-topics] 清理旧文件: ${f}`);
     }
