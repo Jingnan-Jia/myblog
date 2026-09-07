@@ -11,15 +11,16 @@
  * 幂等：done → 直接返回既有 commit；committing 且租约未过期 → 409；
  *       committing 且租约超 90s（函数被超时杀掉）→ 自动接管重跑。
  *
- * 环境：RELAY_SECRET、SUPABASE_URL、SUPABASE_SERVICE_KEY、GITHUB_TOKEN、
- *       EXPORT_GIT_NAME、EXPORT_GIT_EMAIL
+ * 环境：EXPORT_RELAY_SECRET（未设则回退 RELAY_SECRET）、SUPABASE_URL、
+ *       SUPABASE_SERVICE_KEY、GITHUB_TOKEN、EXPORT_GIT_NAME、EXPORT_GIT_EMAIL
  */
 
 import crypto from 'node:crypto';
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || '';
-const RELAY_SECRET = process.env.RELAY_SECRET || '';
+// 独立口令优先：EXPORT_RELAY_SECRET（导出通道专用）；未配置则沿用博客共用 RELAY_SECRET
+const RELAY_SECRET = process.env.EXPORT_RELAY_SECRET || process.env.RELAY_SECRET || '';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const GIT_NAME = process.env.EXPORT_GIT_NAME || 'export-relay';
 const GIT_EMAIL = process.env.EXPORT_GIT_EMAIL || 'export-relay@users.noreply.github.com';
@@ -216,7 +217,7 @@ async function finalize(req, res, batchId) {
   try {
     // ── 2) 读回分块并按文件拼装校验 ──
     const chunksRes = await sbFetch(
-      `export_chunks?batch_id=eq.${encodeURIComponent(batchId)}&select=file_path,binary,idx,total,data,bytes,file_sha256&order=file_path.asc,idx.asc`,
+      `export_chunks?batch_id=eq.${encodeURIComponent(batchId)}&select=file_path,is_binary,idx,total,data,bytes,file_sha256&order=file_path.asc,idx.asc`,
       { headers: sbHeaders() }
     );
     const chunks = await chunksRes.json();
@@ -226,7 +227,7 @@ async function finalize(req, res, batchId) {
     for (const c of chunks) {
       let f = filesMap.get(c.file_path);
       if (!f) {
-        f = { file_path: c.file_path, binary: c.binary, total: c.total, bytes: c.bytes, sha256: c.file_sha256, parts: [] };
+        f = { file_path: c.file_path, is_binary: c.is_binary, total: c.total, bytes: c.bytes, sha256: c.file_sha256, parts: [] };
         filesMap.set(c.file_path, f);
       }
       if (f.total !== c.total || f.sha256 !== c.file_sha256 || f.bytes !== c.bytes) {
@@ -246,7 +247,7 @@ async function finalize(req, res, batchId) {
           throw new Error(`文件 ${f.file_path} 缺少分块 ${i}/${f.total}，请重跑上传补齐`);
         }
       }
-      const buf = f.binary ? Buffer.from(f.parts.join(''), 'base64') : Buffer.from(f.parts.join(''), 'utf8');
+      const buf = f.is_binary ? Buffer.from(f.parts.join(''), 'base64') : Buffer.from(f.parts.join(''), 'utf8');
       if (buf.length !== f.bytes) {
         throw new Error(`文件 ${f.file_path} 字节数不符（期望 ${f.bytes}，实得 ${buf.length}）`);
       }

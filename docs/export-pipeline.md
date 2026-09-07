@@ -33,7 +33,7 @@ GitHub → Settings → Developer settings → Fine-grained tokens → Generate�
 
 | 变量 | 值 | 说明 |
 |---|---|---|
-| `RELAY_SECRET` | `口令明文` | 已有；CLI 直接用它当请求头 |
+| `EXPORT_RELAY_SECRET` | `导出口令明文`（可新设；不设则服务端回退用博客共用 `RELAY_SECRET`） | 本通道鉴权专用，避免与其它中转口令耦合 |
 | `SUPABASE_URL` | 已有 | |
 | `SUPABASE_SERVICE_KEY` | Supabase → Settings → API → service_role key | 仅云端使用，**绝不给公司侧** |
 | `GITHUB_TOKEN` | 上一步的 fine-grained PAT | |
@@ -44,7 +44,7 @@ GitHub → Settings → Developer settings → Fine-grained tokens → Generate�
 
 | 变量 | 值 |
 |---|---|
-| `PUBLIC_EXPORT_PASSWORD_HASH` | `sha256(口令)` —— **与 RELAY_SECRET 同一口令** |
+| `PUBLIC_EXPORT_PASSWORD_HASH` | `sha256(口令)` —— **与 EXPORT_RELAY_SECRET 同一口令** |
 | `PUBLIC_EXPORT_DEFAULT_OWNER` | 可选，页面预填 GitHub 用户名 |
 | `PUBLIC_EXPORT_DEFAULT_BRANCH` | 可选，默认 `main` |
 
@@ -55,7 +55,11 @@ echo -n '你的口令' | shasum -a 256   # macOS
 echo -n '你的口令' | sha256sum        # Linux
 ```
 
-改口令 = 同时改 `RELAY_SECRET` 与 `PUBLIC_EXPORT_PASSWORD_HASH` 两个 env 并重新部署，立即全局生效。
+> 若旧 `RELAY_SECRET` 明文已找不回，不必纠结：本通道用独立的 `EXPORT_RELAY_SECRET`，
+> 直接设一个新口令即可。旧口令只影响博客其它中转（飞书/学术等），不设 `EXPORT_RELAY_SECRET`
+> 时才回退到它。
+
+改口令 = 同时改 `EXPORT_RELAY_SECRET` 与 `PUBLIC_EXPORT_PASSWORD_HASH` 两个 env 并重新部署，立即全局生效。
 
 ### 5. 部署
 

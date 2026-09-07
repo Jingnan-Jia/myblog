@@ -62,8 +62,9 @@ const CONFIGURED = PASSWORD_HASH.length > 0;
             <p class="mb-1 font-medium">该功能尚未完成部署配置</p>
             <p>
               管理员请按 <code class="rounded bg-amber-100 px-1">docs/export-pipeline.md</code> 在 Vercel
-              配置 <code class="rounded bg-amber-100 px-1">RELAY_SECRET</code> 与构建环境变量
-              <code class="rounded bg-amber-100 px-1">PUBLIC_EXPORT_PASSWORD_HASH</code>（sha256 后重新部署）。
+              配置 <code class="rounded bg-amber-100 px-1">EXPORT_RELAY_SECRET</code>（或沿用
+              <code class="rounded bg-amber-100 px-1">RELAY_SECRET</code>）与构建环境变量
+              <code class="rounded bg-amber-100 px-1">PUBLIC_EXPORT_PASSWORD_HASH</code>（同一口令的 sha256，配好后重新部署）。
             </p>
           </section>
         )
@@ -503,7 +504,7 @@ const CONFIGURED = PASSWORD_HASH.length > 0;
           subdir: session.subdir,
           label: session.label,
           file_path: entry.path,
-          binary: entry.binary,
+          is_binary: entry.binary,
           idx,
           total: entry.totalChunks,
           bytes: entry.size,
@@ -580,7 +581,7 @@ const CONFIGURED = PASSWORD_HASH.length > 0;
               const st = await queryBatch(session.batch);
               for (const f of st.files || []) {
                 const entry = entries.find((e) => e.path === f.file_path);
-                if (entry && f.binary === entry.binary && f.total === entry.totalChunks) {
+                if (entry && f.is_binary === entry.binary && f.total === entry.totalChunks) {
                   for (const idx of f.received || []) entry.sentChunks.add(idx);
                 }
               }

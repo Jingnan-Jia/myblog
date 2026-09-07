@@ -1,5 +1,11 @@
 # myblog 项目进展日志
 
+## 2026-09-07
+- 阶段：网页开发
+- 进展：成果导出通道正式提交并推送 origin/main——commit e325387「feat: 新增成果导出通道（公司→个人 GitHub 中转导出）」10 files、1891 insertions（api/export/upload.js、finalize.js、src/pages/export/index.astro、company/export-uploader.mjs + README、docs/export-pipeline.md、supabase/schema.sql、vercel.json）；随后修复 Supabase 建表报错 42601——export_chunks 列 binary 是 PostgreSQL 保留字，全链路改名 is_binary（schema.sql 列定义 + upload.js meta/insert/SELECT + finalize.js 拼装 + index.astro 断点查询 + export-uploader.mjs baseMeta），astro check 0 errors、lint 0，改动尚未提交，需在 Supabase 重新执行 schema.sql（幂等）；另有 ai-topics 每日/每周选题页 09:12 例行重生成。
+- 关键文件：api/export/upload.js、api/export/finalize.js、src/pages/export/index.astro、company/export-uploader.mjs、supabase/schema.sql
+- 待办（用户侧）：Supabase 执行建表 SQL；GitHub fine-grained PAT + 目标私有仓库；Vercel env 配置；按 docs/export-pipeline.md 冒烟验收。
+
 ## 2026-09-05
 - 阶段：网页开发（新功能：成果导出通道）
 - 进展：新增经领导批准的"公司 → 个人 GitHub"导出管道——公司侧以 text/plain 协议（绕开网关对 application/json 的拦截）把目录整批经 Vercel 中转写入个人 GitHub 预先手工建好的私有仓库（整批单 commit），成功后暂存即清理。包含：Supabase 暂存表 export_batches/export_chunks（service_role 专用、RLS 零 anon 策略、finalize 90s 租约防卡死）、中转函数 api/export/upload.js（分块 upsert + 断点查询不回传内容）与 api/export/finalize.js（拼块 sha256 校验 → Git Data 单 commit → 清理）、独立上传页 /export/（密码门复用 sha256 注入模式，UTF-8 fatal 探测自动降级 base64）、公司侧零依赖 CLI（company/export-uploader.mjs，断点续传/dry-run，目录整体拷走即用）。

@@ -172,7 +172,7 @@ async function uploadFile(plan, args, batch, received) {
     v: 1, action: "upload", batch,
     repo_owner: args.owner, repo_name: args.repo,
     branch: args.branch, subdir: args.subdir, label: args.label,
-    file_path: plan.rel, binary: !plan.isText,
+    file_path: plan.rel, is_binary: !plan.isText,
     total: plan.chunks, bytes: plan.bytes, file_sha256: plan.sha256,
   };
   const payloadOf = (idx) =>
@@ -258,7 +258,7 @@ async function main() {
     const st = await relayStatus(args.endpoint, batch, args.secret);
     if (st && st.files) {
       for (const f of st.files) {
-        const hit = plan.find((p) => p.rel === f.file_path && f.total === p.chunks && Boolean(f.binary) !== p.isText);
+        const hit = plan.find((p) => p.rel === f.file_path && f.total === p.chunks && Boolean(f.is_binary) !== p.isText);
         if (hit) received.set(f.file_path, new Set(f.received || []));
       }
       const n = Array.from(received.values()).reduce((s, x) => s + x.size, 0);

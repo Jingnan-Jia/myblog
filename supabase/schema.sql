@@ -89,7 +89,7 @@ create table if not exists public.export_chunks (
   id          bigint generated always as identity primary key,
   batch_id    text not null,
   file_path   text not null,
-  binary      boolean not null default false,
+  is_binary   boolean not null default false,
   idx         integer not null,
   total       integer not null,
   data        text not null,

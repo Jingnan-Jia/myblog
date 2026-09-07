@@ -4,14 +4,15 @@
  *
  * 协议：请求体 = 首行 JSON 元数据 + '\n' + 正文，Content-Type 一律 text/plain
  *   （公司网关拦截 POST application/json，见 api/feishu/index.js 同类注释）。
- *   POST：正文 = 文本原文段（binary=false）或 base64 分块段（binary=true）
+ *   POST：正文 = 文本原文段（is_binary=false）或 base64 分块段（is_binary=true）
  *   GET ?batch=xxx：断点续传查询，只返回已收分块索引与元数据，绝不回传内容
  *
  * 鉴权（单一口令双通道）：
- *   CLI：请求头 X-Relay-Secret = RELAY_SECRET 明文
- *   网页：meta.web_token = sha256(口令)，与 sha256(RELAY_SECRET) 常数时间比较
+ *   CLI：请求头 X-Relay-Secret = 口令明文
+ *   网页：meta.web_token = sha256(口令)，与 sha256(服务端口令) 常数时间比较
  *
- * 环境：RELAY_SECRET、SUPABASE_URL、SUPABASE_SERVICE_KEY（service_role）
+ * 环境：EXPORT_RELAY_SECRET（未设则回退 RELAY_SECRET）、SUPABASE_URL、
+ *       SUPABASE_SERVICE_KEY（service_role）
  * 暂存表 export_batches / export_chunks 仅 service_role 可访问（RLS 零 anon 策略）
  */
 
@@ -19,7 +20,8 @@ import crypto from 'node:crypto';
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || '';
-const RELAY_SECRET = process.env.RELAY_SECRET || '';
+// 独立口令优先：EXPORT_RELAY_SECRET（导出通道专用）；未配置则沿用博客共用 RELAY_SECRET
+const RELAY_SECRET = process.env.EXPORT_RELAY_SECRET || process.env.RELAY_SECRET || '';
 
 const FIRST_LINE_MAX = 4096; // 首行元数据长度上限，防滥用
 const BODY_MAX = 32 * 1024; // 公司网关对请求体实测上限约 10KB（见 company/ 探索记录），
@@ -173,7 +175,7 @@ async function handleUpload(req, res, meta, payload) {
       res.status(400).json({ error: 'Bad Request', message: 'empty payload' });
       return;
     }
-    if (meta.binary && !/^[A-Za-z0-9+/=\r\n]+$/.test(payload.slice(0, 1024))) {
+    if (meta.is_binary && !/^[A-Za-z0-9+/=\r\n]+$/.test(payload.slice(0, 1024))) {
       res.status(400).json({ error: 'Bad Request', message: 'binary chunk must be base64' });
       return;
     }
@@ -203,7 +205,7 @@ async function handleUpload(req, res, meta, payload) {
       body: JSON.stringify({
         batch_id: meta.batch,
         file_path: meta.file_path,
-        binary: Boolean(meta.binary),
+        is_binary: Boolean(meta.is_binary),
         idx: Number(meta.idx),
         total: Number(meta.total),
         data: payload,
@@ -214,7 +216,7 @@ async function handleUpload(req, res, meta, payload) {
 
     // 日志只记元数据，不打印正文
     console.log(
-      `[export-upload] batch=${meta.batch} file=${meta.file_path} idx=${meta.idx}/${meta.total} binary=${meta.binary}`
+      `[export-upload] batch=${meta.batch} file=${meta.file_path} idx=${meta.idx}/${meta.total} is_binary=${meta.is_binary}`
     );
     res.status(200).json({ ok: true, batch: meta.batch, file_path: meta.file_path, idx: meta.idx });
   } catch (err) {
@@ -243,7 +245,7 @@ async function handleStatus(req, res) {
     }
 
     const chunksRes = await sbFetch(
-      `export_chunks?batch_id=eq.${encodeURIComponent(batch)}&select=file_path,binary,total,bytes,file_sha256,idx&order=file_path.asc,idx.asc`,
+      `export_chunks?batch_id=eq.${encodeURIComponent(batch)}&select=file_path,is_binary,total,bytes,file_sha256,idx&order=file_path.asc,idx.asc`,
       { headers: sbHeaders() }
     );
     const chunks = await chunksRes.json();
@@ -252,7 +254,7 @@ async function handleStatus(req, res) {
     for (const c of chunks) {
       let f = files.get(c.file_path);
       if (!f) {
-        f = { file_path: c.file_path, binary: c.binary, total: c.total, bytes: c.bytes, file_sha256: c.file_sha256, received: [] };
+        f = { file_path: c.file_path, is_binary: c.is_binary, total: c.total, bytes: c.bytes, file_sha256: c.file_sha256, received: [] };
         files.set(c.file_path, f);
       }
       f.received.push(c.idx);
