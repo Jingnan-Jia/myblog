@@ -4,12 +4,12 @@
     "label": "每日选题",
     "file": "daily.html",
     "url": "/ai-topics/daily.html",
-    "title": "每日选题 · 2026-09-14（周一）",
-    "period": "2026-09-14",
-    "generatedAt": "2026/9/14 09:13:49",
-    "size": 100634,
-    "updatedAt": 1789348428109.858,
-    "source": "2026-09-14.md"
+    "title": "每日选题 · 2026-09-17（周四）",
+    "period": "2026-09-17",
+    "generatedAt": "2026/9/17 09:12:43",
+    "size": 49173,
+    "updatedAt": 1789607554869.225,
+    "source": "2026-09-17.md"
   },
   {
     "key": "weekly",
@@ -18,7 +18,7 @@
     "url": "/ai-topics/weekly.html",
     "title": "本周内容日历 · 2026-W38（9月14日—9月20日）",
     "period": "2026-W38",
-    "generatedAt": "2026/9/14 09:13:49",
+    "generatedAt": "2026/9/17 09:12:43",
     "size": 25491,
     "updatedAt": 1789347432335.1248,
     "source": "2026-W38.md"
